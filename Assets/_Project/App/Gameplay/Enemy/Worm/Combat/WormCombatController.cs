@@ -1,6 +1,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Applies damage to worm sections and coordinates section removal
+/// with the movement chain once a section is destroyed.
+/// </summary>
 [DisallowMultipleComponent]
 public sealed class WormCombatController : MonoBehaviour
 {
@@ -30,7 +34,7 @@ public sealed class WormCombatController : MonoBehaviour
 
         WormSection section = segment.Section;
 
-        if (section == null)
+        if (section == null || section.IsDestroyed)
             return;
 
         section.Damage(damage);
@@ -43,25 +47,24 @@ public sealed class WormCombatController : MonoBehaviour
 
     private void DestroySection(WormSection section)
     {
-        if (section == null)
-            return;
-
         bool rewardTriggered = false;
-        List<WormSegment> destroyedSegments = new();
 
-        foreach (WormSegment seg in section.Segments)
+        List<WormSegment> removedSegments = section.ReleaseSegments();
+
+        for (int i = 0; i < removedSegments.Count; i++)
         {
+            WormSegment seg = removedSegments[i];
+
             if (seg == null || !seg.IsAlive)
                 continue;
 
-            if (seg.Type == WormSegmentType.Cocoon && seg.HasReward)
+            if (seg.HasCocoon && seg.HasReward)
                 rewardTriggered = true;
 
             if (seg.Type is WormSegmentType.Head or WormSegmentType.Tail)
                 continue;
 
             seg.KillVisualAndCollision();
-            destroyedSegments.Add(seg);
         }
 
         _sections.Remove(section);
@@ -70,8 +73,9 @@ public sealed class WormCombatController : MonoBehaviour
         int firstRemovedIndex = -1;
 
         if (_wormController != null)
-            removedFromChain = _wormController.RemoveDestroyedSectionSegments(destroyedSegments, out firstRemovedIndex);
+            removedFromChain = _wormController.RemoveDestroyedSectionSegments(removedSegments, out firstRemovedIndex);
 
+        // The movement chain must be compacted after a middle section is removed.
         if (_wormController != null && removedFromChain > 0)
             _wormController.RollbackDestroyedGap(removedFromChain, firstRemovedIndex);
 

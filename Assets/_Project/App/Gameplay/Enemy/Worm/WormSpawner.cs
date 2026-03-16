@@ -2,11 +2,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Responsible for generating and spawning the worm enemy.
-///
-/// The spawner builds a worm pattern, creates segment instances
-/// through WormFactory and initializes gameplay systems such as
-/// WormController and WormCombatController.
+/// Entry point for worm enemy generation.
+/// Coordinates pattern creation, segment instantiation,
+/// and initialization of movement and combat systems.
 /// </summary>
 [DisallowMultipleComponent]
 public sealed class WormSpawner : MonoBehaviour
@@ -15,7 +13,6 @@ public sealed class WormSpawner : MonoBehaviour
     [SerializeField] private WormSegment _headPrefab;
 
     [SerializeField] private WormSegment _bodyPrefab;
-    [SerializeField] private WormSegment _cocoonPrefab;
     [SerializeField] private WormSegment _tailPrefab;
 
     [Header("Controllers")]
@@ -57,7 +54,6 @@ public sealed class WormSpawner : MonoBehaviour
          transform,
          _headPrefab,
          _bodyPrefab,
-         _cocoonPrefab,
           _tailPrefab);
 
         _segmentPool.Prewarm(capacity);
@@ -71,15 +67,15 @@ public sealed class WormSpawner : MonoBehaviour
     }
 
     /// <summary>
-    /// Generates the worm pattern and creates all segments.
-    /// Also initializes combat and movement systems.
+    /// Generates the worm pattern and constructs the segment chain.
+    /// Entry point responsible for spawning and initializing the worm enemy.
     /// </summary>
     public void SpawnWorm()
     {
         if (_isSpawned)
             return;
 
-        List<WormSegmentType> pattern =
+        List<WormPatternEntry> pattern =
             WormPatternBuilder.BuildPattern(
                 _totalLength,
                 _minBodyBeforeCocoon,
@@ -103,7 +99,6 @@ public sealed class WormSpawner : MonoBehaviour
         _wormFactory.AttachDamageReceivers(segments, _wormCombat);
 
         _wormController.Init(segments);
-
         _wormCombat.Init(head, tail, sections);
 
         _isSpawned = true;

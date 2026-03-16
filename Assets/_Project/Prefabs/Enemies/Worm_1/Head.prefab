@@ -79,7 +79,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 4
+  m_SortingOrder: 2501
   m_MaskInteraction: 0
   m_Sprite: {fileID: -8164077923458611545, guid: c92e4afa9a3077d44811c0531b773afd, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -170,7 +170,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 4
+  m_SortingOrder: 2501
   m_MaskInteraction: 0
   m_Sprite: {fileID: 4162166175234416130, guid: c92e4afa9a3077d44811c0531b773afd, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -241,8 +241,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d1904cb7d09ac64997cf4ea1db1beb5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WormSegment
-  <Type>k__BackingField: 0
+  <Type>k__BackingField: 1
   <VisualRoot>k__BackingField: {fileID: 5694735435645119011}
+  _cocoonVisual: {fileID: 0}
+  _cocoonCollider: {fileID: 0}
   _hasReward: 0
 --- !u!61 &1263049026295878259
 BoxCollider2D:
@@ -371,7 +373,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 3
+  m_SortingOrder: 2501
   m_MaskInteraction: 0
   m_Sprite: {fileID: -4251359723602385324, guid: 414b9d7d5e2f1464694bb8a326075faa, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}

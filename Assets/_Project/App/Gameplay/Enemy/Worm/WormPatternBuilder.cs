@@ -2,36 +2,42 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Procedurally generates a worm segment pattern used during enemy spawning.
-///
-/// The pattern defines the order of segment types (Head, Body, Cocoon, Tail)
-/// before physical instances are created by WormFactory.
-///
-/// Generation rules are designed to mimic the reference gameplay layout:
-///
-/// - The worm is divided into short visual blocks of 4–5 body segments.
-/// - A cocoon may appear inside a block but never as the first or last segment.
-/// - The first sections always contain cocoons to introduce the mechanic
-///   early in gameplay.
-/// - Subsequent cocoons appear after 2–3 sections without one, ensuring
-///   balanced distribution and preventing long empty stretches.
-/// - Cocoons are inserted inside a section rather than defining its boundary.
-///
-/// This produces a visually readable worm structure while maintaining
-/// consistent section lengths for combat and destruction logic.
+/// Describes a single segment entry in the generated worm pattern.
+/// Determines both the segment type and whether a cocoon overlay is present.
+/// </summary>
+public readonly struct WormPatternEntry
+{
+    public readonly WormSegmentType Type;
+    public readonly bool HasCocoon;
+
+    public WormPatternEntry(WormSegmentType type, bool hasCocoon)
+    {
+        Type = type;
+        HasCocoon = hasCocoon;
+    }
+}
+
+/// <summary>
+/// Procedurally generates the worm structure.
+/// The algorithm ensures the worm always starts with a head,
+/// ends with a tail, and occasionally places cocoons on body segments.
 /// </summary>
 public static class WormPatternBuilder
 {
-    public static List<WormSegmentType> BuildPattern(
+    /// <summary>
+    /// Builds a procedural worm layout.
+    /// The result is a sequence of segment entries used by the factory.
+    /// </summary>
+    public static List<WormPatternEntry> BuildPattern(
         int totalLength,
         int minBodyBeforeCocoon,
         int maxBodyBeforeCocoon)
     {
         int length = Mathf.Max(3, totalLength);
 
-        List<WormSegmentType> result = new(length)
+        List<WormPatternEntry> result = new(length)
         {
-            WormSegmentType.Head
+            new(WormSegmentType.Head, false)
         };
 
         int sectionsWithoutCocoon = 0;
@@ -54,11 +60,11 @@ public static class WormPatternBuilder
                     (sectionsWithoutCocoon >= 1 && Random.value < 0.35f);
             }
 
-            int cocoonIndex = -1;
+            int cocoonBodyLocalIndex = -1;
 
-            if (spawnCocoon)
+            if (spawnCocoon && bodyCount >= 3)
             {
-                cocoonIndex = Random.Range(1, bodyCount - 1);
+                cocoonBodyLocalIndex = Random.Range(1, bodyCount - 1);
                 sectionsWithoutCocoon = 0;
             }
             else
@@ -71,18 +77,14 @@ public static class WormPatternBuilder
                 if (result.Count >= length - 1)
                     break;
 
-                result.Add(WormSegmentType.Body);
-
-                if (i == cocoonIndex && result.Count < length - 1)
-                {
-                    result.Add(WormSegmentType.Cocoon);
-                }
+                bool hasCocoon = spawnCocoon && i == cocoonBodyLocalIndex;
+                result.Add(new WormPatternEntry(WormSegmentType.Body, hasCocoon));
             }
 
             sectionIndex++;
         }
 
-        result.Add(WormSegmentType.Tail);
+        result.Add(new WormPatternEntry(WormSegmentType.Tail, false));
 
         return result;
     }

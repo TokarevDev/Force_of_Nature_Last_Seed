@@ -1,44 +1,52 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Lightweight object pool for worm segments.
+/// Maintains separate queues for head, body and tail segments
+/// to avoid runtime allocations during worm generation.
+/// </summary>
 public sealed class WormSegmentPool
 {
     private readonly Transform _parent;
 
     private readonly WormSegment _headPrefab;
     private readonly WormSegment _bodyPrefab;
-    private readonly WormSegment _cocoonPrefab;
     private readonly WormSegment _tailPrefab;
 
     private readonly Queue<WormSegment> _headPool = new();
     private readonly Queue<WormSegment> _bodyPool = new();
-    private readonly Queue<WormSegment> _cocoonPool = new();
     private readonly Queue<WormSegment> _tailPool = new();
 
     public WormSegmentPool(
         Transform parent,
         WormSegment head,
         WormSegment body,
-        WormSegment cocoon,
         WormSegment tail)
     {
         _parent = parent;
 
         _headPrefab = head;
         _bodyPrefab = body;
-        _cocoonPrefab = cocoon;
         _tailPrefab = tail;
     }
 
+    /// <summary>
+    /// Instantiates a predefined number of pooled objects ahead of time
+    /// to avoid runtime allocations during gameplay.
+    /// </summary>
     public void Prewarm(int bodyCapacity)
     {
         Prewarm(_headPrefab, 1, _headPool);
         Prewarm(_tailPrefab, 1, _tailPool);
 
         Prewarm(_bodyPrefab, bodyCapacity, _bodyPool);
-        Prewarm(_cocoonPrefab, bodyCapacity, _cocoonPool);
     }
 
+    /// <summary>
+    /// Retrieves a segment instance from the pool or instantiates a new one
+    /// if the pool is exhausted.
+    /// </summary>
     public WormSegment Get(WormSegmentType type)
     {
         Queue<WormSegment> pool = GetPool(type);
@@ -82,7 +90,6 @@ public sealed class WormSegmentPool
     {
         WormSegmentType.Head => _headPool,
         WormSegmentType.Body => _bodyPool,
-        WormSegmentType.Cocoon => _cocoonPool,
         WormSegmentType.Tail => _tailPool,
         _ => _bodyPool
     };
@@ -91,7 +98,6 @@ public sealed class WormSegmentPool
     {
         WormSegmentType.Head => _headPrefab,
         WormSegmentType.Body => _bodyPrefab,
-        WormSegmentType.Cocoon => _cocoonPrefab,
         WormSegmentType.Tail => _tailPrefab,
         _ => _bodyPrefab
     };
