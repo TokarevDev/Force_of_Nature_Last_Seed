@@ -1,6 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Duplicates shots horizontally relative to firing direction.
+/// </summary>
 public class ParallelModifier : IShotModifier
 {
     private readonly int _count;
@@ -21,7 +24,6 @@ public class ParallelModifier : IShotModifier
         foreach (var shot in shots)
         {
             Vector3 right = shot.Rotation * Vector3.right;
-
             float half = (_count - 1) * 0.5f;
 
             for (int i = 0; i < _count; i++)

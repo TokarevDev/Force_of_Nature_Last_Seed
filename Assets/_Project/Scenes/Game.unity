@@ -258,11 +258,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SpawnEnemyPoint
   _headPrefab: {fileID: 1300043371089455902, guid: e5872cdbd7e9762429fe5cfec195a428, type: 3}
   _bodyPrefab: {fileID: 5005386936780954391, guid: d793d0b4e9b2e00478b0d9799bab95d2, type: 3}
-  _cocoonPrefab: {fileID: 751699847138599696, guid: 8abe174ccb30b4144ba3f60a4b72c902, type: 3}
   _tailPrefab: {fileID: 3075482384031948703, guid: 433d2a5fe533f854d92179c62851b028, type: 3}
   _wormController: {fileID: 91581456}
   _wormCombat: {fileID: 91581457}
-  _totalLength: 20
+  _totalLength: 150
   _minBodyBeforeCocoon: 3
   _maxBodyBeforeCocoon: 3
   _poolPadding: 300
@@ -1444,7 +1443,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd8234a7bed77454786df83da87f1ff5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerShooter
-  _weapon: {fileID: 501089295}
+  _weaponBehaviour: {fileID: 501089295}
   _registry: {fileID: 550759621}
   _firePoint: {fileID: 1180795039}
   _startConfig: {fileID: 11400000, guid: 48f14af71df09994b9b8750acb77737f, type: 2}
@@ -3311,7 +3310,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 510
+  m_SortingOrder: 2700
   m_MaskInteraction: 0
   m_Sprite: {fileID: 21300000, guid: 3f9e964ad5f431b4bb6aa19a695d3484, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}

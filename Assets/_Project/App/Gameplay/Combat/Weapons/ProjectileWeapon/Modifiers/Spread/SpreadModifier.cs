@@ -1,6 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Replaces a single shot with multiple shots spread across an angle.
+/// </summary>
 public class SpreadModifier : IShotModifier
 {
     private readonly int _count;
@@ -36,5 +39,4 @@ public class SpreadModifier : IShotModifier
         shots.Clear();
         shots.AddRange(newShots);
     }
-
 }
