@@ -6,8 +6,8 @@ public sealed class WormSectionHpView : MonoBehaviour
     [SerializeField] private TMP_Text _text;
     [SerializeField] private Transform _visualRoot;
 
-    [SerializeField] private float _minScale = 0.6f;
-    [SerializeField] private float _maxScale = 1.2f;
+    [SerializeField] private float _minScale = 0.9f;
+    [SerializeField] private float _maxScale = 1f;
 
     private Transform _target;
 

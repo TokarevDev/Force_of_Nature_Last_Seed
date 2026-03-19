@@ -265,7 +265,7 @@ MonoBehaviour:
   _totalLength: 150
   _minBodyBeforeCocoon: 3
   _maxBodyBeforeCocoon: 3
-  _poolPadding: 300
+  _poolPadding: 200
 --- !u!114 &91581456
 MonoBehaviour:
   m_ObjectHideFlags: 0

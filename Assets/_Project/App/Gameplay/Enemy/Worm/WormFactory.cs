@@ -2,15 +2,13 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Responsible for creating worm segments from a generated pattern.
-/// Handles segment activation, rendering order setup,
-/// cocoon enabling and damage receiver attachment.
+/// Creates and initializes worm segment views from pattern data.
+/// Does not contain gameplay logic.
 /// </summary>
 public sealed class WormFactory
 {
     private readonly WormSegmentPool _pool;
 
-    // High sorting order ensures the head stays visually above the chain.
     private const int BASE_SORT_ORDER = 2500;
 
     public WormFactory(WormSegmentPool pool)
@@ -18,10 +16,6 @@ public sealed class WormFactory
         _pool = pool;
     }
 
-    /// <summary>
-    /// Instantiates worm segments according to the generated pattern.
-    /// Also configures sorting order and cocoon overlays.
-    /// </summary>
     public List<WormSegment> CreateSegments(
         List<WormPatternEntry> pattern,
         out WormSegment head,
@@ -45,8 +39,6 @@ public sealed class WormFactory
             }
 
             seg.Activate();
-            seg.SetHasReward(entry.HasCocoon);
-
             seg.Index = i;
 
             int order = entry.Type == WormSegmentType.Head
@@ -54,9 +46,6 @@ public sealed class WormFactory
                 : Mathf.Max(1, BASE_SORT_ORDER - i);
 
             seg.SetSortingOrder(order);
-
-            if (entry.HasCocoon)
-                seg.EnableCocoon();
 
             if (entry.Type == WormSegmentType.Head)
                 head = seg;

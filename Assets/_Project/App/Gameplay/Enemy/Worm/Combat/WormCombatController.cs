@@ -51,7 +51,7 @@ public sealed class WormCombatController : MonoBehaviour
 
     private void DestroySection(WormSection section)
     {
-        bool rewardTriggered = false;
+        bool rewardTriggered = section.HasReward;
 
         List<WormSegment> removedSegments = section.ReleaseSegments();
 
@@ -61,9 +61,6 @@ public sealed class WormCombatController : MonoBehaviour
 
             if (seg == null || !seg.IsAlive)
                 continue;
-
-            if (seg.HasCocoon && seg.HasReward)
-                rewardTriggered = true;
 
             if (seg.Type is WormSegmentType.Head or WormSegmentType.Tail)
                 continue;
@@ -79,12 +76,11 @@ public sealed class WormCombatController : MonoBehaviour
         if (_wormController != null)
             removedFromChain = _wormController.RemoveDestroyedSectionSegments(removedSegments, out firstRemovedIndex);
 
-        // The movement chain must be compacted after a middle section is removed.
         if (_wormController != null && removedFromChain > 0)
             _wormController.RollbackDestroyedGap(removedFromChain, firstRemovedIndex);
 
         if (rewardTriggered)
-            Debug.Log("Reward popup should be shown (cocoon destroyed)");
+            Debug.Log("CHOICE POPUP (3 options)");
 
         if (_sections.Count == 0)
         {

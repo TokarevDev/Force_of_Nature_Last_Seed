@@ -2,17 +2,17 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// Groups segments into a single damage unit with shared HP.
-/// Responsible for damage processing and segment ownership.
-/// </summary>
 public sealed class WormSection
 {
     public Action<WormSection> HPChanged;
     public Action<WormSection> Destroyed;
+
     public int MaxHP { get; private set; }
     public int CurrentHP { get; private set; }
     public int Index { get; set; }
+
+    public bool HasCocoon { get; private set; }
+    public bool HasReward => HasCocoon;
 
     private readonly List<WormSegment> _segments = new();
 
@@ -23,6 +23,11 @@ public sealed class WormSection
     {
         MaxHP = hp;
         CurrentHP = hp;
+    }
+
+    public void SetCocoon(bool value)
+    {
+        HasCocoon = value;
     }
 
     public void AddSegment(WormSegment segment)
@@ -36,34 +41,24 @@ public sealed class WormSection
 
     public Transform GetHpAnchor()
     {
-        // priority: cocoon => center segment
-
         for (int i = 0; i < _segments.Count; i++)
         {
             if (_segments[i].HasCocoon)
                 return _segments[i].CachedTransform;
         }
 
-        //fallback: center segment
         int centerIndex = _segments.Count / 2;
         return _segments[centerIndex].CachedTransform;
     }
 
-    /// <summary>
-    /// Returns index of the segment used as logical center of the section.
-    /// Used for sorting sections along the worm path.
-    /// Cocoon segment has priority, otherwise geometric center is used.
-    /// </summary>
     public int GetCenterSegmentIndex()
     {
-        // cocoon has priority
         for (int i = 0; i < _segments.Count; i++)
         {
             if (_segments[i].HasCocoon)
                 return _segments[i].Index;
         }
 
-        // fallback: center segment
         int mid = _segments.Count / 2;
         return _segments[mid].Index;
     }
@@ -83,10 +78,6 @@ public sealed class WormSection
             Destroyed?.Invoke(this);
     }
 
-    /// <summary>
-    /// Breaks ownership links between this section and its segments.
-    /// Must be called exactly once when the section is removed from gameplay.
-    /// </summary>
     public List<WormSegment> ReleaseSegments()
     {
         List<WormSegment> released = new(_segments.Count);

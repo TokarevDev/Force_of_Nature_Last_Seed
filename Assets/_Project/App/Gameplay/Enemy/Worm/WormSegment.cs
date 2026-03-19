@@ -23,8 +23,6 @@ public sealed class WormSegment : MonoBehaviour
 
     [SerializeField] private Collider2D _cocoonCollider;
 
-    [SerializeField] private bool _hasReward = false;
-
     private Collider2D _cachedCollider;
     private SpriteRenderer _renderer;
     private SpriteRenderer _cocoonRenderer;
@@ -35,7 +33,6 @@ public sealed class WormSegment : MonoBehaviour
     public WormSection Section { get; internal set; }
     public int Index { get; set; }
 
-    public bool HasReward => _hasReward;
     public bool HasCocoon { get; private set; }
     public bool IsAlive { get; private set; } = true;
 
@@ -74,11 +71,6 @@ public sealed class WormSegment : MonoBehaviour
 
         if (_cocoonRenderer != null)
             _cocoonRenderer.sortingOrder = order + 100;
-    }
-
-    public void SetHasReward(bool value)
-    {
-        _hasReward = value;
     }
 
     /// <summary>
@@ -123,7 +115,6 @@ public sealed class WormSegment : MonoBehaviour
             _cachedCollider.enabled = true;
 
         DisableCocoon();
-        _hasReward = false;
         Section = null;
     }
 

@@ -1,11 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// Entry point for worm enemy generation.
-/// Coordinates pattern creation, segment instantiation,
-/// and initialization of movement and combat systems.
-/// </summary>
 [DisallowMultipleComponent]
 public sealed class WormSpawner : MonoBehaviour
 {
@@ -25,11 +20,6 @@ public sealed class WormSpawner : MonoBehaviour
     [Min(3)]
     [SerializeField] private int _totalLength = 60;
 
-    [Header("Cocoon spacing")]
-    [SerializeField] private int _minBodyBeforeCocoon = 5;
-
-    [SerializeField] private int _maxBodyBeforeCocoon = 10;
-
     [Header("Pooling")]
     [SerializeField] private int _poolPadding = 10;
 
@@ -45,9 +35,6 @@ public sealed class WormSpawner : MonoBehaviour
 
         if (_wormCombat == null)
             Debug.LogError("WormCombatController not assigned", this);
-
-        if (_minBodyBeforeCocoon > _maxBodyBeforeCocoon)
-            (_minBodyBeforeCocoon, _maxBodyBeforeCocoon) = (_maxBodyBeforeCocoon, _minBodyBeforeCocoon);
 
         int capacity = Mathf.Max(3, _totalLength) + _poolPadding;
 
@@ -73,10 +60,7 @@ public sealed class WormSpawner : MonoBehaviour
             return;
 
         List<WormPatternEntry> pattern =
-            WormPatternBuilder.BuildPattern(
-                _totalLength,
-                _minBodyBeforeCocoon,
-                _maxBodyBeforeCocoon);
+            WormPatternBuilder.BuildPattern(_totalLength);
 
         List<WormSegment> segments =
             _wormFactory.CreateSegments(
@@ -91,7 +75,7 @@ public sealed class WormSpawner : MonoBehaviour
         }
 
         List<WormSection> sections =
-            WormSectionBuilder.BuildSectionsByCocoons(segments);
+            WormSectionBuilder.BuildSections(segments);
 
         AssignSectionsHP(sections);
 
@@ -104,10 +88,6 @@ public sealed class WormSpawner : MonoBehaviour
         _isSpawned = true;
     }
 
-    /// <summary>
-    /// Assigns HP based on section position along the worm.
-    /// Ensures stable progression independent of build order.
-    /// </summary>
     private void AssignSectionsHP(List<WormSection> sections)
     {
         sections.Sort((a, b) =>
