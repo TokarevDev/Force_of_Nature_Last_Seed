@@ -19,6 +19,7 @@ public sealed class WormSpawner : MonoBehaviour
     [SerializeField] private WormController _wormController;
 
     [SerializeField] private WormCombatController _wormCombat;
+    [SerializeField] private WormSectionHpPresenter _hpPresenter;
 
     [Header("Generation")]
     [Min(3)]
@@ -51,10 +52,10 @@ public sealed class WormSpawner : MonoBehaviour
         int capacity = Mathf.Max(3, _totalLength) + _poolPadding;
 
         _segmentPool = new WormSegmentPool(
-         transform,
-         _headPrefab,
-         _bodyPrefab,
-          _tailPrefab);
+            transform,
+            _headPrefab,
+            _bodyPrefab,
+            _tailPrefab);
 
         _segmentPool.Prewarm(capacity);
 
@@ -66,10 +67,6 @@ public sealed class WormSpawner : MonoBehaviour
         SpawnWorm();
     }
 
-    /// <summary>
-    /// Generates the worm pattern and constructs the segment chain.
-    /// Entry point responsible for spawning and initializing the worm enemy.
-    /// </summary>
     public void SpawnWorm()
     {
         if (_isSpawned)
@@ -96,11 +93,30 @@ public sealed class WormSpawner : MonoBehaviour
         List<WormSection> sections =
             WormSectionBuilder.BuildSectionsByCocoons(segments);
 
+        AssignSectionsHP(sections);
+
         _wormFactory.AttachDamageReceivers(segments, _wormCombat);
 
         _wormController.Init(segments);
         _wormCombat.Init(head, tail, sections);
+        _hpPresenter.BindSections(sections);
 
         _isSpawned = true;
+    }
+
+    /// <summary>
+    /// Assigns HP based on section position along the worm.
+    /// Ensures stable progression independent of build order.
+    /// </summary>
+    private void AssignSectionsHP(List<WormSection> sections)
+    {
+        sections.Sort((a, b) =>
+            a.GetCenterSegmentIndex().CompareTo(b.GetCenterSegmentIndex()));
+
+        for (int i = 0; i < sections.Count; i++)
+        {
+            int hp = WormSectionHPGenerator.GetHP(i);
+            sections[i].Init(hp);
+        }
     }
 }

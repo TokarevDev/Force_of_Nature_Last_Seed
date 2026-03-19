@@ -261,6 +261,7 @@ MonoBehaviour:
   _tailPrefab: {fileID: 3075482384031948703, guid: 433d2a5fe533f854d92179c62851b028, type: 3}
   _wormController: {fileID: 91581456}
   _wormCombat: {fileID: 91581457}
+  _hpPresenter: {fileID: 1262977638}
   _totalLength: 150
   _minBodyBeforeCocoon: 3
   _maxBodyBeforeCocoon: 3
@@ -2105,6 +2106,52 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!1 &1262977637
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1262977639}
+  - component: {fileID: 1262977638}
+  m_Layer: 0
+  m_Name: WormSectionPresenter
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1262977638
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1262977637}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f92bd8a20a1e06a4385876a99c5ae61d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WormSectionHpPresenter
+  _viewPrefab: {fileID: 1697859042261885250, guid: 1fbd087b73062d74a8ce9b21b7d4490d, type: 3}
+  _root: {fileID: 1262977639}
+--- !u!4 &1262977639
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1262977637}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1264189000
 GameObject:
   m_ObjectHideFlags: 0
@@ -3330,6 +3377,7 @@ SceneRoots:
   - {fileID: 619394802}
   - {fileID: 325148272}
   - {fileID: 91581454}
+  - {fileID: 1262977639}
   - {fileID: 192453718}
   - {fileID: 501089287}
   - {fileID: 550759622}

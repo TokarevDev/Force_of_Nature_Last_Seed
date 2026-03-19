@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,6 +9,8 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public sealed class WormCombatController : MonoBehaviour
 {
+    public Action<WormSection, int> SectionDamaged;
+
     [SerializeField] private WormController _wormController;
 
     private readonly List<WormSection> _sections = new();
@@ -38,6 +41,7 @@ public sealed class WormCombatController : MonoBehaviour
             return;
 
         section.Damage(damage);
+        SectionDamaged?.Invoke(section, damage);
 
         if (!section.IsDestroyed)
             return;

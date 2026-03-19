@@ -47,6 +47,8 @@ public sealed class WormFactory
             seg.Activate();
             seg.SetHasReward(entry.HasCocoon);
 
+            seg.Index = i;
+
             int order = entry.Type == WormSegmentType.Head
                 ? BASE_SORT_ORDER
                 : Mathf.Max(1, BASE_SORT_ORDER - i);
@@ -68,10 +70,6 @@ public sealed class WormFactory
         return segments;
     }
 
-    /// <summary>
-    /// Ensures every segment has a damage receiver component.
-    /// This allows projectiles to report hits to the combat controller.
-    /// </summary>
     public void AttachDamageReceivers(
         List<WormSegment> segments,
         WormCombatController combat)

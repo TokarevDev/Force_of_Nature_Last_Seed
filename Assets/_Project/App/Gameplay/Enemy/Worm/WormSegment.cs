@@ -33,6 +33,7 @@ public sealed class WormSegment : MonoBehaviour
 
     public Transform CachedTransform { get; private set; }
     public WormSection Section { get; internal set; }
+    public int Index { get; set; }
 
     public bool HasReward => _hasReward;
     public bool HasCocoon { get; private set; }

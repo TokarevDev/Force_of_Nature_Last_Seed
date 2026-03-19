@@ -1,34 +1,24 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 /// <summary>
-/// Builds logical worm sections from a sequential list of worm segments.
+/// Builds fixed-size sections with deterministic center placement.
 ///
-/// A section represents a gameplay unit with its own HP and destruction logic.
-/// Sections are independent from cocoon placement and are defined by a fixed
-/// number of body segments to ensure consistent gameplay pacing.
-///
-/// Each section:
-/// - contains up to SECTION_SIZE segments
-/// - receives its own HP value via WormSectionHPGenerator
-/// - stores references to its segments
-/// - assigns itself back to each segment for damage routing
-///
-/// Head and tail segments are excluded from section logic.
-///
-/// This approach guarantees predictable destruction behavior where removing
-/// a section never affects neighboring sections, preventing unintended
-/// chain removals when segments are destroyed.
+/// Rules:
+/// - every section has a constant size when possible
+/// - HP is always anchored to the center segment
+/// - if a cocoon exists inside a section, it is normalized to the center
+/// - only one cocoon is allowed per section after normalization
 /// </summary>
 public static class WormSectionBuilder
 {
-    private const int SECTION_SIZE = 5;
+    private const int SECTION_SIZE = 7;
+    private const int CENTER_INDEX = SECTION_SIZE / 2;
 
     public static List<WormSection> BuildSectionsByCocoons(List<WormSegment> segments)
     {
         List<WormSection> sections = new();
-
-        WormSection current = null;
-        int countInSection = 0;
+        List<WormSegment> buffer = new();
 
         for (int i = 0; i < segments.Count; i++)
         {
@@ -37,25 +27,72 @@ public static class WormSectionBuilder
             if (seg.Type is WormSegmentType.Head or WormSegmentType.Tail)
                 continue;
 
-            if (current == null)
+            buffer.Add(seg);
+
+            if (buffer.Count == SECTION_SIZE)
             {
-                current = new WormSection();
-                current.Init(WormSectionHPGenerator.GetHP(sections.Count));
-                sections.Add(current);
-                countInSection = 0;
-            }
-
-            current.AddSegment(seg);
-            seg.Section = current;
-
-            countInSection++;
-
-            if (countInSection >= SECTION_SIZE)
-            {
-                current = null;
+                CreateSection(buffer, sections);
+                buffer.Clear();
             }
         }
 
+        if (buffer.Count > 0)
+        {
+            CreateSection(buffer, sections);
+        }
+
         return sections;
+    }
+
+    private static void CreateSection(List<WormSegment> buffer, List<WormSection> sections)
+    {
+        WormSection section = new();
+
+        for (int i = 0; i < buffer.Count; i++)
+        {
+            section.AddSegment(buffer[i]);
+        }
+
+        NormalizeCocoonPlacement(buffer);
+
+        sections.Add(section);
+    }
+
+    /// <summary>
+    /// Ensures that a section contains at most one cocoon
+    /// and that this cocoon is always placed on the center segment.
+    /// </summary>
+    private static void NormalizeCocoonPlacement(List<WormSegment> buffer)
+    {
+        if (buffer.Count == 0)
+            return;
+
+        int centerIndex = buffer.Count / 2;
+        WormSegment centerSegment = buffer[centerIndex];
+
+        bool hasAnyCocoon = false;
+        bool hasReward = false;
+
+        for (int i = 0; i < buffer.Count; i++)
+        {
+            WormSegment seg = buffer[i];
+
+            if (!seg.HasCocoon)
+                continue;
+
+            hasAnyCocoon = true;
+
+            if (seg.HasReward)
+                hasReward = true;
+
+            seg.DisableCocoon();
+            seg.SetHasReward(false);
+        }
+
+        if (!hasAnyCocoon)
+            return;
+
+        centerSegment.EnableCocoon();
+        centerSegment.SetHasReward(hasReward);
     }
 }
