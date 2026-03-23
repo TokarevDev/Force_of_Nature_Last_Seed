@@ -29,7 +29,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 3518432287756843753}
@@ -49,7 +49,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WormSegment
   <Type>k__BackingField: 3
   <VisualRoot>k__BackingField: {fileID: 3933236830443005778}
-  _hasReward: 0
+  _cocoonVisual: {fileID: 0}
+  _cocoonCollider: {fileID: 0}
 --- !u!114 &9157270951780547082
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -134,8 +135,8 @@ Transform:
   m_GameObject: {fileID: 5731562169083941206}
   serializedVersion: 2
   m_LocalRotation: {x: 0.08715578, y: 0.9961947, z: 0, w: 0}
-  m_LocalPosition: {x: 0, y: 0.5, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.35, y: 0.35, z: 0.35}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 3933236830443005778}
@@ -189,7 +190,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 1
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 1187143105697475635, guid: 4e2925c065ae6be4ebbc2769acf21e40, type: 3}
+  m_Sprite: {fileID: -5260105622420714199, guid: f426f059201f90e4097e70f2af6504a1, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

@@ -15,7 +15,7 @@ MonoBehaviour:
   _prefab: {fileID: 2670405450700643368, guid: ef0624812c83aa340be2601952b9f7f3, type: 3}
   _sprite: {fileID: 21300000, guid: 77d482eee12c07f43a2f8583ee2be858, type: 3}
   _rotateSprite: -98
-  _damage: 0
+  _damage: 15
   _penetration: 0
   _lifeTime: 4
   _speed: 8

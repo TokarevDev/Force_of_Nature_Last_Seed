@@ -14,7 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponConfig
   FireRate: 1.4
   Projectile: {fileID: 11400000, guid: 0ce9c42391f600d419964b6d2b80397b, type: 2}
-  _modifiers:
-  - {fileID: 11400000, guid: 5ebfbc3fccff5554ebbacaf4e78753bb, type: 2}
-  - {fileID: 11400000, guid: 253bebe7756b7724fb9370cb531ba29e, type: 2}
-  - {fileID: 11400000, guid: 5ebfbc3fccff5554ebbacaf4e78753bb, type: 2}
+  _modifiers: []

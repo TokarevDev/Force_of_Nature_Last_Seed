@@ -79,8 +79,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WormSectionHpView
   _text: {fileID: 3368013684385338308}
   _visualRoot: {fileID: 5337797012005060535}
-  _minScale: 0.6
-  _maxScale: 1.2
+  _minScale: 1
+  _maxScale: 1
 --- !u!1 &6829123072941375853
 GameObject:
   m_ObjectHideFlags: 0
