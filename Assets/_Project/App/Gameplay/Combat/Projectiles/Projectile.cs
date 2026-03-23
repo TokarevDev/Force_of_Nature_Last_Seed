@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -20,6 +21,8 @@ public sealed class Projectile : MonoBehaviour
 {
     [SerializeField] private SpriteRenderer _renderer;
     [SerializeField] private LayerMask _hitMask;
+
+    private readonly HashSet<IDamageable> _hitTargets = new();
 
     private float _lifeTime;
     private float _timer;
@@ -102,6 +105,8 @@ public sealed class Projectile : MonoBehaviour
     /// </summary>
     public void Activate(Vector3 position, Quaternion shotRotation)
     {
+        _hitTargets.Clear();
+
         transform.position = position;
         transform.rotation = Quaternion.identity;
 
@@ -142,15 +147,30 @@ public sealed class Projectile : MonoBehaviour
         if (((1 << collision.gameObject.layer) & _hitMask) == 0)
             return;
 
-        if (collision.TryGetComponent<IDamageable>(out var damageable))
-        {
-            damageable.TakeDamage(_damage);
+        if (!collision.TryGetComponent<IDamageable>(out var damageable))
+            return;
 
-            if (_penetrationLeft > 0)
-            {
-                _penetrationLeft--;
-                return;
-            }
+        if (_hitTargets.Contains(damageable))
+            return;
+
+        _hitTargets.Add(damageable);
+
+        Vector3 hitPosition = collision.ClosestPoint(transform.position);
+
+        var damageInfo = new DamageInfo(
+            _damage,
+            hitPosition,
+            DamageKind.Normal,
+            this,
+            isCritical: false
+        );
+
+        damageable.TakeDamage(damageInfo);
+
+        if (_penetrationLeft > 0)
+        {
+            _penetrationLeft--;
+            return;
         }
 
         ReleaseSelf();

@@ -10,6 +10,7 @@ using UnityEngine;
 public sealed class WormCombatController : MonoBehaviour
 {
     public Action<WormSection, int> SectionDamaged;
+    public Action<DamageViewRequest> DamageDealt;
 
     [SerializeField] private WormController _wormController;
 
@@ -27,7 +28,7 @@ public sealed class WormCombatController : MonoBehaviour
         _sections.AddRange(sections);
     }
 
-    public void RegisterHit(WormSegment segment, int damage)
+    public void RegisterHit(WormSegment segment, in DamageInfo damageInfo)
     {
         if (segment == null)
             return;
@@ -40,8 +41,9 @@ public sealed class WormCombatController : MonoBehaviour
         if (section == null || section.IsDestroyed)
             return;
 
-        section.Damage(damage);
-        SectionDamaged?.Invoke(section, damage);
+        section.Damage(damageInfo.Amount);
+        SectionDamaged?.Invoke(section, damageInfo.Amount);
+        DamageDealt?.Invoke(DamageViewRequest.FromDamageInfo(damageInfo));
 
         if (!section.IsDestroyed)
             return;

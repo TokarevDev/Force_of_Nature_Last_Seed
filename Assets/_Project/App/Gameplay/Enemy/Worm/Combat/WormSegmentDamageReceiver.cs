@@ -12,7 +12,7 @@ public sealed class WormSegmentDamageReceiver : MonoBehaviour, IDamageable
         _segment = segment;
     }
 
-    public void TakeDamage(int damage)
+    public void TakeDamage(in DamageInfo damageInfo)
     {
         if (_combat == null || _segment == null)
             return;
@@ -20,6 +20,6 @@ public sealed class WormSegmentDamageReceiver : MonoBehaviour, IDamageable
         if (!_segment.IsAlive)
             return;
 
-        _combat.RegisterHit(_segment, damage);
+        _combat.RegisterHit(_segment, damageInfo);
     }
 }

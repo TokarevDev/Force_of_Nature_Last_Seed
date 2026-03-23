@@ -2471,6 +2471,53 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1484420116
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1484420118}
+  - component: {fileID: 1484420117}
+  m_Layer: 0
+  m_Name: WormDamagePopupPresenter
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1484420117
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1484420116}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 813858900e91ff448af6b436c29894e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WormDamagePopupPresenter
+  _combat: {fileID: 91581457}
+  _popupPrefab: {fileID: 6859803841460623452, guid: 39064a594808ef143b34b501a0ab4629, type: 3}
+  _initialPoolSize: 100
+--- !u!4 &1484420118
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1484420116}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1670325428
 GameObject:
   m_ObjectHideFlags: 0
@@ -3468,6 +3515,7 @@ SceneRoots:
   - {fileID: 619394802}
   - {fileID: 325148272}
   - {fileID: 91581454}
+  - {fileID: 1484420118}
   - {fileID: 1262977639}
   - {fileID: 192453718}
   - {fileID: 501089287}
