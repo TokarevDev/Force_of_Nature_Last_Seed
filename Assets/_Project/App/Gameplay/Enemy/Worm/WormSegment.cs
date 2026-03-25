@@ -18,10 +18,8 @@ public sealed class WormSegment : MonoBehaviour
     [field: SerializeField] public WormSegmentType Type { get; private set; }
     [field: SerializeField] public Transform VisualRoot { get; private set; }
 
-    [Header("Cocoon Overlay")]
+    [Header("Cocoon Overlay (Visual Only)")]
     [SerializeField] private GameObject _cocoonVisual;
-
-    [SerializeField] private Collider2D _cocoonCollider;
 
     private Collider2D _cachedCollider;
     private SpriteRenderer _renderer;
@@ -51,16 +49,12 @@ public sealed class WormSegment : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Keeps the cocoon visually upright regardless of segment rotation.
-    /// The worm body rotates along the movement path, but cocoon overlays
-    /// should remain vertically aligned for readability.
-    /// </summary>
     private void LateUpdate()
     {
         if (HasCocoon && _cocoonTransform != null)
         {
-            _cocoonTransform.localEulerAngles = new Vector3(0f, 0f, -transform.eulerAngles.z);
+            _cocoonTransform.localEulerAngles =
+                new Vector3(0f, 0f, -transform.eulerAngles.z);
         }
     }
 
@@ -73,10 +67,6 @@ public sealed class WormSegment : MonoBehaviour
             _cocoonRenderer.sortingOrder = order + 100;
     }
 
-    /// <summary>
-    /// Activates cocoon overlay visuals and collider.
-    /// Only valid for body segments.
-    /// </summary>
     public void EnableCocoon()
     {
         if (Type != WormSegmentType.Body)
@@ -86,9 +76,6 @@ public sealed class WormSegment : MonoBehaviour
 
         if (_cocoonVisual != null)
             _cocoonVisual.SetActive(true);
-
-        if (_cocoonCollider != null)
-            _cocoonCollider.enabled = true;
     }
 
     public void DisableCocoon()
@@ -97,12 +84,8 @@ public sealed class WormSegment : MonoBehaviour
 
         if (_cocoonVisual != null)
             _cocoonVisual.SetActive(false);
-
-        if (_cocoonCollider != null)
-            _cocoonCollider.enabled = false;
     }
 
-    // Resets pooled segment state before reuse.
     public void Activate()
     {
         gameObject.SetActive(true);
@@ -118,10 +101,6 @@ public sealed class WormSegment : MonoBehaviour
         Section = null;
     }
 
-    /// <summary>
-    /// Disables rendering and collision without destroying the object.
-    /// Used when segments are removed from the worm chain.
-    /// </summary>
     public void KillVisualAndCollision()
     {
         IsAlive = false;

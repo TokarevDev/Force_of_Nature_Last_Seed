@@ -9,8 +9,11 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public sealed class WormCombatController : MonoBehaviour
 {
-    public Action<WormSection, int> SectionDamaged;
-    public Action<DamageViewRequest> DamageDealt;
+    public event Action<WormSection, int> SectionDamaged;
+
+    public event Action<DamageViewRequest> DamageDealt;
+
+    public static event Action OnWormDied;
 
     [SerializeField] private WormController _wormController;
 
@@ -91,6 +94,8 @@ public sealed class WormCombatController : MonoBehaviour
 
             if (_tail != null && _tail.IsAlive)
                 _tail.KillVisualAndCollision();
+
+            OnWormDied?.Invoke();
         }
     }
 }

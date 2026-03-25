@@ -19,7 +19,6 @@ public sealed class PlayerShooter : MonoBehaviour
     [SerializeField] private WeaponConfig _startConfig;
 
     private IWeapon _weapon;
-    private bool _canShoot;
 
     private void Awake()
     {
@@ -46,18 +45,11 @@ public sealed class PlayerShooter : MonoBehaviour
         _weapon.ApplyConfig(runtimeConfig);
     }
 
-    private void Start()
-    {
-        _canShoot = true;
-    }
-
     private void Update()
     {
-        if (!_canShoot) return;
+        if (!CombatState.CanShoot)
+            return;
+
         _weapon.Tick();
     }
-
-    public void EnableShooting() => _canShoot = true;
-
-    public void DisableShooting() => _canShoot = false;
 }
