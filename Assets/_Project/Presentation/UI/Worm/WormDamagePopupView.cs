@@ -7,7 +7,7 @@ using UnityEngine;
 public sealed class WormDamagePopupView : MonoBehaviour
 {
     [SerializeField] private TMP_Text _text;
-    [SerializeField] private float _duration = 0.6f;
+    [SerializeField] private float _yOffset = 0.2f;
 
     private Sequence _sequence;
 
@@ -36,7 +36,13 @@ public sealed class WormDamagePopupView : MonoBehaviour
             return;
         }
 
-        transform.position = request.WorldPosition;
+        Vector3 randomOffset = new Vector3(
+         UnityEngine.Random.Range(-0.15f, 0.15f),
+         _yOffset + UnityEngine.Random.Range(0f, 0.1f),
+         0f
+        );
+
+        transform.position = request.WorldPosition + randomOffset;
 
         _text.text = request.Amount.ToString();
         _text.color = GetColor(request);

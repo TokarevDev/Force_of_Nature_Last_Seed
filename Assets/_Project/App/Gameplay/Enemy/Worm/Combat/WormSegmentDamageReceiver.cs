@@ -12,6 +12,11 @@ public sealed class WormSegmentDamageReceiver : MonoBehaviour, IDamageable
         _segment = segment;
     }
 
+    public WormSegment GetSegment()
+    {
+        return _segment;
+    }
+
     public void TakeDamage(in DamageInfo damageInfo)
     {
         if (_combat == null || _segment == null)

@@ -8,7 +8,11 @@ public sealed class WormDamagePopupPresenter : MonoBehaviour
     [SerializeField] private WormDamagePopupView _popupPrefab;
     [SerializeField] private int _initialPoolSize = 20;
 
+    [SerializeField] private int _maxActivePopups = 50;
+
     private readonly Queue<WormDamagePopupView> _pool = new();
+
+    private int _activeCount;
 
     private void Awake()
     {
@@ -35,9 +39,21 @@ public sealed class WormDamagePopupPresenter : MonoBehaviour
 
     private void OnDamageDealt(DamageViewRequest request)
     {
+        if (_activeCount >= _maxActivePopups)
+            return;
+
         var popup = GetFromPool();
+
+        _activeCount++;
+
         popup.gameObject.SetActive(true);
-        popup.Show(request, ReturnToPool);
+        popup.Show(request, OnPopupComplete);
+    }
+
+    private void OnPopupComplete(WormDamagePopupView view)
+    {
+        _activeCount--;
+        ReturnToPool(view);
     }
 
     private WormDamagePopupView GetFromPool()
@@ -58,15 +74,14 @@ public sealed class WormDamagePopupPresenter : MonoBehaviour
     {
         for (int i = 0; i < _initialPoolSize; i++)
         {
-            var popup = GetFromPool();
-            popup.gameObject.SetActive(true);
+            var popup = CreatePopup();
+            popup.gameObject.SetActive(false);
             _pool.Enqueue(popup);
         }
     }
 
     private WormDamagePopupView CreatePopup()
     {
-        var popup = Instantiate(_popupPrefab, transform);
-        return popup;
+        return Instantiate(_popupPrefab, transform);
     }
 }

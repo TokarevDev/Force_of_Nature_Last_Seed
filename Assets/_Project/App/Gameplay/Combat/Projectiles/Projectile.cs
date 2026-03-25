@@ -21,8 +21,12 @@ public sealed class Projectile : MonoBehaviour
 {
     [SerializeField] private SpriteRenderer _renderer;
     [SerializeField] private LayerMask _hitMask;
+    [SerializeField] private float _minHitDistance = 1.5f;
 
-    private readonly HashSet<IDamageable> _hitTargets = new();
+    private Vector3 _lastHitPosition;
+    private bool _hasLastHit;
+
+    private readonly HashSet<WormSection> _hitSections = new();
 
     private float _lifeTime;
     private float _timer;
@@ -105,7 +109,9 @@ public sealed class Projectile : MonoBehaviour
     /// </summary>
     public void Activate(Vector3 position, Quaternion shotRotation)
     {
-        _hitTargets.Clear();
+        _hasLastHit = false;
+
+        _hitSections.Clear();
 
         transform.position = position;
         transform.rotation = Quaternion.identity;
@@ -147,15 +153,30 @@ public sealed class Projectile : MonoBehaviour
         if (((1 << collision.gameObject.layer) & _hitMask) == 0)
             return;
 
-        if (!collision.TryGetComponent<IDamageable>(out var damageable))
+        if (!collision.TryGetComponent<WormSegmentDamageReceiver>(out var receiver))
             return;
 
-        if (_hitTargets.Contains(damageable))
+        var segment = receiver.GetSegment();
+        if (segment == null || !segment.IsAlive)
             return;
 
-        _hitTargets.Add(damageable);
+        var section = segment.Section;
+        if (section == null || section.IsDestroyed)
+            return;
+
+        if (_hitSections.Contains(section))
+            return;
 
         Vector3 hitPosition = collision.ClosestPoint(transform.position);
+
+        if (_hasLastHit)
+        {
+            float dist = Vector3.SqrMagnitude(hitPosition - _lastHitPosition);
+            if (dist < _minHitDistance * _minHitDistance)
+                return;
+        }
+
+        _hitSections.Add(section);
 
         var damageInfo = new DamageInfo(
             _damage,
@@ -165,13 +186,15 @@ public sealed class Projectile : MonoBehaviour
             isCritical: false
         );
 
-        damageable.TakeDamage(damageInfo);
+        receiver.TakeDamage(damageInfo);
+
+        _lastHitPosition = hitPosition;
+        _hasLastHit = true;
+
+        _penetrationLeft--;
 
         if (_penetrationLeft > 0)
-        {
-            _penetrationLeft--;
             return;
-        }
 
         ReleaseSelf();
     }

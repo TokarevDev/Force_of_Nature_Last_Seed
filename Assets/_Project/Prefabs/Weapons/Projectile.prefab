@@ -123,6 +123,7 @@ MonoBehaviour:
   _hitMask:
     serializedVersion: 2
     m_Bits: 8
+  _minHitDistance: 1.5
 --- !u!114 &4518584297866267010
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -289,7 +290,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 509
+  m_SortingOrder: 2600
   m_MaskInteraction: 0
   m_Sprite: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}

@@ -2503,6 +2503,7 @@ MonoBehaviour:
   _combat: {fileID: 91581457}
   _popupPrefab: {fileID: 6859803841460623452, guid: 39064a594808ef143b34b501a0ab4629, type: 3}
   _initialPoolSize: 100
+  _maxActivePopups: 50
 --- !u!4 &1484420118
 Transform:
   m_ObjectHideFlags: 0
