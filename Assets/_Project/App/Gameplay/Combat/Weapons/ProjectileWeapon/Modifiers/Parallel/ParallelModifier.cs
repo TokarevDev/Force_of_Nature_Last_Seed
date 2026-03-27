@@ -2,9 +2,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Duplicates shots horizontally relative to firing direction.
+/// Adds parallel shots symmetrically around the base shot.
+/// Each new modifier places the next outer pair instead of overlapping existing shots.
 /// </summary>
-public class ParallelModifier : IShotModifier
+public sealed class ParallelModifier : IShotModifier
 {
     private readonly int _count;
     private readonly float _spacing;
@@ -17,25 +18,37 @@ public class ParallelModifier : IShotModifier
 
     public void Apply(List<ShotSpawnData> shots, ShotContext context)
     {
-        if (_count <= 1 || _spacing <= 0f) return;
+        if (_count <= 1 || _spacing <= 0f || shots.Count == 0)
+            return;
 
-        var newShots = new List<ShotSpawnData>();
+        ShotSpawnData baseShot = shots[0];
+        Vector3 right = baseShot.Rotation * Vector3.right;
 
-        foreach (var shot in shots)
+        int existingShots = shots.Count;
+
+        int extraShots = _count - 1;
+
+        for (int i = 0; i < extraShots; i++)
         {
-            Vector3 right = shot.Rotation * Vector3.right;
-            float half = (_count - 1) * 0.5f;
+            int shotIndex = existingShots + i;
 
-            for (int i = 0; i < _count; i++)
+            float sideIndex;
+
+            if (shotIndex % 2 == 1)
             {
-                float offsetIndex = i - half;
-                Vector3 offset = right * offsetIndex * _spacing;
-
-                newShots.Add(new ShotSpawnData(shot.Position + offset, shot.Rotation));
+                sideIndex = (shotIndex + 1) / 2f;
             }
-        }
+            else
+            {
+                sideIndex = -(shotIndex / 2f);
+            }
 
-        shots.Clear();
-        shots.AddRange(newShots);
+            Vector3 offset = right * sideIndex * _spacing;
+
+            shots.Add(new ShotSpawnData(
+                baseShot.Position + offset,
+                baseShot.Rotation
+            ));
+        }
     }
 }

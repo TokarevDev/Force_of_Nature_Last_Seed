@@ -1,0 +1,722 @@
+fileFormatVersion: 2
+guid: da99f796c60c7574c9cb7f058276e959
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -8925782510048021426
+    second: Eyes_2.0_0
+  - first:
+      213: 6218331453908227066
+    second: Eyes_2.0_1
+  - first:
+      213: -7494618566421250062
+    second: Eyes_2.0_2
+  - first:
+      213: 601005482455275475
+    second: Eyes_2.0_3
+  - first:
+      213: -3694082880232101097
+    second: Eyes_2.0_4
+  - first:
+      213: -2030297836078467292
+    second: Eyes_2.0_5
+  - first:
+      213: -115405757778010479
+    second: Eyes_2.0_6
+  - first:
+      213: -5569882283949801987
+    second: Eyes_2.0_7
+  - first:
+      213: 305511853930738663
+    second: Eyes_2.0_8
+  - first:
+      213: 5933765508435087068
+    second: Eyes_2.0_9
+  - first:
+      213: 2642678886916356877
+    second: Eyes_2.0_10
+  - first:
+      213: 7019396415714919367
+    second: Eyes_2.0_11
+  - first:
+      213: 5257788769309279140
+    second: Eyes_2.0_12
+  - first:
+      213: -7167744966267149370
+    second: Eyes_2.0_13
+  - first:
+      213: 1239648910184870549
+    second: Eyes_2.0_14
+  - first:
+      213: -232400423269658438
+    second: Eyes_2.0_15
+  - first:
+      213: 4580016159377043161
+    second: Eyes_2.0_16
+  - first:
+      213: 4497763708361054861
+    second: Eyes_2.0_17
+  - first:
+      213: -5234863176113008977
+    second: Eyes_2.0_18
+  - first:
+      213: -3804125680740853317
+    second: Eyes_2.0_19
+  - first:
+      213: -5717017403890427180
+    second: Eyes_2.0_20
+  - first:
+      213: -6480244339505760276
+    second: Eyes_2.0_21
+  - first:
+      213: -2382040506295332787
+    second: Eyes_2.0_22
+  - first:
+      213: -363376175893106104
+    second: Eyes_2.0_23
+  - first:
+      213: 1818286686392940478
+    second: Eyes_2.0_24
+  - first:
+      213: 6733475094775885469
+    second: Eyes_2.0_25
+  - first:
+      213: -7034773056336871592
+    second: Eyes_2.0_26
+  - first:
+      213: -3854162268935686448
+    second: Eyes_2.0_27
+  - first:
+      213: -6835228034413157709
+    second: Eyes_2.0_28
+  - first:
+      213: -8889897272398622917
+    second: Eyes_2.0_29
+  - first:
+      213: 116077637007235512
+    second: Eyes_2.0_30
+  - first:
+      213: 978836152046257682
+    second: Eyes_2.0_31
+  - first:
+      213: -1345106267012288580
+    second: Eyes_2.0_32
+  - first:
+      213: 5916927544717582397
+    second: Eyes_2.0_33
+  - first:
+      213: 9054785714780347932
+    second: Eyes_2.0_34
+  - first:
+      213: -8269179741316720767
+    second: Eyes_2.0_35
+  - first:
+      213: -3438667072945838940
+    second: Eyes_2.0_36
+  - first:
+      213: 966512684188964010
+    second: Eyes_2.0_37
+  - first:
+      213: 8703552826813988515
+    second: Eyes_2.0_38
+  - first:
+      213: 391697185174107136
+    second: Eyes_2.0_39
+  - first:
+      213: -6292228849839781992
+    second: Eyes_2.0_40
+  - first:
+      213: 6822564909041243195
+    second: Eyes_2.0_41
+  - first:
+      213: -7966605661631971108
+    second: Eyes_2.0_42
+  - first:
+      213: 5882174884419787870
+    second: Eyes_2.0_43
+  - first:
+      213: 198977247435926827
+    second: Eyes_2.0_44
+  - first:
+      213: 875782967670254817
+    second: Eyes_2.0_45
+  - first:
+      213: -3303388176693229206
+    second: Eyes_2.0_46
+  - first:
+      213: 9162213368532895645
+    second: Eyes_2.0_47
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WindowsStoreApps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Eyes_2.0_0
+      rect:
+        serializedVersion: 2
+        x: 1175
+        y: 683
+        width: 183
+        height: 107
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e4471321910412480800000000000000
+      internalID: -8925782510048021426
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Eyes_2.0_1
+      rect:
+        serializedVersion: 2
+        x: 1036
+        y: 51
+        width: 213
+        height: 76
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: af396ddd283fb4650800000000000000
+      internalID: 6218331453908227066
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Eyes_2.0_13
+      rect:
+        serializedVersion: 2
+        x: 127
+        y: 686
+        width: 194
+        height: 107
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6c36d05fded078c90800000000000000
+      internalID: -7167744966267149370
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Eyes_2.0_14
+      rect:
+        serializedVersion: 2
+        x: 396
+        y: 689
+        width: 175
+        height: 96
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 592f4c9ad1e143110800000000000000
+      internalID: 1239648910184870549
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Eyes_2.0_15
+      rect:
+        serializedVersion: 2
+        x: 743
+        y: 670
+        width: 41
+        height: 108
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ab09c5ddb0956ccf0800000000000000
+      internalID: -232400423269658438
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Eyes_2.0_16
+      rect:
+        serializedVersion: 2
+        x: 903
+        y: 677
+        width: 170
+        height: 115
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9dea7355e6c7f8f30800000000000000
+      internalID: 4580016159377043161
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Eyes_2.0_19
+      rect:
+        serializedVersion: 2
+        x: 119
+        y: 385
+        width: 201
+        height: 114
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bb9108639d7053bc0800000000000000
+      internalID: -3804125680740853317
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Eyes_2.0_21
+      rect:
+        serializedVersion: 2
+        x: 340
+        y: 639
+        width: 37
+        height: 80
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ce7f5066b1c8116a0800000000000000
+      internalID: -6480244339505760276
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Eyes_2.0_22
+      rect:
+        serializedVersion: 2
+        x: 390
+        y: 399
+        width: 183
+        height: 93
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d40dca5b7ca41fed0800000000000000
+      internalID: -2382040506295332787
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Eyes_2.0_25
+      rect:
+        serializedVersion: 2
+        x: 727
+        y: 381
+        width: 68
+        height: 99
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d9e6e085ceb127d50800000000000000
+      internalID: 6733475094775885469
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Eyes_2.0_27
+      rect:
+        serializedVersion: 2
+        x: 1111
+        y: 661
+        width: 34
+        height: 53
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0d6ff5d26d3438ac0800000000000000
+      internalID: -3854162268935686448
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Eyes_2.0_33
+      rect:
+        serializedVersion: 2
+        x: 343
+        y: 361
+        width: 30
+        height: 63
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d30ad90b0462d1250800000000000000
+      internalID: 5916927544717582397
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Eyes_2.0_36
+      rect:
+        serializedVersion: 2
+        x: 1124
+        y: 269
+        width: 38
+        height: 163
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4a42b3814866740d0800000000000000
+      internalID: -3438667072945838940
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Eyes_2.0_40
+      rect:
+        serializedVersion: 2
+        x: 131
+        y: 109
+        width: 440
+        height: 103
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 897c5dfd2338da8a0800000000000000
+      internalID: -6292228849839781992
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Eyes_2.0_43
+      rect:
+        serializedVersion: 2
+        x: 730
+        y: 118
+        width: 68
+        height: 69
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e5cd09c64eea1a150800000000000000
+      internalID: 5882174884419787870
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Eyes_2.0_44
+      rect:
+        serializedVersion: 2
+        x: 903
+        y: 116
+        width: 211
+        height: 117
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b2dadc790c8e2c200800000000000000
+      internalID: 198977247435926827
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Eyes_2.0_45
+      rect:
+        serializedVersion: 2
+        x: 1167
+        y: 119
+        width: 200
+        height: 121
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1eca25018f7672c00800000000000000
+      internalID: 875782967670254817
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: f94f1f087f8968f43b190513b2819a30
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Eyes_2.0_0: -8925782510048021426
+      Eyes_2.0_1: 6218331453908227066
+      Eyes_2.0_10: 2642678886916356877
+      Eyes_2.0_11: 7019396415714919367
+      Eyes_2.0_12: 5257788769309279140
+      Eyes_2.0_13: -7167744966267149370
+      Eyes_2.0_14: 1239648910184870549
+      Eyes_2.0_15: -232400423269658438
+      Eyes_2.0_16: 4580016159377043161
+      Eyes_2.0_17: 4497763708361054861
+      Eyes_2.0_18: -5234863176113008977
+      Eyes_2.0_19: -3804125680740853317
+      Eyes_2.0_2: -7494618566421250062
+      Eyes_2.0_20: -5717017403890427180
+      Eyes_2.0_21: -6480244339505760276
+      Eyes_2.0_22: -2382040506295332787
+      Eyes_2.0_23: -363376175893106104
+      Eyes_2.0_24: 1818286686392940478
+      Eyes_2.0_25: 6733475094775885469
+      Eyes_2.0_26: -7034773056336871592
+      Eyes_2.0_27: -3854162268935686448
+      Eyes_2.0_28: -6835228034413157709
+      Eyes_2.0_29: -8889897272398622917
+      Eyes_2.0_3: 601005482455275475
+      Eyes_2.0_30: 116077637007235512
+      Eyes_2.0_31: 978836152046257682
+      Eyes_2.0_32: -1345106267012288580
+      Eyes_2.0_33: 5916927544717582397
+      Eyes_2.0_34: 9054785714780347932
+      Eyes_2.0_35: -8269179741316720767
+      Eyes_2.0_36: -3438667072945838940
+      Eyes_2.0_37: 966512684188964010
+      Eyes_2.0_38: 8703552826813988515
+      Eyes_2.0_39: 391697185174107136
+      Eyes_2.0_4: -3694082880232101097
+      Eyes_2.0_40: -6292228849839781992
+      Eyes_2.0_41: 6822564909041243195
+      Eyes_2.0_42: -7966605661631971108
+      Eyes_2.0_43: 5882174884419787870
+      Eyes_2.0_44: 198977247435926827
+      Eyes_2.0_45: 875782967670254817
+      Eyes_2.0_46: -3303388176693229206
+      Eyes_2.0_47: 9162213368532895645
+      Eyes_2.0_5: -2030297836078467292
+      Eyes_2.0_6: -115405757778010479
+      Eyes_2.0_7: -5569882283949801987
+      Eyes_2.0_8: 305511853930738663
+      Eyes_2.0_9: 5933765508435087068
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

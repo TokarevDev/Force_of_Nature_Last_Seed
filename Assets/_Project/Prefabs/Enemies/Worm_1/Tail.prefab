@@ -50,7 +50,6 @@ MonoBehaviour:
   <Type>k__BackingField: 3
   <VisualRoot>k__BackingField: {fileID: 3933236830443005778}
   _cocoonVisual: {fileID: 0}
-  _cocoonCollider: {fileID: 0}
 --- !u!114 &9157270951780547082
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -126,7 +125,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0.08715578, y: 0.9961947, z: 0, w: 0}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.35, y: 0.35, z: 0.35}
+  m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 3933236830443005778}
