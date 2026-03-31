@@ -21,6 +21,7 @@ public sealed class WormCombatController : MonoBehaviour
 
     private WormSegment _head;
     private WormSegment _tail;
+    private RewardFlowController _rewardFlow;
 
     public void Init(WormSegment head, WormSegment tail, List<WormSection> sections)
     {
@@ -85,17 +86,17 @@ public sealed class WormCombatController : MonoBehaviour
             _wormController.RollbackDestroyedGap(removedFromChain, firstRemovedIndex);
 
         if (rewardTriggered)
-            Debug.Log("CHOICE POPUP (3 options)");
+            // _rewardFlow.Open();
 
-        if (_sections.Count == 0)
-        {
-            if (_head != null && _head.IsAlive)
-                _head.KillVisualAndCollision();
+            if (_sections.Count == 0)
+            {
+                if (_head != null && _head.IsAlive)
+                    _head.KillVisualAndCollision();
 
-            if (_tail != null && _tail.IsAlive)
-                _tail.KillVisualAndCollision();
+                if (_tail != null && _tail.IsAlive)
+                    _tail.KillVisualAndCollision();
 
-            OnWormDied?.Invoke();
-        }
+                OnWormDied?.Invoke();
+            }
     }
 }
