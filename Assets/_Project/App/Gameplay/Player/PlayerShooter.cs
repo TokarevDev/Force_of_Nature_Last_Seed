@@ -19,10 +19,12 @@ public sealed class PlayerShooter : MonoBehaviour
     [SerializeField] private WeaponConfig _startConfig;
 
     private IWeapon _weapon;
+    private ProjectileWeapon _projectileWeapon;
 
     private void Awake()
     {
         _weapon = _weaponBehaviour as IWeapon;
+        _projectileWeapon = _weaponBehaviour as ProjectileWeapon;
 
         if (_weapon == null)
         {

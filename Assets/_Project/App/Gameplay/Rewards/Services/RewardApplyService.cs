@@ -1,14 +1,19 @@
 public sealed class RewardApplyService
 {
-    private readonly WeaponConfig _weaponConfig;
+    private readonly ProjectileWeapon _weapon;
 
-    public RewardApplyService(WeaponConfig weaponConfig)
+    public RewardApplyService(ProjectileWeapon weapon)
     {
-        _weaponConfig = weaponConfig;
+        _weapon = weapon;
     }
 
     public void Apply(RewardChoiceData choice)
     {
-        _weaponConfig.AddModifier(choice.Modifier);
+        if (choice == null || choice.Modifier == null)
+            return;
+
+        _weapon.RuntimeState.ShotModifiers.Add(choice.Modifier);
+
+        _weapon.ForceRebuild();
     }
 }

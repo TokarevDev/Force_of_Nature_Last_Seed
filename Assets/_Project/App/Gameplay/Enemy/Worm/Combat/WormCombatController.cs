@@ -16,12 +16,12 @@ public sealed class WormCombatController : MonoBehaviour
     public static event Action OnWormDied;
 
     [SerializeField] private WormController _wormController;
+    [SerializeField] private RewardInstaller _rewardInstaller;
 
     private readonly List<WormSection> _sections = new();
 
     private WormSegment _head;
     private WormSegment _tail;
-    private RewardFlowController _rewardFlow;
 
     public void Init(WormSegment head, WormSegment tail, List<WormSection> sections)
     {
@@ -85,18 +85,20 @@ public sealed class WormCombatController : MonoBehaviour
         if (_wormController != null && removedFromChain > 0)
             _wormController.RollbackDestroyedGap(removedFromChain, firstRemovedIndex);
 
-        if (rewardTriggered)
-            // _rewardFlow.Open();
+        if (rewardTriggered && _rewardInstaller != null)
+        {
+            _rewardInstaller.OpenReward();
+        }
 
-            if (_sections.Count == 0)
-            {
-                if (_head != null && _head.IsAlive)
-                    _head.KillVisualAndCollision();
+        if (_sections.Count == 0)
+        {
+            if (_head != null && _head.IsAlive)
+                _head.KillVisualAndCollision();
 
-                if (_tail != null && _tail.IsAlive)
-                    _tail.KillVisualAndCollision();
+            if (_tail != null && _tail.IsAlive)
+                _tail.KillVisualAndCollision();
 
-                OnWormDied?.Invoke();
-            }
+            OnWormDied?.Invoke();
+        }
     }
 }

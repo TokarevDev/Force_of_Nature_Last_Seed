@@ -9,7 +9,6 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public sealed class ProjectileWeapon : MonoBehaviour, IWeapon
 {
-
     private WeaponConfig _config;
     private ProjectilePool _pool;
     private Transform _firePoint;
@@ -19,6 +18,10 @@ public sealed class ProjectileWeapon : MonoBehaviour, IWeapon
 
     private readonly List<RuntimeModifier> _modifiers = new();
     private readonly List<ShotSpawnData> _shots = new();
+
+    private WeaponRuntimeState _runtimeState;
+
+    public WeaponRuntimeState RuntimeState => _runtimeState;
 
     private void OnDestroy()
     {
@@ -39,6 +42,8 @@ public sealed class ProjectileWeapon : MonoBehaviour, IWeapon
 
         _config = config;
 
+        _runtimeState = new WeaponRuntimeState();
+
         if (_config != null)
             _config.OnModifiersChanged += RebuildModifiers;
 
@@ -58,12 +63,19 @@ public sealed class ProjectileWeapon : MonoBehaviour, IWeapon
         }
     }
 
+    /// <summary>
+    /// Rebuilds modifier pipeline and recalculates fire rate.
+    /// Called when config or runtime modifiers change.
+    /// </summary>
     private void RebuildModifiers()
     {
         if (_config == null) return;
 
         _modifiers.Clear();
-        _currentFireRate = _config.FireRate;
+
+        _currentFireRate = _config.FireRate / _runtimeState.FireRateMultiplier;
+
+        Debug.Log($"[Rebuild] FireRate = {_currentFireRate} | Multiplier = {_runtimeState.FireRateMultiplier}");
 
         foreach (var data in _config.Modifiers)
         {
@@ -73,7 +85,20 @@ public sealed class ProjectileWeapon : MonoBehaviour, IWeapon
             _modifiers.Add(new RuntimeModifier(data, runtime));
         }
 
+        foreach (var data in _runtimeState.ShotModifiers)
+        {
+            if (data == null) continue;
+
+            var runtime = data.CreateRuntime();
+            _modifiers.Add(new RuntimeModifier(data, runtime));
+        }
+
         _cooldown = 0f;
+    }
+
+    public void ForceRebuild()
+    {
+        RebuildModifiers();
     }
 
     private void Fire()

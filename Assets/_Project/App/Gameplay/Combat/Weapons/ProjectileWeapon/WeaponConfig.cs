@@ -44,8 +44,6 @@ public sealed class WeaponConfig : ScriptableObject
     {
         var instance = Instantiate(this);
 
-        // Creates shallow copy of modifiers list.
-        // Modifier data assets are shared, runtime instances are created per weapon.
         instance._modifiers = new List<ShotModifierData>(_modifiers);
 
         return instance;
