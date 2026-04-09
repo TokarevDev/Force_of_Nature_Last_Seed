@@ -1,164 +1,52 @@
 # Force of Nature: Last Seed
 
-A **mobile auto-shooter survival prototype** built in **Unity 6**.
-
-The project focuses on **modular gameplay systems**, **clean architecture**, and a scalable **segmented enemy system** designed for mobile performance.
-
-This repository represents an **in-development gameplay prototype** and serves as a **portfolio project** demonstrating modern Unity architecture practices.
+2D survival shooter built in Unity (C#), focused on scalable gameplay systems, modular architecture, and performance for mobile games.
 
 ---
 
-## 🚧 Project Status
+## 🚀 Overview
 
-**Force of Nature: Last Seed is currently in active development.**
-
-The project focuses on building a **clean and scalable gameplay architecture** before expanding content and progression systems.
-
-Planned targets:
-
-* 📱 Google Play
-* 🍏 Apple App Store
+A gameplay-focused project designed to explore and implement production-ready systems, including modular combat, enemy architecture, and performance optimization under high object counts.
 
 ---
 
-## 🧱 Architecture Goals
+## 🧩 Key Systems
 
-The project is being developed with a strong focus on:
+• Data-driven weapon system (ScriptableObjects + runtime modifiers)
 
-* **Single Responsibility Principle (SRP)**
-* **Modular gameplay systems**
-* Clear separation between **gameplay logic**, **presentation**, and **data**
-* Systems designed for **extension without rewriting existing code**
+• Modular combat system using event-driven architecture
 
-The goal is to maintain a **clean, scalable codebase suitable for production mobile games**.
+• Segmented enemy system with scalable behavior and custom damage logic
 
----
-
-## 🎮 Implemented Gameplay Systems
-
-### Segmented Worm Enemy
-
-* Giant worm composed of **multiple segments**
-* Head and tail remain persistent
-* Middle segments can be **destroyed individually**
-* Worm dynamically **rolls back** when sections are destroyed
-* Designed to support long enemy chains with minimal overhead
-
-### Modular Weapon System
-
-* Weapon behaviour defined via **modular components**
-* Supports runtime **modifiers and upgrades**
-* Clean separation between **weapon logic and projectile logic**
-
-### Projectile Pooling
-
-* Custom **object pooling system**
-* Designed to support **multiple weapons simultaneously**
-* Prevents runtime allocations during gameplay
-
-### Event-Driven Gameplay
-
-Gameplay systems communicate through **events rather than direct references**, reducing coupling and improving system isolation.
+• Object pooling system optimized for high object count scenarios
 
 ---
 
-## 🧠 Tech & Architecture
+## 🧠 Architecture
 
-* **Unity 6**
-* **C#**
-* **Object Pooling**
-* **ScriptableObjects**
-* **Event-driven architecture**
-* **Modular gameplay systems**
-* Data-driven gameplay configuration
+• Separation of gameplay logic, systems, and presentation
 
----
+• Event-driven communication between systems
 
-## 🧩 Architecture Overview
+• Extensible systems designed for feature growth
 
-### Gameplay (Domain)
-
-Core gameplay systems independent from presentation:
-
-* Worm movement and segment logic
-* Weapon behaviour
-* Projectile systems
-* Combat interactions
-
-### Systems (Infrastructure)
-
-Reusable game systems:
-
-* Pool registry
-* Spawning systems
-* Data configuration
-* Event pipelines
-
-### Presentation
-
-Responsible only for visuals:
-
-* Sprite rendering
-* VFX
-* UI layers
-
-> **Key principle:** gameplay systems remain independent from presentation and UI.
+• Performance-focused design for mobile environments
 
 ---
 
-## 📂 Project Structure
+## 🛠 Tech
 
-```
-Assets/
-  _Project/
-    App/
-      Gameplay/
-        Player/
-        Enemy/
-        Combat/
-      Systems/
-        Pooling/
-        Input/
-      Presentation/
-      Bootstrap/
-```
-
-The structure is designed to keep **gameplay systems modular and maintainable**.
+Unity, C#, ScriptableObjects, Object Pooling, Event-driven systems
 
 ---
 
-## 📸 Gameplay Screenshots
+## 🎯 Purpose
 
-<p align="center">
-  <img src="gameplay1.png" width="260" />
-  <img src="gameplay2.png" width="260" />
-  <img src="gameplay3.png" width="260" />
-</p>
+This project demonstrates my approach to building scalable gameplay systems, clean architecture, and performance-oriented game design in Unity.
 
 ---
 
-## 🎯 Purpose of This Project
+## 👨‍💻 Author
 
-This project serves as:
-
-* a **gameplay prototype**
-* a **portfolio project demonstrating Unity architecture**
-* a sandbox for experimenting with **modular enemy systems**
-* a base for a **future mobile game release**
-
----
-
-## 👨‍💻 Developer
-
-**Oleksandr Tokarev**
-Unity & C# Game Developer based in Finland
-
-GitHub: https://github.com/SD7games
-
----
-
-## License
-
-Source available for **portfolio and educational purposes only**.
-
-You may view and study the source code, but redistribution, commercial use, or publishing the game (or modified versions) is not allowed without written permission from the author.
+Oleksandr Tokarev
+Unity Gameplay Developer
