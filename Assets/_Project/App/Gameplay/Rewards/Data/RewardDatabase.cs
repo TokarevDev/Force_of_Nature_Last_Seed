@@ -4,7 +4,7 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Game/Rewards/Reward Database")]
 public sealed class RewardDatabase : ScriptableObject
 {
-    [SerializeField] private List<ShotModifierData> _modifiers;
+    [SerializeField] private List<RewardModifierEntry> _rewards;
 
-    public IReadOnlyList<ShotModifierData> Modifiers => _modifiers;
+    public IReadOnlyList<RewardModifierEntry> Rewards => _rewards;
 }

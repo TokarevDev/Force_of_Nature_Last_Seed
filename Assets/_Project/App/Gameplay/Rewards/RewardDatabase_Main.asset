@@ -12,6 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a6531b22a01bcf84f993f1898dfafa80, type: 3}
   m_Name: RewardDatabase_Main
   m_EditorClassIdentifier: Assembly-CSharp::RewardDatabase
-  _modifiers:
-  - {fileID: 11400000, guid: 5ebfbc3fccff5554ebbacaf4e78753bb, type: 2}
-  - {fileID: 11400000, guid: 253bebe7756b7724fb9370cb531ba29e, type: 2}
+  _rewards:
+  - _modifier: {fileID: 11400000, guid: 5ebfbc3fccff5554ebbacaf4e78753bb, type: 2}
+    _title: Parallel
+    _description: Increase projectile count +1.
+  - _modifier: {fileID: 11400000, guid: 253bebe7756b7724fb9370cb531ba29e, type: 2}
+    _title: Spread
+    _description: Fires projectiles in a cone. Multiplay projectiles.

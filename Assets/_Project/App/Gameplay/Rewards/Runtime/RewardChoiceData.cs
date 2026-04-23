@@ -1,9 +1,14 @@
+
 public sealed class RewardChoiceData
 {
     public ShotModifierData Modifier { get; }
+    public string Title { get; }
+    public string Description { get; }
 
-    public RewardChoiceData(ShotModifierData modifier)
+    public RewardChoiceData(RewardModifierEntry entry)
     {
-        Modifier = modifier;
+        Modifier = entry.Modifier;
+        Title = entry.Title;
+        Description = entry.Description;
     }
 }

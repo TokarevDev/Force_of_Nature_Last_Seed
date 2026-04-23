@@ -12,6 +12,7 @@ public sealed class RewardButtonView : MonoBehaviour
 {
     [SerializeField] private Button _button;
     [SerializeField] private TMP_Text _title;
+    [SerializeField] private TMP_Text _description;
 
     private RewardChoiceData _data;
 
@@ -23,7 +24,10 @@ public sealed class RewardButtonView : MonoBehaviour
         _onClick = onClick;
 
         if (_title != null)
-            _title.text = data.Modifier.name;
+            _title.text = data.Title;
+
+        if (_description != null)
+            _description.text = data.Description;
 
         _button.onClick.RemoveAllListeners();
         _button.onClick.AddListener(OnClick);

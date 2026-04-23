@@ -13,7 +13,6 @@ public sealed class RewardApplyService
             return;
 
         _weapon.RuntimeState.ShotModifiers.Add(choice.Modifier);
-
         _weapon.ForceRebuild();
     }
 }
