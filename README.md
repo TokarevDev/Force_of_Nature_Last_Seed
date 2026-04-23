@@ -1,164 +1,87 @@
 # Force of Nature: Last Seed
 
-A **mobile auto-shooter survival prototype** built in **Unity 6**.
-
-The project focuses on **modular gameplay systems**, **clean architecture**, and a scalable **segmented enemy system** designed for mobile performance.
-
-This repository represents an **in-development gameplay prototype** and serves as a **portfolio project** demonstrating modern Unity architecture practices.
+2D survival shooter built in Unity (C#), focused on scalable gameplay systems, modular architecture, and stable performance under high object count scenarios.
 
 ---
 
-## 🚧 Project Status
+## 🚀 Overview
 
-**Force of Nature: Last Seed is currently in active development.**
+This project focuses on solving common problems in growing Unity projects:  
+tight coupling between systems, difficult feature extension, and performance instability under load.
 
-The project focuses on building a **clean and scalable gameplay architecture** before expanding content and progression systems.
-
-Planned targets:
-
-* 📱 Google Play
-* 🍏 Apple App Store
+The goal is to build gameplay systems that remain maintainable, extensible, and performant as complexity increases.
 
 ---
 
-## 🧱 Architecture Goals
+## 🧩 Key Systems
 
-The project is being developed with a strong focus on:
+### Data-driven Weapon System
+Implemented using ScriptableObjects and a runtime modifier pipeline.
 
-* **Single Responsibility Principle (SRP)**
-* **Modular gameplay systems**
-* Clear separation between **gameplay logic**, **presentation**, and **data**
-* Systems designed for **extension without rewriting existing code**
-
-The goal is to maintain a **clean, scalable codebase suitable for production mobile games**.
+• Allows dynamic composition of shooting behavior  
+• New weapon logic can be added without modifying core systems  
+• Supports scalable feature expansion  
 
 ---
 
-## 🎮 Implemented Gameplay Systems
+### Event-driven Combat Architecture
 
-### Segmented Worm Enemy
-
-* Giant worm composed of **multiple segments**
-* Head and tail remain persistent
-* Middle segments can be **destroyed individually**
-* Worm dynamically **rolls back** when sections are destroyed
-* Designed to support long enemy chains with minimal overhead
-
-### Modular Weapon System
-
-* Weapon behaviour defined via **modular components**
-* Supports runtime **modifiers and upgrades**
-* Clean separation between **weapon logic and projectile logic**
-
-### Projectile Pooling
-
-* Custom **object pooling system**
-* Designed to support **multiple weapons simultaneously**
-* Prevents runtime allocations during gameplay
-
-### Event-Driven Gameplay
-
-Gameplay systems communicate through **events rather than direct references**, reducing coupling and improving system isolation.
+• Decouples gameplay systems (weapons, enemies, damage)  
+• Reduces dependencies between components  
+• Enables safe extension without introducing regressions  
 
 ---
 
-## 🧠 Tech & Architecture
+### Modular Enemy System
 
-* **Unity 6**
-* **C#**
-* **Object Pooling**
-* **ScriptableObjects**
-* **Event-driven architecture**
-* **Modular gameplay systems**
-* Data-driven gameplay configuration
+• Segmented enemy structure with independent logic  
+• Scalable behavior design for future complexity  
+• Custom damage handling without tightly coupled logic  
 
 ---
 
-## 🧩 Architecture Overview
+### Object Pooling System
 
-### Gameplay (Domain)
-
-Core gameplay systems independent from presentation:
-
-* Worm movement and segment logic
-* Weapon behaviour
-* Projectile systems
-* Combat interactions
-
-### Systems (Infrastructure)
-
-Reusable game systems:
-
-* Pool registry
-* Spawning systems
-* Data configuration
-* Event pipelines
-
-### Presentation
-
-Responsible only for visuals:
-
-* Sprite rendering
-* VFX
-* UI layers
-
-> **Key principle:** gameplay systems remain independent from presentation and UI.
+• Eliminates frequent Instantiate/Destroy calls  
+• Reduces runtime allocations and GC spikes  
+• Maintains stable performance under high object counts  
 
 ---
 
-## 📂 Project Structure
+## 🧠 Architecture
 
-```
-Assets/
-  _Project/
-    App/
-      Gameplay/
-        Player/
-        Enemy/
-        Combat/
-      Systems/
-        Pooling/
-        Input/
-      Presentation/
-      Bootstrap/
-```
+The project is structured around clean architecture principles:
 
-The structure is designed to keep **gameplay systems modular and maintainable**.
+• Separation of gameplay logic, systems, and presentation  
+• Event-based communication instead of direct dependencies  
+• Systems designed to be extended without modification  
+• Focus on long-term maintainability and scalability  
 
 ---
 
-## 📸 Gameplay Screenshots
+## 📈 Results
 
-<p align="center">
-  <img src="gameplay1.png" width="260" />
-  <img src="gameplay2.png" width="260" />
-  <img src="gameplay3.png" width="260" />
-</p>
-
----
-
-## 🎯 Purpose of This Project
-
-This project serves as:
-
-* a **gameplay prototype**
-* a **portfolio project demonstrating Unity architecture**
-* a sandbox for experimenting with **modular enemy systems**
-* a base for a **future mobile game release**
+• Stable gameplay performance under heavy load  
+• Reduced GC pressure through pooling  
+• Systems that can be extended without rewriting core logic  
+• Clear separation of responsibilities across systems  
 
 ---
 
-## 👨‍💻 Developer
+## 🛠 Tech
 
-**Oleksandr Tokarev**
-Unity & C# Game Developer based in Finland
-
-GitHub: https://github.com/SD7games
+Unity, C#, ScriptableObjects, Object Pooling, Event-driven Architecture, MVC/SRP principles
 
 ---
 
-## License
+## 🎯 Purpose
 
-Source available for **portfolio and educational purposes only**.
+This project demonstrates practical system design skills:
+building scalable gameplay architecture, solving performance bottlenecks, and maintaining code quality as project complexity grows.
 
-You may view and study the source code, but redistribution, commercial use, or publishing the game (or modified versions) is not allowed without written permission from the author.
+---
+
+## 👨‍💻 Author
+
+Oleksandr Tokarev  
+Unity Gameplay Developer
