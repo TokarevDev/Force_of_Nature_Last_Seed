@@ -6,7 +6,8 @@ using System.Collections.Generic;
 /// </summary>
 public sealed class WeaponRuntimeState
 {
-    public float FireRateMultiplier = 1f;
+    public float DamageMultiplier = 1f;
+    public float FireRateBonus = 0f;
 
     public readonly List<ShotModifierData> ShotModifiers = new();
 }

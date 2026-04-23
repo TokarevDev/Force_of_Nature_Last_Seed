@@ -4,11 +4,11 @@ using UnityEngine;
 [Serializable]
 public sealed class RewardModifierEntry
 {
-    [SerializeField] private ShotModifierData _modifier;
+    [SerializeField] private RewardEffect _effect;
     [SerializeField] private string _title;
     [SerializeField][TextArea(2, 4)] private string _description;
 
-    public ShotModifierData Modifier => _modifier;
+    public RewardEffect Effect => _effect;
     public string Title => _title;
     public string Description => _description;
 }

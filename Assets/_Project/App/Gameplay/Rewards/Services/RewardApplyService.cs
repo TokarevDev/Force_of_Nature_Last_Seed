@@ -9,10 +9,10 @@ public sealed class RewardApplyService
 
     public void Apply(RewardChoiceData choice)
     {
-        if (choice == null || choice.Modifier == null)
+        if (choice == null || choice.Effect == null)
             return;
 
-        _weapon.RuntimeState.ShotModifiers.Add(choice.Modifier);
+        choice.Effect.Apply(_weapon.RuntimeState);
         _weapon.ForceRebuild();
     }
 }

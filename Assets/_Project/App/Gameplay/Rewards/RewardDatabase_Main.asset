@@ -13,9 +13,12 @@ MonoBehaviour:
   m_Name: RewardDatabase_Main
   m_EditorClassIdentifier: Assembly-CSharp::RewardDatabase
   _rewards:
-  - _modifier: {fileID: 11400000, guid: 5ebfbc3fccff5554ebbacaf4e78753bb, type: 2}
+  - _effect: {fileID: 11400000, guid: c70866be351cecc40931a1460bae9830, type: 2}
+    _title: Damage
+    _description: Increase Damage +30%.
+  - _effect: {fileID: 11400000, guid: 30f5571275211334991b91308dc0c3d4, type: 2}
+    _title: Fire Rate
+    _description: Increase fire rate by 20%.
+  - _effect: {fileID: 11400000, guid: 9fbccc6d641f1134d9bc324773a229f5, type: 2}
     _title: Parallel
-    _description: Increase projectile count +1.
-  - _modifier: {fileID: 11400000, guid: 253bebe7756b7724fb9370cb531ba29e, type: 2}
-    _title: Spread
-    _description: Fires projectiles in a cone. Multiplay projectiles.
+    _description: Increase projectile +1 to parallel.

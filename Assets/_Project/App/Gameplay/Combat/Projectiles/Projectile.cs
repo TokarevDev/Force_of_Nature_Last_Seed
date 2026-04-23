@@ -82,13 +82,13 @@ public sealed class Projectile : MonoBehaviour
     /// Applies projectile configuration coming from a ScriptableObject.
     /// This defines damage, speed, penetration and visual behaviour.
     /// </summary>
-    public void ApplyConfig(ProjectileConfig config)
+    public void ApplyConfig(ProjectileConfig config, int damage)
     {
         _renderer.sprite = config.Sprite;
         _baseVisualRotation = config.RotateSprite;
 
         _lifeTime = Mathf.Max(0.05f, config.LifeTime);
-        _damage = config.Damage;
+        _damage = damage;
         _penetrationLeft = Mathf.Max(0, config.Penetration);
 
         _movement.SetSpeed(config.Speed);

@@ -19,12 +19,10 @@ public sealed class PlayerShooter : MonoBehaviour
     [SerializeField] private WeaponConfig _startConfig;
 
     private IWeapon _weapon;
-    private ProjectileWeapon _projectileWeapon;
 
     private void Awake()
     {
         _weapon = _weaponBehaviour as IWeapon;
-        _projectileWeapon = _weaponBehaviour as ProjectileWeapon;
 
         if (_weapon == null)
         {
@@ -32,19 +30,23 @@ public sealed class PlayerShooter : MonoBehaviour
             return;
         }
 
-        var runtimeConfig = _startConfig.CreateRuntimeInstance();
-
-        if (runtimeConfig.Projectile == null)
+        if (_startConfig == null)
         {
-            Debug.LogError("ProjectileConfig is missing", this);
+            Debug.LogError("Start Weapon Config is missing.", this);
             return;
         }
 
-        var projectilePrefab = runtimeConfig.Projectile.Prefab;
+        if (_startConfig.Projectile == null)
+        {
+            Debug.LogError("ProjectileConfig is missing.", this);
+            return;
+        }
+
+        var projectilePrefab = _startConfig.Projectile.Prefab;
         var pool = _registry.GetPool(projectilePrefab);
 
         _weapon.Init(pool, _firePoint);
-        _weapon.ApplyConfig(runtimeConfig);
+        _weapon.ApplyConfig(_startConfig);
     }
 
     private void Update()

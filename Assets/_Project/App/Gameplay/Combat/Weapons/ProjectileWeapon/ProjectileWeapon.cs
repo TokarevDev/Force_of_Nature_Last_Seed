@@ -16,20 +16,15 @@ public sealed class ProjectileWeapon : MonoBehaviour, IWeapon
     private ProjectilePool _pool;
     private Transform _firePoint;
 
-    private float _cooldown;
-    private float _currentFireRate;
+    private float _shotCooldown;
+    private float _currentShotCooldown;
+    private float _minShotCooldown = 0.5f;
 
     private readonly List<ShotSpawnData> _shots = new();
 
     private WeaponRuntimeState _runtimeState;
 
     public WeaponRuntimeState RuntimeState => _runtimeState;
-
-    private void OnDestroy()
-    {
-        if (_config != null)
-            _config.OnModifiersChanged -= RebuildModifiers;
-    }
 
     public void Init(ProjectilePool pool, Transform firePoint)
     {
@@ -39,16 +34,10 @@ public sealed class ProjectileWeapon : MonoBehaviour, IWeapon
 
     public void ApplyConfig(WeaponConfig config)
     {
-        if (_config != null)
-            _config.OnModifiersChanged -= RebuildModifiers;
-
         _config = config;
 
         if (_runtimeState == null)
             _runtimeState = new WeaponRuntimeState();
-
-        if (_config != null)
-            _config.OnModifiersChanged += RebuildModifiers;
 
         RebuildModifiers();
     }
@@ -57,12 +46,12 @@ public sealed class ProjectileWeapon : MonoBehaviour, IWeapon
     {
         if (_pool == null || _firePoint == null || _config == null) return;
 
-        _cooldown -= Time.deltaTime;
+        _shotCooldown -= Time.deltaTime;
 
-        if (_cooldown <= 0f)
+        if (_shotCooldown <= 0f)
         {
             Fire();
-            _cooldown = Mathf.Max(0.02f, _currentFireRate);
+            _shotCooldown = Mathf.Max(_minShotCooldown, _currentShotCooldown);
         }
     }
 
@@ -73,11 +62,14 @@ public sealed class ProjectileWeapon : MonoBehaviour, IWeapon
     {
         if (_config == null) return;
 
-        _currentFireRate = _config.FireRate / _runtimeState.FireRateMultiplier;
+        _currentShotCooldown = _config.FireRate / (1f + _runtimeState.FireRateBonus);
 
-        Debug.Log($"[Rebuild] FireRate = {_currentFireRate} | Multiplier = {_runtimeState.FireRateMultiplier}");
+        Debug.Log(
+            $"BaseFireRate={_config.FireRate}, " +
+            $"Bonus={_runtimeState.FireRateBonus}" +
+            $"CurrentCooldown={_currentShotCooldown}");
 
-        _cooldown = 0f;
+        _shotCooldown = 0f;
     }
 
     public void ForceRebuild()
@@ -171,7 +163,11 @@ public sealed class ProjectileWeapon : MonoBehaviour, IWeapon
     private void Spawn(ShotSpawnData shot)
     {
         var projectile = _pool.Get();
-        projectile.ApplyConfig(_config.Projectile);
+
+        int finalDamage = Mathf.RoundToInt(
+            _config.Projectile.Damage * _runtimeState.DamageMultiplier);
+
+        projectile.ApplyConfig(_config.Projectile, finalDamage);
         projectile.Activate(shot.Position, shot.Rotation);
     }
 }

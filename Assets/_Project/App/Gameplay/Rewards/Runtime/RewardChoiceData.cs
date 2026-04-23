@@ -1,13 +1,12 @@
-
 public sealed class RewardChoiceData
 {
-    public ShotModifierData Modifier { get; }
+    public RewardEffect Effect { get; }
     public string Title { get; }
     public string Description { get; }
 
     public RewardChoiceData(RewardModifierEntry entry)
     {
-        Modifier = entry.Modifier;
+        Effect = entry.Effect;
         Title = entry.Title;
         Description = entry.Description;
     }
