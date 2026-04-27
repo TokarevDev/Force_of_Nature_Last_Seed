@@ -12,22 +12,39 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a6531b22a01bcf84f993f1898dfafa80, type: 3}
   m_Name: RewardDatabase_Main
   m_EditorClassIdentifier: Assembly-CSharp::RewardDatabase
+  _rarityWeights:
+  - _rarity: 0
+    _weight: 1
+  - _rarity: 1
+    _weight: 0.3
+  - _rarity: 2
+    _weight: 0.1
   _rewards:
   - _effect: {fileID: 11400000, guid: c70866be351cecc40931a1460bae9830, type: 2}
+    _rarity: 0
     _title: Damage
     _description: Increase Damage +30%.
   - _effect: {fileID: 11400000, guid: 30f5571275211334991b91308dc0c3d4, type: 2}
+    _rarity: 0
     _title: Fire Rate
     _description: Increase fire rate by 20%.
   - _effect: {fileID: 11400000, guid: 9fbccc6d641f1134d9bc324773a229f5, type: 2}
+    _rarity: 0
     _title: Parallel
     _description: Increase projectile +1 to parallel.
   - _effect: {fileID: 11400000, guid: aa173d47b4ed4b2f9220bfd3eb153c21, type: 2}
+    _rarity: 0
     _title: Critical Chance
     _description: Critical hit chance +10%.
+  - _effect: {fileID: 11400000, guid: 5bb4e0fe8c8d46f0b4062601d90a91b8, type: 2}
+    _rarity: 0
+    _title: Critical Power
+    _description: Critical damage +50%.
   - _effect: {fileID: 11400000, guid: b3081f02e8f8482db6f8d081292a82dd, type: 2}
+    _rarity: 0
     _title: Penetration
     _description: Projectile penetration +1.
   - _effect: {fileID: 11400000, guid: c7b6f7785f6342ba80e7872fa2a5c1a1, type: 2}
-    _title: Burst Fire
-    _description: Fire one extra shot after 0.25 seconds before weapon cooldown.
+    _rarity: 0
+    _title: Salvo
+    _description: 'Salvo +1 '

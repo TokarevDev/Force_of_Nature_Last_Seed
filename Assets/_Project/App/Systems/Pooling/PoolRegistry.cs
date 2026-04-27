@@ -17,8 +17,16 @@ public sealed class PoolRegistry : MonoBehaviour
     private readonly Dictionary<int, ProjectilePool> _pools = new();
     private IScreenBounds _screenBounds;
 
+    public bool IsInitialized => _screenBounds != null;
+
     public void Init(IScreenBounds screenBounds)
     {
+        if (screenBounds == null)
+        {
+            Debug.LogError("PoolRegistry: screen bounds are null.", this);
+            return;
+        }
+
         _screenBounds = screenBounds;
     }
 
@@ -48,6 +56,12 @@ public sealed class PoolRegistry : MonoBehaviour
     /// </summary>
     private ProjectilePool CreatePool(Projectile prefab, int key)
     {
+        if (_poolPrefab == null)
+        {
+            Debug.LogError("PoolRegistry: pool prefab is not set.", this);
+            return null;
+        }
+
         if (_screenBounds == null)
         {
             Debug.LogError("PoolRegistry: screen bounds are not initialized.", this);

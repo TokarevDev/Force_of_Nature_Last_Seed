@@ -227,6 +227,8 @@ public sealed class WormController : MonoBehaviour
     /// <summary>
     /// Performs smooth rollback of the worm head until
     /// the destroyed gap is closed.
+    /// Uses unscaled time so the chain can visually reconnect while
+    /// the reward popup keeps gameplay paused through Time.timeScale.
     /// </summary>
     private IEnumerator SectionRollbackRoutine(float rollbackDistance)
     {
@@ -239,13 +241,15 @@ public sealed class WormController : MonoBehaviour
             _headDistance = Mathf.MoveTowards(
                 _headDistance,
                 target,
-                _rollbackSpeed * Time.deltaTime
+                _rollbackSpeed * Time.unscaledDeltaTime
             );
 
+            UpdateSegments();
             yield return null;
         }
 
         _headDistance = target;
+        UpdateSegments();
 
         _isSectionRollback = false;
         _rollbackSplitIndex = -1;

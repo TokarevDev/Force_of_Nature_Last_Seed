@@ -19,9 +19,13 @@ public sealed class PlayerShooter : MonoBehaviour
     [SerializeField] private WeaponConfig _startConfig;
 
     private IWeapon _weapon;
+    private bool _initialized;
 
-    private void Awake()
+    public void Init()
     {
+        if (_initialized)
+            return;
+
         _weapon = _weaponBehaviour as IWeapon;
 
         if (_weapon == null)
@@ -42,15 +46,34 @@ public sealed class PlayerShooter : MonoBehaviour
             return;
         }
 
+        if (_registry == null)
+        {
+            Debug.LogError("Pool registry is missing.", this);
+            return;
+        }
+
+        if (_firePoint == null)
+        {
+            Debug.LogError("Fire point is missing.", this);
+            return;
+        }
+
         var projectilePrefab = _startConfig.Projectile.Prefab;
         var pool = _registry.GetPool(projectilePrefab);
 
+        if (pool == null)
+            return;
+
         _weapon.Init(pool, _firePoint);
         _weapon.ApplyConfig(_startConfig);
+        _initialized = true;
     }
 
     private void Update()
     {
+        if (!_initialized)
+            return;
+
         if (!CombatState.CanShoot)
             return;
 

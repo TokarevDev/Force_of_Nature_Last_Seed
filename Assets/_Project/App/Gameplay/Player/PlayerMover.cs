@@ -10,6 +10,8 @@ public sealed class PlayerMover : MonoBehaviour
     private IScreenBounds _screenBounds;
     private float _currentInput;
 
+    public float MovementInput => _currentInput;
+
     public void Init(IScreenBounds screenBounds)
     {
         _screenBounds = screenBounds;

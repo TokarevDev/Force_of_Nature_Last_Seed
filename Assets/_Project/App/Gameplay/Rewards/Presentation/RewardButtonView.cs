@@ -29,8 +29,23 @@ public sealed class RewardButtonView : MonoBehaviour
         if (_description != null)
             _description.text = data.Description;
 
+        if (_button != null)
+            ApplyRarityColor(data.Rarity);
+
         _button.onClick.RemoveAllListeners();
         _button.onClick.AddListener(OnClick);
+    }
+
+    private void ApplyRarityColor(RewardRarity rarity)
+    {
+        Color color = RewardRarityPalette.GetColor(rarity);
+        ColorBlock colors = _button.colors;
+        colors.normalColor = color;
+        colors.highlightedColor = Color.Lerp(color, Color.white, 0.18f);
+        colors.selectedColor = colors.highlightedColor;
+        colors.pressedColor = Color.Lerp(color, Color.black, 0.18f);
+        colors.disabledColor = Color.Lerp(color, Color.gray, 0.5f);
+        _button.colors = colors;
     }
 
     private void OnClick()

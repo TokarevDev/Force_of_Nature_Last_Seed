@@ -27,13 +27,18 @@ public sealed class WeaponRuntimeState
         FireRateBonus += bonus;
     }
 
-    public void AddCriticalChance(float chanceBonus, float criticalDamageMultiplier)
+    public void AddCriticalChance(float chanceBonus, float minimumCriticalDamageMultiplier)
     {
         CriticalChance = UnityEngine.Mathf.Clamp01(CriticalChance + chanceBonus);
         CriticalDamageMultiplier = UnityEngine.Mathf.Max(
             CriticalDamageMultiplier,
-            criticalDamageMultiplier
+            minimumCriticalDamageMultiplier
         );
+    }
+
+    public void AddCriticalDamageBonus(float damageBonus)
+    {
+        CriticalDamageMultiplier += UnityEngine.Mathf.Max(0f, damageBonus);
     }
 
     public void AddPenetration(int bonus)

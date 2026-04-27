@@ -9,8 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 66673befed4df024cbdf7d193b8efb94, type: 3}
-  m_Name: MainWeaponConfig_Default
-  m_EditorClassIdentifier: Assembly-CSharp::WeaponConfig
-  FireRate: 2.5
-  Projectile: {fileID: 11400000, guid: 0ce9c42391f600d419964b6d2b80397b, type: 2}
+  m_Script: {fileID: 11500000, guid: 6fd2e3d9a8c14f34ab9f0d6c0e9e4b22, type: 3}
+  m_Name: RE_CriticalPower_50Percent
+  m_EditorClassIdentifier: Assembly-CSharp::CriticalPowerRewardEffect
+  _criticalDamageBonus: 0.5
