@@ -23,6 +23,11 @@ public sealed class WormController : MonoBehaviour
     [Header("Movement")]
     [SerializeField] private float _speed = 3f;
 
+    [Header("Catch Up")]
+    [SerializeField] private Transform _catchUpTarget;
+    [SerializeField][Min(0f)] private float _catchUpSpeed = 6f;
+    [SerializeField][Min(0f)] private float _catchUpStopOffset = 0f;
+
     [Header("Segments")]
     [SerializeField] private float _segmentSpacing = 0.5f;
 
@@ -70,9 +75,28 @@ public sealed class WormController : MonoBehaviour
             return;
 
         if (!_isSectionRollback)
-            _headDistance += _speed * Time.deltaTime;
+            _headDistance += GetForwardSpeed() * Time.deltaTime;
 
         UpdateSegments();
+    }
+
+    private float GetForwardSpeed()
+    {
+        if (!ShouldCatchUp())
+            return _speed;
+
+        return Mathf.Max(_speed, _catchUpSpeed);
+    }
+
+    private bool ShouldCatchUp()
+    {
+        if (_catchUpTarget == null || _rail == null)
+            return false;
+
+        float targetDistance = _rail.GetClosestDistance(_catchUpTarget.position);
+        targetDistance = Mathf.Max(0f, targetDistance - _catchUpStopOffset);
+
+        return _headDistance < targetDistance;
     }
 
     /// <summary>

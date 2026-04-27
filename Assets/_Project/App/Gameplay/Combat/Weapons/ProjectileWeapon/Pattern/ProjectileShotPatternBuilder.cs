@@ -7,8 +7,6 @@ using UnityEngine;
 /// </summary>
 public sealed class ProjectileShotPatternBuilder
 {
-    private const float DefaultParallelSpacing = 0.5f;
-
     public void Build(
         Vector3 origin,
         Quaternion rotation,
@@ -48,20 +46,15 @@ public sealed class ProjectileShotPatternBuilder
     {
         var settings = new ShotPatternSettings
         {
-            ParallelCount = 1,
+            ParallelCount = runtimeState.ParallelProjectileCount,
             SpreadCount = 1,
             SpreadAngle = 0f,
-            Spacing = DefaultParallelSpacing
+            Spacing = runtimeState.ParallelSpacing
         };
 
         foreach (var modifier in runtimeState.ShotModifiers)
         {
-            if (modifier is ParallelModifierData parallel)
-            {
-                settings.ParallelCount += parallel.Count - 1;
-                settings.Spacing = parallel.Spacing;
-            }
-            else if (modifier is SpreadModifierData spread)
+            if (modifier is SpreadModifierData spread)
             {
                 settings.SpreadCount += spread.Count - 1;
                 settings.SpreadAngle += spread.Angle * 0.5f;

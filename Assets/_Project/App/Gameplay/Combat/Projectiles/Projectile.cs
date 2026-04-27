@@ -165,7 +165,7 @@ public sealed class Projectile : MonoBehaviour
         if (segment == null || !segment.IsAlive)
             return;
 
-        var section = segment.Section;
+        var section = receiver.GetDamageSection();
         if (section == null || section.IsDestroyed)
             return;
 

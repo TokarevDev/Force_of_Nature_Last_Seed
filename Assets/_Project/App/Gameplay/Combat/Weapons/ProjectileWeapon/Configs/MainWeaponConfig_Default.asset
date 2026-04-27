@@ -13,4 +13,6 @@ MonoBehaviour:
   m_Name: MainWeaponConfig_Default
   m_EditorClassIdentifier: Assembly-CSharp::WeaponConfig
   FireRate: 2.5
+  MinShotCooldown: 0.5
+  MaxFireRateBonus: 2
   Projectile: {fileID: 11400000, guid: 0ce9c42391f600d419964b6d2b80397b, type: 2}

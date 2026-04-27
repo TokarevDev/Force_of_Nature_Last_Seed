@@ -15,12 +15,11 @@ public sealed class ProjectileWeapon : MonoBehaviour, IWeapon
     private ProjectilePool _pool;
     private Transform _firePoint;
 
-    private float _shotCooldown;
+    private float _weaponCooldownTimer;
     private float _currentShotCooldown;
-    private float _minShotCooldown = 0.5f;
-    private float _burstTimer;
-    private int _burstShotsRemaining;
-    private bool _isBursting;
+    private float _salvoTimer;
+    private int _salvoShotsRemaining;
+    private bool _isSalvoActive;
 
     private readonly List<ShotSpawnData> _shots = new();
     private readonly ProjectileShotPatternBuilder _shotPatternBuilder = new();
@@ -42,91 +41,111 @@ public sealed class ProjectileWeapon : MonoBehaviour, IWeapon
         if (_runtimeState == null)
             _runtimeState = new WeaponRuntimeState();
 
-        RebuildModifiers();
+        _runtimeState.SetFireRateBonusLimit(_config.MaxFireRateBonus);
+
+        RebuildModifiers(resetFiringCycle: true);
     }
 
     public void Tick()
     {
         if (_pool == null || _firePoint == null || _config == null) return;
 
-        if (_isBursting)
+        if (_isSalvoActive)
         {
-            TickBurst();
+            TickSalvo();
             return;
         }
 
-        _shotCooldown -= Time.deltaTime;
+        _weaponCooldownTimer -= Time.deltaTime;
 
-        if (_shotCooldown <= 0f)
-            StartBurst();
+        if (_weaponCooldownTimer <= 0f)
+            StartSalvo();
     }
 
     /// <summary>
     /// Rebuilds fire rate using runtime multipliers.
     /// </summary>
-    private void RebuildModifiers()
+    private void RebuildModifiers(bool resetFiringCycle)
     {
         if (_config == null) return;
 
-        _currentShotCooldown = _config.FireRate / (1f + _runtimeState.FireRateBonus);
+        float effectiveFireRateBonus = Mathf.Min(
+            _runtimeState.FireRateBonus,
+            _config.MaxFireRateBonus);
+
+        _currentShotCooldown = Mathf.Max(
+            _config.MinShotCooldown,
+            _config.FireRate / (1f + effectiveFireRateBonus));
 
         Debug.Log(
             $"BaseFireRate={_config.FireRate}, " +
-            $"Bonus={_runtimeState.FireRateBonus}" +
+            $"Bonus={_runtimeState.FireRateBonus}, " +
+            $"EffectiveBonus={effectiveFireRateBonus}, " +
             $"CurrentCooldown={_currentShotCooldown}");
 
-        _shotCooldown = 0f;
+        if (resetFiringCycle)
+        {
+            ResetFiringCycle();
+            return;
+        }
+
+        if (!_isSalvoActive)
+            _weaponCooldownTimer = Mathf.Min(_weaponCooldownTimer, _currentShotCooldown);
     }
 
     public void ForceRebuild()
     {
-        RebuildModifiers();
+        RebuildModifiers(resetFiringCycle: false);
     }
 
-    private void StartBurst()
+    private void ResetFiringCycle()
+    {
+        _isSalvoActive = false;
+        _salvoTimer = 0f;
+        _salvoShotsRemaining = 0;
+        _weaponCooldownTimer = 0f;
+    }
+
+    private void StartSalvo()
+    {
+        _salvoShotsRemaining = 1 + Mathf.Max(0, _runtimeState.SalvoExtraShots);
+        FireSalvoShot();
+    }
+
+    private void TickSalvo()
+    {
+        _salvoTimer -= Time.deltaTime;
+
+        if (_salvoTimer > 0f)
+            return;
+
+        FireSalvoShot();
+    }
+
+    private void FireSalvoShot()
     {
         Fire();
+        _salvoShotsRemaining--;
 
-        _burstShotsRemaining = Mathf.Max(0, _runtimeState.BurstExtraShots);
-
-        if (_burstShotsRemaining <= 0)
+        if (_salvoShotsRemaining <= 0)
         {
+            _isSalvoActive = false;
             StartWeaponCooldown();
             return;
         }
 
-        _isBursting = true;
-        _burstTimer = GetBurstInterval();
-    }
-
-    private void TickBurst()
-    {
-        _burstTimer -= Time.deltaTime;
-
-        while (_burstShotsRemaining > 0 && _burstTimer <= 0f)
-        {
-            Fire();
-            _burstShotsRemaining--;
-
-            if (_burstShotsRemaining > 0)
-                _burstTimer += GetBurstInterval();
-        }
-
-        if (_burstShotsRemaining > 0)
-            return;
-
-        _isBursting = false;
-        StartWeaponCooldown();
+        _isSalvoActive = true;
+        _salvoTimer = GetSalvoInterval();
     }
 
     private void StartWeaponCooldown()
     {
-        _shotCooldown = Mathf.Max(_minShotCooldown, _currentShotCooldown);
+        _weaponCooldownTimer = _currentShotCooldown;
     }
 
-    private float GetBurstInterval()
+    private float GetSalvoInterval()
     {
-        return Mathf.Max(0.01f, _runtimeState.BurstInterval);
+        return Mathf.Max(0.01f, _runtimeState.SalvoInterval);
     }
 
     private void Fire()

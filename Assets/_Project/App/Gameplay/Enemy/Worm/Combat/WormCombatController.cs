@@ -34,13 +34,7 @@ public sealed class WormCombatController : MonoBehaviour
 
     public void RegisterHit(WormSegment segment, in DamageInfo damageInfo)
     {
-        if (segment == null)
-            return;
-
-        if (segment.Type is WormSegmentType.Head or WormSegmentType.Tail)
-            return;
-
-        WormSection section = segment.Section;
+        WormSection section = ResolveDamageSection(segment);
 
         if (section == null || section.IsDestroyed)
             return;
@@ -100,5 +94,37 @@ public sealed class WormCombatController : MonoBehaviour
 
             OnWormDied?.Invoke();
         }
+    }
+
+    public WormSection ResolveDamageSection(WormSegment segment)
+    {
+        if (segment == null || !segment.IsAlive)
+            return null;
+
+        if (segment.Type == WormSegmentType.Head)
+            return GetFirstAliveSection();
+
+        if (segment.Type == WormSegmentType.Tail)
+            return null;
+
+        WormSection section = segment.Section;
+
+        if (section == null || section.IsDestroyed)
+            return null;
+
+        return section;
+    }
+
+    private WormSection GetFirstAliveSection()
+    {
+        for (int i = 0; i < _sections.Count; i++)
+        {
+            WormSection section = _sections[i];
+
+            if (section != null && !section.IsDestroyed)
+                return section;
+        }
+
+        return null;
     }
 }

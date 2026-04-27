@@ -48,3 +48,51 @@ MonoBehaviour:
     _rarity: 0
     _title: Salvo
     _description: 'Salvo +1 '
+  - _effect: {fileID: 11400000, guid: a3dce8986c9a42c68bea909fc8831053, type: 2}
+    _rarity: 1
+    _title: Damage
+    _description: Increase damage +100%.
+  - _effect: {fileID: 11400000, guid: f7c0618e65894e5eb2ec8cffa8780532, type: 2}
+    _rarity: 1
+    _title: Fire Rate
+    _description: Increase fire rate by 50%.
+  - _effect: {fileID: 11400000, guid: 91d57df9f7954bacab35c78cd4e08497, type: 2}
+    _rarity: 1
+    _title: Parallel
+    _description: Increase projectile +2 to parallel.
+  - _effect: {fileID: 11400000, guid: 93a656bf6cfe4ecea7362ff68e6d77ae, type: 2}
+    _rarity: 1
+    _title: Critical Chance
+    _description: Critical hit chance +20%.
+  - _effect: {fileID: 11400000, guid: 6a8587b9cc524a03a1c7aa26889eb99a, type: 2}
+    _rarity: 1
+    _title: Critical Power
+    _description: Critical damage +100%.
+  - _effect: {fileID: 11400000, guid: d69823c8ea6b4d7f89c8852e000b5e53, type: 2}
+    _rarity: 1
+    _title: Penetration
+    _description: Projectile penetration +2.
+  - _effect: {fileID: 11400000, guid: 2b7e6751e6244ff2a453bad261ecf49d, type: 2}
+    _rarity: 2
+    _title: Damage
+    _description: Increase damage +200%.
+  - _effect: {fileID: 11400000, guid: 18c489197918486db7c2f5330fe9a6f3, type: 2}
+    _rarity: 2
+    _title: Fire Rate
+    _description: Increase fire rate by 100%.
+  - _effect: {fileID: 11400000, guid: d5d4be9f2d3b4963a79e8b5afb0811c8, type: 2}
+    _rarity: 2
+    _title: Parallel
+    _description: Increase projectile +4 to parallel.
+  - _effect: {fileID: 11400000, guid: 28a1d5dec7af4bf09fa9e2c7810938fe, type: 2}
+    _rarity: 2
+    _title: Critical Chance
+    _description: Critical hit chance +50%.
+  - _effect: {fileID: 11400000, guid: f69604ad030f426ea0e0f8636447927f, type: 2}
+    _rarity: 2
+    _title: Critical Power
+    _description: Critical damage +200%.
+  - _effect: {fileID: 11400000, guid: 29779d0340c74e1e94bd3d283cb6f2bd, type: 2}
+    _rarity: 2
+    _title: Penetration
+    _description: Projectile penetration +4.

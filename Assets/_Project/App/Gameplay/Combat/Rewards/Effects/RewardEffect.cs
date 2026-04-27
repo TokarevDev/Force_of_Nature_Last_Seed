@@ -6,5 +6,10 @@ using UnityEngine;
 /// </summary>
 public abstract class RewardEffect : ScriptableObject
 {
+    public virtual bool CanApply(WeaponRuntimeState state)
+    {
+        return state != null;
+    }
+
     public abstract void Apply(WeaponRuntimeState state);
 }

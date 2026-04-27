@@ -17,6 +17,14 @@ public sealed class WormSegmentDamageReceiver : MonoBehaviour, IDamageable
         return _segment;
     }
 
+    public WormSection GetDamageSection()
+    {
+        if (_combat == null)
+            return null;
+
+        return _combat.ResolveDamageSection(_segment);
+    }
+
     public void TakeDamage(in DamageInfo damageInfo)
     {
         if (_combat == null || _segment == null)

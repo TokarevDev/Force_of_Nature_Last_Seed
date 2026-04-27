@@ -9,8 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e41cae359be24e8ea6d699152871dcc7, type: 3}
-  m_Name: RE_SalvoEffect
-  m_EditorClassIdentifier: Assembly-CSharp::SalvoFireRewardEffect
-  _extraShots: 1
-  _shotInterval: 0.2
+  m_Script: {fileID: 11500000, guid: cd4df1f2d19036f4ab188d82bd391aaf, type: 3}
+  m_Name: RE_Damage_200Percent
+  m_EditorClassIdentifier: Assembly-CSharp::DamageRewardEffect
+  _multiplier: 3

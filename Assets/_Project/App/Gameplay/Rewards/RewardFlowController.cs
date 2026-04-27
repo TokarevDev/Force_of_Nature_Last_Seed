@@ -34,7 +34,7 @@ public sealed class RewardFlowController : IDisposable
 
     public void Open()
     {
-        _currentChoices = _rollService.Roll3();
+        _currentChoices = _rollService.Roll3(_applyService.RuntimeState);
         _popup.Show(_currentChoices);
     }
 

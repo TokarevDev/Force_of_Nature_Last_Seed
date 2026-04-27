@@ -461,7 +461,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WormController
   _rail: {fileID: 192453719}
-  _speed: 1.2
+  _speed: 1
+  _catchUpTarget: {fileID: 1832324678}
+  _catchUpSpeed: 3
+  _catchUpStopOffset: 0
   _segmentSpacing: 0.5
   _waveAmplitude: 0.05
   _waveFrequency: 4

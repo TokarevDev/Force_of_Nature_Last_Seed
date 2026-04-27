@@ -83,6 +83,8 @@ public sealed class RailPath : MonoBehaviour
 
     public Vector3 GetPoint(float distance)
     {
+        EnsureBuilt();
+
         distance = Mathf.Clamp(distance, 0, _totalLength);
 
         float fIndex = distance / _sampleStep;
@@ -98,5 +100,43 @@ public sealed class RailPath : MonoBehaviour
             _samples[index + 1],
             t
         );
+    }
+
+    public float GetClosestDistance(Vector3 worldPosition)
+    {
+        EnsureBuilt();
+
+        if (_samples == null || _samples.Length == 0)
+            return 0f;
+
+        int closestIndex = 0;
+        float closestSqrDistance = float.MaxValue;
+
+        for (int i = 0; i < _samples.Length; i++)
+        {
+            float sqrDistance = Vector3.SqrMagnitude(_samples[i] - worldPosition);
+            if (sqrDistance >= closestSqrDistance)
+                continue;
+
+            closestSqrDistance = sqrDistance;
+            closestIndex = i;
+        }
+
+        return Mathf.Clamp(closestIndex * _sampleStep, 0f, _totalLength);
+    }
+
+    private void EnsureBuilt()
+    {
+        if (_samples != null && _samples.Length > 0)
+            return;
+
+        if (_waypoints == null || _waypoints.Length < 2)
+            return;
+
+        if (_sampleStep <= 0f)
+            _sampleStep = 0.1f;
+
+        CalculateDistances();
+        BuildSamples();
     }
 }

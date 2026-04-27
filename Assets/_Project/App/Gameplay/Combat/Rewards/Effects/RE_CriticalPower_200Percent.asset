@@ -9,8 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e41cae359be24e8ea6d699152871dcc7, type: 3}
-  m_Name: RE_SalvoEffect
-  m_EditorClassIdentifier: Assembly-CSharp::SalvoFireRewardEffect
-  _extraShots: 1
-  _shotInterval: 0.2
+  m_Script: {fileID: 11500000, guid: 6fd2e3d9a8c14f34ab9f0d6c0e9e4b22, type: 3}
+  m_Name: RE_CriticalPower_200Percent
+  m_EditorClassIdentifier: Assembly-CSharp::CriticalPowerRewardEffect
+  _criticalDamageBonus: 2

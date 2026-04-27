@@ -18,13 +18,19 @@ public sealed class RewardRollService
         _database = database;
     }
 
-    public List<RewardChoiceData> Roll3()
+    public List<RewardChoiceData> Roll3(WeaponRuntimeState state)
     {
         var result = new List<RewardChoiceData>(MAX_CHOICES);
 
         if (_database == null)
         {
             Debug.LogWarning("Reward database is not set.");
+            return result;
+        }
+
+        if (state == null)
+        {
+            Debug.LogWarning("Cannot roll rewards: weapon runtime state is not initialized.");
             return result;
         }
 
@@ -36,7 +42,7 @@ public sealed class RewardRollService
             return result;
         }
 
-        var pools = BuildPools(source);
+        var pools = BuildPools(source, state);
         int count = Mathf.Min(MAX_CHOICES, CountRewards(pools));
 
         for (int i = 0; i < count; i++)
@@ -51,13 +57,17 @@ public sealed class RewardRollService
     }
 
     private Dictionary<RewardRarity, List<RewardModifierEntry>> BuildPools(
-        IReadOnlyList<RewardModifierEntry> source)
+        IReadOnlyList<RewardModifierEntry> source,
+        WeaponRuntimeState state)
     {
         var pools = new Dictionary<RewardRarity, List<RewardModifierEntry>>();
 
         foreach (RewardModifierEntry entry in source)
         {
             if (entry == null || entry.Effect == null)
+                continue;
+
+            if (!entry.Effect.CanApply(state))
                 continue;
 
             if (!pools.TryGetValue(entry.Rarity, out var pool))

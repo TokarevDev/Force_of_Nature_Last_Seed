@@ -4,10 +4,10 @@ using UnityEngine;
 public sealed class SalvoFireRewardEffect : RewardEffect
 {
     [SerializeField][Min(1)] private int _extraShots = 1;
-    [SerializeField][Min(0.01f)] private float _shotInterval = 0.25f;
+    [SerializeField][Min(0.01f)] private float _shotInterval = 0.2f;
 
     public override void Apply(WeaponRuntimeState state)
     {
-        state.AddBurstShots(_extraShots, _shotInterval);
+        state.AddSalvoShots(_extraShots, _shotInterval);
     }
 }

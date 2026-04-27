@@ -9,8 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e41cae359be24e8ea6d699152871dcc7, type: 3}
-  m_Name: RE_SalvoEffect
-  m_EditorClassIdentifier: Assembly-CSharp::SalvoFireRewardEffect
-  _extraShots: 1
-  _shotInterval: 0.2
+  m_Script: {fileID: 11500000, guid: 238ca1e3fc26a694784c2a6306f82c9a, type: 3}
+  m_Name: RE_FireRate_50Percent
+  m_EditorClassIdentifier: Assembly-CSharp::FireRateRewardEffect
+  _bonus: 0.5
