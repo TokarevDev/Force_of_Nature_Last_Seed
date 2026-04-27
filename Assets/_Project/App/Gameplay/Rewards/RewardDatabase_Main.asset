@@ -22,3 +22,12 @@ MonoBehaviour:
   - _effect: {fileID: 11400000, guid: 9fbccc6d641f1134d9bc324773a229f5, type: 2}
     _title: Parallel
     _description: Increase projectile +1 to parallel.
+  - _effect: {fileID: 11400000, guid: aa173d47b4ed4b2f9220bfd3eb153c21, type: 2}
+    _title: Critical Chance
+    _description: Critical hit chance +10%.
+  - _effect: {fileID: 11400000, guid: b3081f02e8f8482db6f8d081292a82dd, type: 2}
+    _title: Penetration
+    _description: Projectile penetration +1.
+  - _effect: {fileID: 11400000, guid: c7b6f7785f6342ba80e7872fa2a5c1a1, type: 2}
+    _title: Burst Fire
+    _description: Fire one extra shot after 0.25 seconds before weapon cooldown.

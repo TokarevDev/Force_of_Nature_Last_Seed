@@ -13,7 +13,7 @@ using UnityEngine;
 ///
 /// The projectile releases itself back to the pool when:
 /// • lifetime expires
-/// • penetration count reaches zero
+/// • allowed hit count reaches zero
 /// • collision occurs with a valid damageable target
 /// </summary>
 [DisallowMultipleComponent]
@@ -32,7 +32,9 @@ public sealed class Projectile : MonoBehaviour
     private float _timer;
 
     private int _damage;
-    private int _penetrationLeft;
+    private int _hitsLeft;
+    private float _criticalChance;
+    private float _criticalDamageMultiplier = 1f;
 
     private ProjectilePool _pool;
     private bool _active;
@@ -83,14 +85,16 @@ public sealed class Projectile : MonoBehaviour
     /// Applies projectile configuration coming from a ScriptableObject.
     /// This defines damage, speed, penetration and visual behaviour.
     /// </summary>
-    public void ApplyConfig(ProjectileConfig config, int damage)
+    public void ApplyConfig(ProjectileConfig config, ProjectileRuntimeStats stats)
     {
         _renderer.sprite = config.Sprite;
         _baseVisualRotation = config.RotateSprite;
 
         _lifeTime = Mathf.Max(0.05f, config.LifeTime);
-        _damage = damage;
-        _penetrationLeft = Mathf.Max(0, config.Penetration);
+        _damage = stats.Damage;
+        _hitsLeft = Mathf.Max(1, 1 + config.Penetration + stats.ExtraPenetration);
+        _criticalChance = stats.CriticalChance;
+        _criticalDamageMultiplier = stats.CriticalDamageMultiplier;
 
         _movement.SetSpeed(config.Speed);
 
@@ -179,12 +183,14 @@ public sealed class Projectile : MonoBehaviour
 
         _hitSections.Add(section);
 
+        int damage = RollDamage(out DamageKind damageKind, out bool isCritical);
+
         var damageInfo = new DamageInfo(
-            _damage,
+            damage,
             hitPosition,
-            DamageKind.Normal,
+            damageKind,
             this,
-            isCritical: false
+            isCritical
         );
 
         receiver.TakeDamage(damageInfo);
@@ -192,12 +198,23 @@ public sealed class Projectile : MonoBehaviour
         _lastHitPosition = hitPosition;
         _hasLastHit = true;
 
-        _penetrationLeft--;
+        _hitsLeft--;
 
-        if (_penetrationLeft > 0)
+        if (_hitsLeft > 0)
             return;
 
         ReleaseSelf();
+    }
+
+    private int RollDamage(out DamageKind damageKind, out bool isCritical)
+    {
+        isCritical = _criticalChance > 0f && Random.value < _criticalChance;
+        damageKind = isCritical ? DamageKind.Critical : DamageKind.Normal;
+
+        if (!isCritical)
+            return _damage;
+
+        return Mathf.Max(1, Mathf.RoundToInt(_damage * _criticalDamageMultiplier));
     }
 
     /// <summary>

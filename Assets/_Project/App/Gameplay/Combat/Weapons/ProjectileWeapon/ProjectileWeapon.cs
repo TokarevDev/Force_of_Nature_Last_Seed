@@ -18,6 +18,9 @@ public sealed class ProjectileWeapon : MonoBehaviour, IWeapon
     private float _shotCooldown;
     private float _currentShotCooldown;
     private float _minShotCooldown = 0.5f;
+    private float _burstTimer;
+    private int _burstShotsRemaining;
+    private bool _isBursting;
 
     private readonly List<ShotSpawnData> _shots = new();
     private readonly ProjectileShotPatternBuilder _shotPatternBuilder = new();
@@ -46,13 +49,16 @@ public sealed class ProjectileWeapon : MonoBehaviour, IWeapon
     {
         if (_pool == null || _firePoint == null || _config == null) return;
 
+        if (_isBursting)
+        {
+            TickBurst();
+            return;
+        }
+
         _shotCooldown -= Time.deltaTime;
 
         if (_shotCooldown <= 0f)
-        {
-            Fire();
-            _shotCooldown = Mathf.Max(_minShotCooldown, _currentShotCooldown);
-        }
+            StartBurst();
     }
 
     /// <summary>
@@ -77,6 +83,52 @@ public sealed class ProjectileWeapon : MonoBehaviour, IWeapon
         RebuildModifiers();
     }
 
+    private void StartBurst()
+    {
+        Fire();
+
+        _burstShotsRemaining = Mathf.Max(0, _runtimeState.BurstExtraShots);
+
+        if (_burstShotsRemaining <= 0)
+        {
+            StartWeaponCooldown();
+            return;
+        }
+
+        _isBursting = true;
+        _burstTimer = GetBurstInterval();
+    }
+
+    private void TickBurst()
+    {
+        _burstTimer -= Time.deltaTime;
+
+        while (_burstShotsRemaining > 0 && _burstTimer <= 0f)
+        {
+            Fire();
+            _burstShotsRemaining--;
+
+            if (_burstShotsRemaining > 0)
+                _burstTimer += GetBurstInterval();
+        }
+
+        if (_burstShotsRemaining > 0)
+            return;
+
+        _isBursting = false;
+        StartWeaponCooldown();
+    }
+
+    private void StartWeaponCooldown()
+    {
+        _shotCooldown = Mathf.Max(_minShotCooldown, _currentShotCooldown);
+    }
+
+    private float GetBurstInterval()
+    {
+        return Mathf.Max(0.01f, _runtimeState.BurstInterval);
+    }
+
     private void Fire()
     {
         _shots.Clear();
@@ -98,11 +150,22 @@ public sealed class ProjectileWeapon : MonoBehaviour, IWeapon
     private void Spawn(ShotSpawnData shot)
     {
         var projectile = _pool.Get();
+        ProjectileRuntimeStats stats = BuildProjectileStats();
 
+        projectile.ApplyConfig(_config.Projectile, stats);
+        projectile.Activate(shot.Position, shot.Rotation);
+    }
+
+    private ProjectileRuntimeStats BuildProjectileStats()
+    {
         int finalDamage = Mathf.RoundToInt(
             _config.Projectile.Damage * _runtimeState.DamageMultiplier);
 
-        projectile.ApplyConfig(_config.Projectile, finalDamage);
-        projectile.Activate(shot.Position, shot.Rotation);
+        return new ProjectileRuntimeStats(
+            finalDamage,
+            _runtimeState.PenetrationBonus,
+            _runtimeState.CriticalChance,
+            _runtimeState.CriticalDamageMultiplier
+        );
     }
 }
