@@ -7,7 +7,7 @@ public sealed class FireRateRewardEffect : RewardEffect
 
     public override void Apply(WeaponRuntimeState state)
     {
-        state.FireRateBonus += _bonus;
+        state.AddFireRateBonus(_bonus);
 
         Debug.Log($"Fire rate applied. Bonus = {state.FireRateBonus}");
     }

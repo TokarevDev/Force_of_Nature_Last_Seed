@@ -1,6 +1,3 @@
-
-using UnityEngine;
-
 public sealed class Bootstrap
 {
     private readonly SceneLoader _sceneLoader;
@@ -13,6 +10,5 @@ public sealed class Bootstrap
     public void StartGame()
     {
         _sceneLoader.LoadGame();
-        ScreenBounds.Calculate(Camera.main);
     }
 }

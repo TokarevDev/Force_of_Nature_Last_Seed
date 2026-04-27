@@ -15,6 +15,12 @@ public sealed class PoolRegistry : MonoBehaviour
     [SerializeField] private ProjectilePool _poolPrefab;
 
     private readonly Dictionary<int, ProjectilePool> _pools = new();
+    private IScreenBounds _screenBounds;
+
+    public void Init(IScreenBounds screenBounds)
+    {
+        _screenBounds = screenBounds;
+    }
 
     /// <summary>
     /// Returns an existing pool for the given projectile prefab
@@ -42,10 +48,16 @@ public sealed class PoolRegistry : MonoBehaviour
     /// </summary>
     private ProjectilePool CreatePool(Projectile prefab, int key)
     {
+        if (_screenBounds == null)
+        {
+            Debug.LogError("PoolRegistry: screen bounds are not initialized.", this);
+            return null;
+        }
+
         var pool = Instantiate(_poolPrefab, transform);
         pool.name = $"Pool_{prefab.name}";
 
-        pool.SetPrefab(prefab);
+        pool.SetPrefab(prefab, _screenBounds);
 
         _pools.Add(key, pool);
         return pool;

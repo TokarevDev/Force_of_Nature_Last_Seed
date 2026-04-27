@@ -7,12 +7,9 @@ public sealed class AddModifierRewardEffect : RewardEffect
 
     public override void Apply(WeaponRuntimeState state)
     {
-        if (_modifier == null)
+        if (!state.AddShotModifier(_modifier))
         {
             Debug.LogWarning("Modifier is null in AddModifierRewardEffect");
-            return;
         }
-
-        state.ShotModifiers.Add(_modifier);
     }
 }

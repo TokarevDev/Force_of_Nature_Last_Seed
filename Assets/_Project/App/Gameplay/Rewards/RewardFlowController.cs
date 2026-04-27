@@ -1,12 +1,15 @@
+using System;
 using System.Collections.Generic;
 
-public sealed class RewardFlowController
+public sealed class RewardFlowController : IDisposable
 {
     private readonly RewardRollService _rollService;
     private readonly RewardApplyService _applyService;
     private readonly RewardPopupView _popup;
 
     private List<RewardChoiceData> _currentChoices;
+
+    private bool _isDisposed;
 
     public RewardFlowController(
         RewardRollService rollService,
@@ -18,6 +21,15 @@ public sealed class RewardFlowController
         _popup = popup;
 
         _popup.OnSelected += OnSelected;
+    }
+
+    public void Dispose()
+    {
+        if (_isDisposed)
+            return;
+
+        _popup.OnSelected -= OnSelected;
+        _isDisposed = true;
     }
 
     public void Open()

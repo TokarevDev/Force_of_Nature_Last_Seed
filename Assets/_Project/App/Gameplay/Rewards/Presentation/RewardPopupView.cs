@@ -15,13 +15,13 @@ public sealed class RewardPopupView : MonoBehaviour
 
     public void Show(List<RewardChoiceData> choices)
     {
-        Time.timeScale = 0f;
-
         if (choices == null || choices.Count == 0)
         {
             Debug.LogWarning("No reward choices");
             return;
         }
+
+        Time.timeScale = 0f;
 
         _root.SetActive(true);
 

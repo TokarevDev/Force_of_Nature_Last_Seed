@@ -8,9 +8,4 @@ public sealed class SpreadModifierData : ShotModifierData
 
     [Min(1f)]
     public float Angle = 30f;
-
-    public override IShotModifier CreateRuntime()
-    {
-        return new SpreadModifier(Count, Angle);
-    }
 }

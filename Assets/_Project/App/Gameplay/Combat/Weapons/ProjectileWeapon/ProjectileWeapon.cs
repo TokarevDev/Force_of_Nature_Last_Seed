@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -21,6 +20,7 @@ public sealed class ProjectileWeapon : MonoBehaviour, IWeapon
     private float _minShotCooldown = 0.5f;
 
     private readonly List<ShotSpawnData> _shots = new();
+    private readonly ProjectileShotPatternBuilder _shotPatternBuilder = new();
 
     private WeaponRuntimeState _runtimeState;
 
@@ -80,10 +80,7 @@ public sealed class ProjectileWeapon : MonoBehaviour, IWeapon
     private void Fire()
     {
         _shots.Clear();
-
-        var context = new ShotContext(_firePoint, _pool, _config.Projectile);
-
-        BuildShots(_shots, context);
+        _shotPatternBuilder.Build(_firePoint.position, _firePoint.rotation, _runtimeState, _shots);
 
         //  Safety clamp
         if (_shots.Count > _maxShots)
@@ -95,68 +92,6 @@ public sealed class ProjectileWeapon : MonoBehaviour, IWeapon
         foreach (var shot in _shots)
         {
             Spawn(shot);
-        }
-    }
-
-    private void BuildShots(List<ShotSpawnData> shots, ShotContext context)
-    {
-        var baseShot = new ShotSpawnData(_firePoint.position, _firePoint.rotation);
-
-        int parallelCount = 1;
-        int spreadCount = 1;
-        float spreadAngle = 0f;
-        float spacing = 0.5f;
-
-        foreach (var mod in _runtimeState.ShotModifiers)
-        {
-            if (mod is ParallelModifierData p)
-            {
-                parallelCount += (p.Count - 1);
-                spacing = p.Spacing;
-            }
-            else if (mod is SpreadModifierData s)
-            {
-                spreadCount += (s.Count - 1);
-                spreadAngle += s.Angle * 0.5f;
-            }
-        }
-
-        List<Vector3> positions = new();
-        Vector3 right = baseShot.Rotation * Vector3.right;
-
-        positions.Add(baseShot.Position);
-
-        int sideCount = parallelCount - 1;
-
-        for (int i = 1; i <= sideCount; i++)
-        {
-            float offset = ((i + 1) / 2) * spacing;
-
-            if (i % 2 == 1)
-                positions.Add(baseShot.Position + right * offset);
-            else
-                positions.Add(baseShot.Position - right * offset);
-        }
-
-        foreach (var pos in positions)
-        {
-            if (spreadCount <= 1)
-            {
-                shots.Add(new ShotSpawnData(pos, baseShot.Rotation));
-                continue;
-            }
-
-            float step = spreadAngle / (spreadCount - 1);
-            float start = -spreadAngle * 0.5f;
-
-            for (int i = 0; i < spreadCount; i++)
-            {
-                float angle = start + step * i;
-
-                Quaternion rot = baseShot.Rotation * Quaternion.Euler(0f, 0f, angle);
-
-                shots.Add(new ShotSpawnData(pos, rot));
-            }
         }
     }
 

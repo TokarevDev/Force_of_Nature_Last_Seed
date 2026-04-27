@@ -1,12 +1,14 @@
 using UnityEngine;
 
+[DisallowMultipleComponent]
 public sealed class EntryPoint : MonoBehaviour
 {
     private static EntryPoint _instance;
+    private Bootstrap _bootstrap;
 
     private void Awake()
     {
-        if (_instance != null)
+        if (_instance != null && _instance != this)
         {
             Destroy(gameObject);
             return;
@@ -14,17 +16,12 @@ public sealed class EntryPoint : MonoBehaviour
 
         _instance = this;
         DontDestroyOnLoad(gameObject);
+
+        _bootstrap = new Bootstrap(new SceneLoader());
     }
 
     private void Start()
     {
-        StartGame();
-    }
-
-    private void StartGame()
-    {
-        var sceneLoader = new SceneLoader();
-        var gameBootstrap = new Bootstrap(sceneLoader);
-        gameBootstrap.StartGame();
+        _bootstrap.StartGame();
     }
 }

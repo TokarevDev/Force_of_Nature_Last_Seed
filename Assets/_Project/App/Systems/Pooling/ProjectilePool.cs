@@ -16,6 +16,7 @@ public sealed class ProjectilePool : MonoBehaviour
     [SerializeField] private int _prewarmCount = 40;
 
     private Projectile _prefab;
+    private IScreenBounds _screenBounds;
     private readonly Queue<Projectile> _pool = new();
     private bool _initialized;
 
@@ -23,11 +24,12 @@ public sealed class ProjectilePool : MonoBehaviour
     /// Assigns projectile prefab used by this pool and performs prewarming.
     /// Called once during pool initialization.
     /// </summary>
-    public void SetPrefab(Projectile prefab)
+    public void SetPrefab(Projectile prefab, IScreenBounds screenBounds)
     {
         if (_initialized) return;
 
         _prefab = prefab;
+        _screenBounds = screenBounds;
         Prewarm();
         _initialized = true;
     }
@@ -69,7 +71,7 @@ public sealed class ProjectilePool : MonoBehaviour
     private Projectile CreateNew()
     {
         var projectile = Instantiate(_prefab, transform);
-        projectile.Init(this);
+        projectile.Init(this, _screenBounds);
         projectile.gameObject.SetActive(false);
         return projectile;
     }

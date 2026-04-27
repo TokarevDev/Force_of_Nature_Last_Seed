@@ -73,9 +73,10 @@ public sealed class Projectile : MonoBehaviour
         UpdateVisualRotation();
     }
 
-    public void Init(ProjectilePool pool)
+    public void Init(ProjectilePool pool, IScreenBounds screenBounds)
     {
         _pool = pool;
+        _bounce?.Init(screenBounds);
     }
 
     /// <summary>

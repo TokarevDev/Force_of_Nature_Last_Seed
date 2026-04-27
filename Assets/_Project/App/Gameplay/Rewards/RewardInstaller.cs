@@ -19,6 +19,11 @@ public sealed class RewardInstaller : MonoBehaviour
         _rewardFlow = new RewardFlowController(roll, apply, _popup);
     }
 
+    private void OnDestroy()
+    {
+        _rewardFlow?.Dispose();
+    }
+
     public void OpenReward()
     {
         _rewardFlow.Open();

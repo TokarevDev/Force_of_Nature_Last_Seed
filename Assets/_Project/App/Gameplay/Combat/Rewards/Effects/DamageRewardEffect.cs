@@ -7,6 +7,6 @@ public sealed class DamageRewardEffect : RewardEffect
 
     public override void Apply(WeaponRuntimeState state)
     {
-        state.DamageMultiplier *= _multiplier;
+        state.ApplyDamageMultiplier(_multiplier);
     }
 }

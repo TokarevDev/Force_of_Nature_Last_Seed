@@ -8,7 +8,4 @@ public sealed class ParallelModifierData : ShotModifierData
 
     [Min(0.1f)]
     public float Spacing = 0.5f;
-
-    public override IShotModifier CreateRuntime() => new ParallelModifier(Count, Spacing);
-
 }
