@@ -31,6 +31,9 @@ public sealed class WormController : MonoBehaviour
     [Header("Segments")]
     [SerializeField] private float _segmentSpacing = 0.5f;
 
+    [Header("Optimization")]
+    [SerializeField][Min(0f)] private float _activeDistancePadding = 0.5f;
+
     [Header("Wave")]
     [SerializeField] private float _waveAmplitude = 0.15f;
 
@@ -44,6 +47,8 @@ public sealed class WormController : MonoBehaviour
 
     private float _headDistance;
     private Coroutine _rollbackRoutine;
+    private int _activeStartIndex = -1;
+    private int _activeEndIndex = -1;
 
     private bool _isSectionRollback;
     private int _rollbackSplitIndex = -1;
@@ -62,11 +67,15 @@ public sealed class WormController : MonoBehaviour
         _segments.AddRange(segments);
 
         _headDistance = 0f;
+        _activeStartIndex = -1;
+        _activeEndIndex = -1;
 
         _isSectionRollback = false;
         _rollbackSplitIndex = -1;
         _rollbackRemovedCount = 0;
         _rollbackStartHeadDistance = 0f;
+
+        UpdateSegments();
     }
 
     private void Update()
@@ -106,9 +115,23 @@ public sealed class WormController : MonoBehaviour
     /// </summary>
     private void UpdateSegments()
     {
+        if (_isSectionRollback)
+        {
+            UpdateSegmentsDuringRollback();
+            return;
+        }
+
+        if (!TryGetActiveRange(out int startIndex, out int endIndex))
+        {
+            HidePreviousActiveRange(-1, -1);
+            return;
+        }
+
+        HidePreviousActiveRange(startIndex, endIndex);
+
         float waveTime = Time.time * _waveSpeed;
 
-        for (int i = 0; i < _segments.Count; i++)
+        for (int i = startIndex; i <= endIndex; i++)
         {
             WormSegment segment = _segments[i];
             if (segment == null)
@@ -118,8 +141,83 @@ public sealed class WormController : MonoBehaviour
 
             UpdateSegmentPosition(segment, position);
 
+            if (i > startIndex)
+                UpdateSegmentRotation(i, segment, position);
+
+            segment.SetRuntimeVisible(true);
+        }
+
+        _activeStartIndex = startIndex;
+        _activeEndIndex = endIndex;
+    }
+
+    private void UpdateSegmentsDuringRollback()
+    {
+        float waveTime = Time.time * _waveSpeed;
+        float maxDistance = _rail.TotalLength + _activeDistancePadding;
+
+        for (int i = 0; i < _segments.Count; i++)
+        {
+            WormSegment segment = _segments[i];
+
+            if (segment == null)
+                continue;
+
+            float distance = GetSegmentDistance(i);
+
+            if (distance < 0f || distance > maxDistance)
+            {
+                segment.SetRuntimeVisible(false);
+                continue;
+            }
+
+            Vector3 position = CalculateSegmentPosition(i, waveTime);
+            UpdateSegmentPosition(segment, position);
+
             if (i > 0)
                 UpdateSegmentRotation(i, segment, position);
+
+            segment.SetRuntimeVisible(true);
+        }
+
+        _activeStartIndex = -1;
+        _activeEndIndex = -1;
+    }
+
+    private bool TryGetActiveRange(out int startIndex, out int endIndex)
+    {
+        startIndex = -1;
+        endIndex = -1;
+
+        if (_segments.Count == 0 || _rail == null)
+            return false;
+
+        float spacing = Mathf.Max(0.01f, _segmentSpacing);
+        float maxDistance = _rail.TotalLength + _activeDistancePadding;
+
+        startIndex = Mathf.Max(0, Mathf.CeilToInt((_headDistance - maxDistance) / spacing));
+        endIndex = Mathf.Min(_segments.Count - 1, Mathf.FloorToInt(_headDistance / spacing));
+
+        return startIndex <= endIndex;
+    }
+
+    private void HidePreviousActiveRange(int nextStartIndex, int nextEndIndex)
+    {
+        if (_activeStartIndex < 0 || _activeEndIndex < _activeStartIndex)
+            return;
+
+        for (int i = _activeStartIndex; i <= _activeEndIndex; i++)
+        {
+            if (i >= nextStartIndex && i <= nextEndIndex)
+                continue;
+
+            if (i < 0 || i >= _segments.Count)
+                continue;
+
+            WormSegment segment = _segments[i];
+
+            if (segment != null)
+                segment.SetRuntimeVisible(false);
         }
     }
 

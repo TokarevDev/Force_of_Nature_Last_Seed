@@ -446,8 +446,9 @@ MonoBehaviour:
   _wormController: {fileID: 91581456}
   _wormCombat: {fileID: 91581457}
   _hpPresenter: {fileID: 1262977638}
-  _totalLength: 300
-  _poolPadding: 200
+  _totalLength: 650
+  _poolPadding: 32
+  _prewarmBatchSize: 64
 --- !u!114 &91581456
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -466,6 +467,7 @@ MonoBehaviour:
   _catchUpSpeed: 3
   _catchUpStopOffset: 0
   _segmentSpacing: 0.5
+  _activeDistancePadding: 0.5
   _waveAmplitude: 0.05
   _waveFrequency: 4
   _waveSpeed: 1
@@ -4554,7 +4556,16 @@ MonoBehaviour:
   _combat: {fileID: 91581457}
   _popupPrefab: {fileID: 6859803841460623452, guid: 39064a594808ef143b34b501a0ab4629, type: 3}
   _initialPoolSize: 100
-  _maxActivePopups: 50
+  _normalPopupLimit: 4
+  _damageOverTimePopupLimit: 1
+  _visiblePopupSoftLimit: 8
+  _fastAnimationThreshold: 6
+  _accelerateOldNormalThreshold: 7
+  _sameAreaCullRadius: 0.65
+  _crowdedScaleThreshold: 8
+  _veryCrowdedScaleThreshold: 14
+  _crowdedScaleMultiplier: 0.75
+  _veryCrowdedScaleMultiplier: 0.55
 --- !u!4 &1484420118
 Transform:
   m_ObjectHideFlags: 0
@@ -5874,6 +5885,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2134843959}
   - component: {fileID: 2134843960}
+  - component: {fileID: 2134843962}
   - component: {fileID: 2134843961}
   m_Layer: 0
   m_Name: Visual
@@ -5965,16 +5977,33 @@ MonoBehaviour:
   m_GameObject: {fileID: 2134843958}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5132a7366e434c62a09b8c8bbd9356c0, type: 3}
+  m_Script: {fileID: 11500000, guid: d503ad5c88354fbca6c1987c7957056c, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerVisualAnimator
-  _idleSprite: {fileID: 21300000, guid: 3f9e964ad5f431b4bb6aa19a695d3484, type: 3}
-  _movementFrames:
-  - {fileID: -8703590166670332138, guid: 685d6003cb5b7f042b920949e84db7c7, type: 3}
-  - {fileID: 1593717372827550032, guid: 685d6003cb5b7f042b920949e84db7c7, type: 3}
-  _movementScale: 1.5
-  _animationSpeed: 8
-  _bounceStrength: 1
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerVisualController
+  _mover: {fileID: 501089290}
+  _movingThreshold: 0.05
+--- !u!95 &2134843962
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2134843958}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: b076c84a87e88ff4098af69f94ab7b3e, type: 2}
+  m_CullingMode: 1
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage:
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

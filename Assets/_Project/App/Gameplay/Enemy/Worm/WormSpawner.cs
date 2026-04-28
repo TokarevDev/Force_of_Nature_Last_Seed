@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -22,11 +23,13 @@ public sealed class WormSpawner : MonoBehaviour
 
     [Header("Pooling")]
     [SerializeField] private int _poolPadding = 10;
+    [SerializeField, Min(1)] private int _prewarmBatchSize = 64;
 
     private WormSegmentPool _segmentPool;
     private WormFactory _wormFactory;
 
     private bool _isSpawned;
+    private int _bodyPoolCapacity;
 
     private void Awake()
     {
@@ -36,7 +39,7 @@ public sealed class WormSpawner : MonoBehaviour
         if (_wormCombat == null)
             Debug.LogError("WormCombatController not assigned", this);
 
-        int capacity = Mathf.Max(3, _totalLength) + _poolPadding;
+        _bodyPoolCapacity = Mathf.Max(1, Mathf.Max(3, _totalLength) - 2 + _poolPadding);
 
         _segmentPool = new WormSegmentPool(
             transform,
@@ -44,13 +47,14 @@ public sealed class WormSpawner : MonoBehaviour
             _bodyPrefab,
             _tailPrefab);
 
-        _segmentPool.Prewarm(capacity);
-
         _wormFactory = new WormFactory(_segmentPool);
     }
 
-    private void Start()
+    private IEnumerator Start()
     {
+        if (_segmentPool != null)
+            yield return _segmentPool.PrewarmRoutine(_bodyPoolCapacity, _prewarmBatchSize);
+
         SpawnWorm();
     }
 

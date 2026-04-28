@@ -38,7 +38,7 @@ public sealed class WormFactory
                 continue;
             }
 
-            seg.Activate();
+            seg.PrepareForWorm();
             seg.Index = i;
 
             int order = entry.Type == WormSegmentType.Head

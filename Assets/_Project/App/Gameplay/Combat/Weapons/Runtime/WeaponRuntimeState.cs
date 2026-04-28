@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 /// <summary>
@@ -7,7 +8,12 @@ using System.Collections.Generic;
 public sealed class WeaponRuntimeState
 {
     public const int MaxParallelProjectiles = 10;
+    public const int MaxSalvoShots = 5;
+    public const int MaxSalvoExtraShots = MaxSalvoShots - 1;
+    public const int MaxProjectileDamage = 9999999;
     public const float DefaultMaxFireRateBonus = 2f;
+    public const float MaxDamageMultiplier = 80f;
+    public const float MaxCriticalDamageMultiplier = 10f;
     public const int MaxPenetrationBonus = 5;
     public const float MaxCriticalChance = 0.8f;
 
@@ -25,14 +31,25 @@ public sealed class WeaponRuntimeState
     public float MaxFireRateBonus { get; private set; } = DefaultMaxFireRateBonus;
     public IReadOnlyList<ShotModifierData> ShotModifiers => _shotModifiers;
 
+    public bool CanAddDamageMultiplier => DamageMultiplier < MaxDamageMultiplier;
     public bool CanAddFireRateBonus => FireRateBonus < MaxFireRateBonus;
     public bool CanAddCriticalChance => CriticalChance < MaxCriticalChance;
+    public bool CanAddCriticalDamage => CriticalDamageMultiplier < MaxCriticalDamageMultiplier;
     public bool CanAddPenetration => PenetrationBonus < MaxPenetrationBonus;
     public bool CanAddParallelProjectiles => ParallelProjectileCount < MaxParallelProjectiles;
+    public bool CanAddSalvoShots => SalvoExtraShots < MaxSalvoExtraShots;
 
-    public void ApplyDamageMultiplier(float multiplier)
+    public float ApplyDamageMultiplier(float multiplier)
     {
-        DamageMultiplier *= multiplier;
+        if (multiplier <= 1f)
+            return 0f;
+
+        float previousMultiplier = DamageMultiplier;
+        DamageMultiplier = UnityEngine.Mathf.Min(
+            DamageMultiplier * multiplier,
+            MaxDamageMultiplier);
+
+        return DamageMultiplier - previousMultiplier;
     }
 
     public void SetFireRateBonusLimit(float maxFireRateBonus)
@@ -62,17 +79,22 @@ public sealed class WeaponRuntimeState
             0f,
             MaxCriticalChance);
 
-        CriticalDamageMultiplier = UnityEngine.Mathf.Max(
-            CriticalDamageMultiplier,
-            minimumCriticalDamageMultiplier
-        );
+        CriticalDamageMultiplier = UnityEngine.Mathf.Clamp(
+            UnityEngine.Mathf.Max(CriticalDamageMultiplier, minimumCriticalDamageMultiplier),
+            1f,
+            MaxCriticalDamageMultiplier);
 
         return accepted;
     }
 
-    public void AddCriticalDamageBonus(float damageBonus)
+    public float AddCriticalDamageBonus(float damageBonus)
     {
-        CriticalDamageMultiplier += UnityEngine.Mathf.Max(0f, damageBonus);
+        float accepted = UnityEngine.Mathf.Min(
+            UnityEngine.Mathf.Max(0f, damageBonus),
+            MaxCriticalDamageMultiplier - CriticalDamageMultiplier);
+
+        CriticalDamageMultiplier += UnityEngine.Mathf.Max(0f, accepted);
+        return accepted;
     }
 
     public int AddPenetration(int bonus)
@@ -85,10 +107,18 @@ public sealed class WeaponRuntimeState
         return accepted;
     }
 
-    public void AddSalvoShots(int extraShots, float interval)
+    public int AddSalvoShots(int extraShots, float interval)
     {
-        SalvoExtraShots += UnityEngine.Mathf.Max(0, extraShots);
-        SalvoInterval = UnityEngine.Mathf.Max(0.01f, interval);
+        int accepted = UnityEngine.Mathf.Min(
+            UnityEngine.Mathf.Max(0, extraShots),
+            MaxSalvoExtraShots - SalvoExtraShots);
+
+        SalvoExtraShots += UnityEngine.Mathf.Max(0, accepted);
+
+        if (accepted > 0)
+            SalvoInterval = UnityEngine.Mathf.Max(0.01f, interval);
+
+        return accepted;
     }
 
     public bool AddShotModifier(ShotModifierData modifier)
@@ -129,5 +159,16 @@ public sealed class WeaponRuntimeState
             ParallelSpacing = UnityEngine.Mathf.Max(0.1f, spacing);
 
         return accepted;
+    }
+
+    public static int ClampDamage(double rawDamage)
+    {
+        if (double.IsNaN(rawDamage) || rawDamage <= 1d)
+            return 1;
+
+        if (rawDamage >= MaxProjectileDamage)
+            return MaxProjectileDamage;
+
+        return UnityEngine.Mathf.Max(1, (int)Math.Round(rawDamage));
     }
 }

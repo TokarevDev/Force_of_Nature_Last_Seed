@@ -16,7 +16,5 @@ public sealed class FireRateRewardEffect : RewardEffect
             return;
 
         state.AddFireRateBonus(_bonus);
-
-        Debug.Log($"Fire rate applied. Bonus = {state.FireRateBonus}");
     }
 }

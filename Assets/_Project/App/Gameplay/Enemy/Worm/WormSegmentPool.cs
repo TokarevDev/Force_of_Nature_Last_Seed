@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -17,6 +18,7 @@ public sealed class WormSegmentPool
     private readonly Queue<WormSegment> _headPool = new();
     private readonly Queue<WormSegment> _bodyPool = new();
     private readonly Queue<WormSegment> _tailPool = new();
+    private int _prewarmCreatedThisFrame;
 
     public WormSegmentPool(
         Transform parent,
@@ -41,6 +43,16 @@ public sealed class WormSegmentPool
         Prewarm(_tailPrefab, 1, _tailPool);
 
         Prewarm(_bodyPrefab, bodyCapacity, _bodyPool);
+    }
+
+    public IEnumerator PrewarmRoutine(int bodyCapacity, int batchSize)
+    {
+        int safeBatchSize = Mathf.Max(1, batchSize);
+        _prewarmCreatedThisFrame = 0;
+
+        yield return PrewarmRoutine(_headPrefab, 1, _headPool, safeBatchSize);
+        yield return PrewarmRoutine(_tailPrefab, 1, _tailPool, safeBatchSize);
+        yield return PrewarmRoutine(_bodyPrefab, bodyCapacity, _bodyPool, safeBatchSize);
     }
 
     /// <summary>
@@ -83,6 +95,34 @@ public sealed class WormSegmentPool
             seg.gameObject.SetActive(false);
 
             pool.Enqueue(seg);
+        }
+    }
+
+    private IEnumerator PrewarmRoutine(
+        WormSegment prefab,
+        int count,
+        Queue<WormSegment> pool,
+        int batchSize)
+    {
+        if (prefab == null)
+        {
+            Debug.LogWarning("WormSegment prefab missing in pool");
+            yield break;
+        }
+
+        for (int i = 0; i < count; i++)
+        {
+            WormSegment seg = Object.Instantiate(prefab, _parent);
+            seg.gameObject.SetActive(false);
+            pool.Enqueue(seg);
+
+            _prewarmCreatedThisFrame++;
+
+            if (_prewarmCreatedThisFrame >= batchSize)
+            {
+                _prewarmCreatedThisFrame = 0;
+                yield return null;
+            }
         }
     }
 

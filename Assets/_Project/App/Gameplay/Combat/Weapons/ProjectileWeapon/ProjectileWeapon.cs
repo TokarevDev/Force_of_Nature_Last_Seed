@@ -77,12 +77,6 @@ public sealed class ProjectileWeapon : MonoBehaviour, IWeapon
             _config.MinShotCooldown,
             _config.FireRate / (1f + effectiveFireRateBonus));
 
-        Debug.Log(
-            $"BaseFireRate={_config.FireRate}, " +
-            $"Bonus={_runtimeState.FireRateBonus}, " +
-            $"EffectiveBonus={effectiveFireRateBonus}, " +
-            $"CurrentCooldown={_currentShotCooldown}");
-
         if (resetFiringCycle)
         {
             ResetFiringCycle();
@@ -177,8 +171,8 @@ public sealed class ProjectileWeapon : MonoBehaviour, IWeapon
 
     private ProjectileRuntimeStats BuildProjectileStats()
     {
-        int finalDamage = Mathf.RoundToInt(
-            _config.Projectile.Damage * _runtimeState.DamageMultiplier);
+        int finalDamage = WeaponRuntimeState.ClampDamage(
+            _config.Projectile.Damage * (double)_runtimeState.DamageMultiplier);
 
         return new ProjectileRuntimeStats(
             finalDamage,

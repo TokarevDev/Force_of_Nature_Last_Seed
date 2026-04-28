@@ -10,6 +10,7 @@ public sealed class WormSectionHpView : MonoBehaviour
     [SerializeField] private float _maxScale = 1f;
 
     private Transform _target;
+    private bool _isVisible = true;
 
     private void Awake()
     {
@@ -27,7 +28,19 @@ public sealed class WormSectionHpView : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (_target == null) return;
+        if (_target == null)
+        {
+            SetVisible(false);
+            return;
+        }
+
+        if (!_target.gameObject.activeInHierarchy)
+        {
+            SetVisible(false);
+            return;
+        }
+
+        SetVisible(true);
 
         transform.position = _target.position;
     }
@@ -46,5 +59,18 @@ public sealed class WormSectionHpView : MonoBehaviour
 
         if (_visualRoot != null)
             _visualRoot.localScale = Vector3.one * scale;
+    }
+
+    private void SetVisible(bool visible)
+    {
+        if (_isVisible == visible)
+            return;
+
+        _isVisible = visible;
+
+        if (_visualRoot != null)
+            _visualRoot.gameObject.SetActive(visible);
+        else if (_text != null)
+            _text.enabled = visible;
     }
 }

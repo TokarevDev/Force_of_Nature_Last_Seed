@@ -101,6 +101,41 @@ public sealed class WormSegment : MonoBehaviour
         Section = null;
     }
 
+    public void PrepareForWorm()
+    {
+        IsAlive = true;
+        Section = null;
+
+        if (VisualRoot != null && !VisualRoot.gameObject.activeSelf)
+            VisualRoot.gameObject.SetActive(true);
+
+        if (_cachedCollider != null && !_cachedCollider.enabled)
+            _cachedCollider.enabled = true;
+
+        DisableCocoon();
+
+        if (gameObject.activeSelf)
+            gameObject.SetActive(false);
+    }
+
+    public void SetRuntimeVisible(bool visible)
+    {
+        if (!IsAlive)
+            return;
+
+        if (gameObject.activeSelf != visible)
+            gameObject.SetActive(visible);
+
+        if (!visible)
+            return;
+
+        if (VisualRoot != null && !VisualRoot.gameObject.activeSelf)
+            VisualRoot.gameObject.SetActive(true);
+
+        if (_cachedCollider != null && !_cachedCollider.enabled)
+            _cachedCollider.enabled = true;
+    }
+
     public void KillVisualAndCollision()
     {
         IsAlive = false;
@@ -112,5 +147,8 @@ public sealed class WormSegment : MonoBehaviour
             _cachedCollider.enabled = false;
 
         DisableCocoon();
+
+        if (gameObject.activeSelf)
+            gameObject.SetActive(false);
     }
 }

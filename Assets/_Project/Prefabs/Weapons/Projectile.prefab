@@ -124,6 +124,10 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   _minHitDistance: 1.5
+  _releaseBoundsPadding: 2
+  _spawnHitDelay: 0.03
+  _minHitTravelDistance: 0.25
+  _damageBoundsPadding: 0
 --- !u!114 &4518584297866267010
 MonoBehaviour:
   m_ObjectHideFlags: 0

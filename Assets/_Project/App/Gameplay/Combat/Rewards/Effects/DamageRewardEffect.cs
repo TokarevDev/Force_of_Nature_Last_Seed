@@ -5,8 +5,16 @@ public sealed class DamageRewardEffect : RewardEffect
 {
     [SerializeField] private float _multiplier = 1.3f;
 
+    public override bool CanApply(WeaponRuntimeState state)
+    {
+        return state != null && state.CanAddDamageMultiplier;
+    }
+
     public override void Apply(WeaponRuntimeState state)
     {
+        if (state == null)
+            return;
+
         state.ApplyDamageMultiplier(_multiplier);
     }
 }
