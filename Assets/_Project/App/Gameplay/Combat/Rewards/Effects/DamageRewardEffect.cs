@@ -7,7 +7,7 @@ public sealed class DamageRewardEffect : RewardEffect
 
     public override bool CanApply(WeaponRuntimeState state)
     {
-        return state != null && state.CanAddDamageMultiplier;
+        return state != null && state.CanApplyDamageMultiplier(_multiplier);
     }
 
     public override void Apply(WeaponRuntimeState state)

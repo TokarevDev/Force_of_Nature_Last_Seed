@@ -7,6 +7,8 @@ using System.Collections.Generic;
 /// </summary>
 public sealed class WeaponRuntimeState
 {
+    private const float FloatEpsilon = 0.0001f;
+
     public const int MaxParallelProjectiles = 10;
     public const int MaxSalvoShots = 5;
     public const int MaxSalvoExtraShots = MaxSalvoShots - 1;
@@ -15,9 +17,16 @@ public sealed class WeaponRuntimeState
     public const float MaxDamageMultiplier = 80f;
     public const float MaxCriticalDamageMultiplier = 10f;
     public const int MaxPenetrationBonus = 5;
-    public const float MaxCriticalChance = 0.8f;
+    public const float MaxCriticalChance = 1f;
 
     private readonly List<ShotModifierData> _shotModifiers = new();
+
+    private float _maxDamageMultiplier = MaxDamageMultiplier;
+    private float _maxCriticalDamageMultiplier = MaxCriticalDamageMultiplier;
+    private int _maxPenetrationBonus = MaxPenetrationBonus;
+    private float _maxCriticalChance = MaxCriticalChance;
+    private int _maxParallelProjectiles = MaxParallelProjectiles;
+    private int _maxSalvoExtraShots = MaxSalvoExtraShots;
 
     public float DamageMultiplier { get; private set; } = 1f;
     public float FireRateBonus { get; private set; }
@@ -31,13 +40,69 @@ public sealed class WeaponRuntimeState
     public float MaxFireRateBonus { get; private set; } = DefaultMaxFireRateBonus;
     public IReadOnlyList<ShotModifierData> ShotModifiers => _shotModifiers;
 
-    public bool CanAddDamageMultiplier => DamageMultiplier < MaxDamageMultiplier;
+    public bool CanAddDamageMultiplier => DamageMultiplier < _maxDamageMultiplier;
     public bool CanAddFireRateBonus => FireRateBonus < MaxFireRateBonus;
-    public bool CanAddCriticalChance => CriticalChance < MaxCriticalChance;
-    public bool CanAddCriticalDamage => CriticalDamageMultiplier < MaxCriticalDamageMultiplier;
-    public bool CanAddPenetration => PenetrationBonus < MaxPenetrationBonus;
-    public bool CanAddParallelProjectiles => ParallelProjectileCount < MaxParallelProjectiles;
-    public bool CanAddSalvoShots => SalvoExtraShots < MaxSalvoExtraShots;
+    public bool CanAddCriticalChance => CriticalChance < _maxCriticalChance;
+    public bool CanAddCriticalDamage => CriticalDamageMultiplier < _maxCriticalDamageMultiplier;
+    public bool CanAddPenetration => PenetrationBonus < _maxPenetrationBonus;
+    public bool CanAddParallelProjectiles => ParallelProjectileCount < _maxParallelProjectiles;
+    public bool CanAddSalvoShots => SalvoExtraShots < _maxSalvoExtraShots;
+
+    public bool CanApplyDamageMultiplier(float multiplier)
+    {
+        if (multiplier <= 1f)
+            return false;
+
+        return DamageMultiplier * multiplier <= _maxDamageMultiplier + FloatEpsilon;
+    }
+
+    public bool CanApplyFireRateBonus(float bonus)
+    {
+        if (bonus <= 0f)
+            return false;
+
+        return FireRateBonus + bonus <= MaxFireRateBonus + FloatEpsilon;
+    }
+
+    public bool CanApplyCriticalChance(float chanceBonus)
+    {
+        if (chanceBonus <= 0f)
+            return false;
+
+        return CriticalChance + chanceBonus <= _maxCriticalChance + FloatEpsilon;
+    }
+
+    public bool CanApplyCriticalDamageBonus(float damageBonus)
+    {
+        if (damageBonus <= 0f)
+            return false;
+
+        return CriticalDamageMultiplier + damageBonus <= _maxCriticalDamageMultiplier + FloatEpsilon;
+    }
+
+    public bool CanApplyPenetrationBonus(int bonus)
+    {
+        if (bonus <= 0)
+            return false;
+
+        return PenetrationBonus + bonus <= _maxPenetrationBonus;
+    }
+
+    public bool CanApplyParallelProjectiles(int bonusProjectiles)
+    {
+        if (bonusProjectiles <= 0)
+            return false;
+
+        return ParallelProjectileCount + bonusProjectiles <= _maxParallelProjectiles;
+    }
+
+    public bool CanApplySalvoShots(int extraShots)
+    {
+        if (extraShots <= 0)
+            return false;
+
+        return SalvoExtraShots + extraShots <= _maxSalvoExtraShots;
+    }
 
     public float ApplyDamageMultiplier(float multiplier)
     {
@@ -47,9 +112,61 @@ public sealed class WeaponRuntimeState
         float previousMultiplier = DamageMultiplier;
         DamageMultiplier = UnityEngine.Mathf.Min(
             DamageMultiplier * multiplier,
-            MaxDamageMultiplier);
+            _maxDamageMultiplier);
 
         return DamageMultiplier - previousMultiplier;
+    }
+
+    public void SetProgressionLimits(
+        float maxDamageMultiplier,
+        float maxCriticalChance,
+        float maxCriticalDamageMultiplier,
+        int maxPenetrationBonus,
+        int maxParallelProjectiles,
+        int maxSalvoExtraShots)
+    {
+        _maxDamageMultiplier = UnityEngine.Mathf.Clamp(
+            maxDamageMultiplier,
+            1f,
+            MaxDamageMultiplier);
+
+        _maxCriticalChance = UnityEngine.Mathf.Clamp(
+            maxCriticalChance,
+            0f,
+            MaxCriticalChance);
+
+        _maxCriticalDamageMultiplier = UnityEngine.Mathf.Clamp(
+            maxCriticalDamageMultiplier,
+            1f,
+            MaxCriticalDamageMultiplier);
+
+        _maxPenetrationBonus = UnityEngine.Mathf.Clamp(
+            maxPenetrationBonus,
+            0,
+            MaxPenetrationBonus);
+
+        _maxParallelProjectiles = UnityEngine.Mathf.Clamp(
+            maxParallelProjectiles,
+            1,
+            MaxParallelProjectiles);
+
+        _maxSalvoExtraShots = UnityEngine.Mathf.Clamp(
+            maxSalvoExtraShots,
+            0,
+            MaxSalvoExtraShots);
+
+        DamageMultiplier = UnityEngine.Mathf.Min(DamageMultiplier, _maxDamageMultiplier);
+        CriticalChance = UnityEngine.Mathf.Min(CriticalChance, _maxCriticalChance);
+        CriticalDamageMultiplier = UnityEngine.Mathf.Min(
+            CriticalDamageMultiplier,
+            _maxCriticalDamageMultiplier);
+
+        PenetrationBonus = UnityEngine.Mathf.Min(PenetrationBonus, _maxPenetrationBonus);
+        ParallelProjectileCount = UnityEngine.Mathf.Min(
+            ParallelProjectileCount,
+            _maxParallelProjectiles);
+
+        SalvoExtraShots = UnityEngine.Mathf.Min(SalvoExtraShots, _maxSalvoExtraShots);
     }
 
     public void SetFireRateBonusLimit(float maxFireRateBonus)
@@ -72,17 +189,17 @@ public sealed class WeaponRuntimeState
     {
         float accepted = UnityEngine.Mathf.Min(
             UnityEngine.Mathf.Max(0f, chanceBonus),
-            MaxCriticalChance - CriticalChance);
+            _maxCriticalChance - CriticalChance);
 
         CriticalChance = UnityEngine.Mathf.Clamp(
             CriticalChance + UnityEngine.Mathf.Max(0f, accepted),
             0f,
-            MaxCriticalChance);
+            _maxCriticalChance);
 
         CriticalDamageMultiplier = UnityEngine.Mathf.Clamp(
             UnityEngine.Mathf.Max(CriticalDamageMultiplier, minimumCriticalDamageMultiplier),
             1f,
-            MaxCriticalDamageMultiplier);
+            _maxCriticalDamageMultiplier);
 
         return accepted;
     }
@@ -91,7 +208,7 @@ public sealed class WeaponRuntimeState
     {
         float accepted = UnityEngine.Mathf.Min(
             UnityEngine.Mathf.Max(0f, damageBonus),
-            MaxCriticalDamageMultiplier - CriticalDamageMultiplier);
+            _maxCriticalDamageMultiplier - CriticalDamageMultiplier);
 
         CriticalDamageMultiplier += UnityEngine.Mathf.Max(0f, accepted);
         return accepted;
@@ -101,7 +218,7 @@ public sealed class WeaponRuntimeState
     {
         int accepted = UnityEngine.Mathf.Min(
             UnityEngine.Mathf.Max(0, bonus),
-            MaxPenetrationBonus - PenetrationBonus);
+            _maxPenetrationBonus - PenetrationBonus);
 
         PenetrationBonus += UnityEngine.Mathf.Max(0, accepted);
         return accepted;
@@ -111,7 +228,7 @@ public sealed class WeaponRuntimeState
     {
         int accepted = UnityEngine.Mathf.Min(
             UnityEngine.Mathf.Max(0, extraShots),
-            MaxSalvoExtraShots - SalvoExtraShots);
+            _maxSalvoExtraShots - SalvoExtraShots);
 
         SalvoExtraShots += UnityEngine.Mathf.Max(0, accepted);
 
@@ -141,8 +258,11 @@ public sealed class WeaponRuntimeState
         if (modifier == null)
             return false;
 
-        if (modifier is ParallelModifierData)
-            return CanAddParallelProjectiles;
+        if (modifier is ParallelModifierData parallel)
+        {
+            int bonusProjectiles = UnityEngine.Mathf.Max(0, parallel.Count - 1);
+            return CanApplyParallelProjectiles(bonusProjectiles);
+        }
 
         return true;
     }
@@ -151,7 +271,7 @@ public sealed class WeaponRuntimeState
     {
         int accepted = UnityEngine.Mathf.Min(
             UnityEngine.Mathf.Max(0, bonusProjectiles),
-            MaxParallelProjectiles - ParallelProjectileCount);
+            _maxParallelProjectiles - ParallelProjectileCount);
 
         ParallelProjectileCount += UnityEngine.Mathf.Max(0, accepted);
 

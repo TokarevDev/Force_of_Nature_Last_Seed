@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -26,6 +27,9 @@ public sealed class ProjectileWeapon : MonoBehaviour, IWeapon
 
     private WeaponRuntimeState _runtimeState;
 
+    public event Action RuntimeStatsChanged;
+
+    public WeaponConfig Config => _config;
     public WeaponRuntimeState RuntimeState => _runtimeState;
 
     public void Init(ProjectilePool pool, Transform firePoint)
@@ -42,8 +46,16 @@ public sealed class ProjectileWeapon : MonoBehaviour, IWeapon
             _runtimeState = new WeaponRuntimeState();
 
         _runtimeState.SetFireRateBonusLimit(_config.MaxFireRateBonus);
+        _runtimeState.SetProgressionLimits(
+            _config.MaxDamageMultiplier,
+            _config.MaxCriticalChance,
+            _config.MaxCriticalDamageMultiplier,
+            _config.MaxPenetrationBonus,
+            _config.MaxParallelProjectiles,
+            _config.MaxSalvoExtraShots);
 
         RebuildModifiers(resetFiringCycle: true);
+        RuntimeStatsChanged?.Invoke();
     }
 
     public void Tick()
@@ -90,6 +102,7 @@ public sealed class ProjectileWeapon : MonoBehaviour, IWeapon
     public void ForceRebuild()
     {
         RebuildModifiers(resetFiringCycle: false);
+        RuntimeStatsChanged?.Invoke();
     }
 
     private void ResetFiringCycle()

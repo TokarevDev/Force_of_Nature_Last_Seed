@@ -7,7 +7,7 @@ public sealed class PenetrationRewardEffect : RewardEffect
 
     public override bool CanApply(WeaponRuntimeState state)
     {
-        return state != null && state.CanAddPenetration;
+        return state != null && state.CanApplyPenetrationBonus(_bonusPenetration);
     }
 
     public override void Apply(WeaponRuntimeState state)

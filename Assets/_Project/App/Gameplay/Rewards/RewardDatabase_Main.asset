@@ -1,4 +1,4 @@
-%YAML 1.1
+﻿%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400000
 MonoBehaviour:
@@ -19,80 +19,270 @@ MonoBehaviour:
     _weight: 0.3
   - _rarity: 2
     _weight: 0.1
+  _cocoonProfiles:
+  - _displayName: White
+    _visualColor: {r: 1, g: 1, b: 1, a: 1}
+    _spawnWeight: 0.62
+    _rarityWeights:
+    - _rarity: 0
+      _weight: 1
+    - _rarity: 1
+      _weight: 0.1
+    - _rarity: 2
+      _weight: 0
+  - _displayName: Blue
+    _visualColor: {r: 0.49019608, g: 0.8627451, b: 1, a: 1}
+    _spawnWeight: 0.28
+    _rarityWeights:
+    - _rarity: 0
+      _weight: 1
+    - _rarity: 1
+      _weight: 0.25
+    - _rarity: 2
+      _weight: 0.01
+  - _displayName: Purple
+    _visualColor: {r: 0.8235294, g: 0.47058824, b: 1, a: 1}
+    _spawnWeight: 0.08
+    _rarityWeights:
+    - _rarity: 0
+      _weight: 0.8
+    - _rarity: 1
+      _weight: 0.45
+    - _rarity: 2
+      _weight: 0.05
+  - _displayName: Gold
+    _visualColor: {r: 1, g: 0.827451, b: 0.3529412, a: 1}
+    _spawnWeight: 0.02
+    _rarityWeights:
+    - _rarity: 0
+      _weight: 0.25
+    - _rarity: 1
+      _weight: 0.75
+    - _rarity: 2
+      _weight: 0.15
   _rewards:
   - _effect: {fileID: 11400000, guid: c70866be351cecc40931a1460bae9830, type: 2}
+    _category: 1
     _rarity: 0
-    _title: Damage
-    _description: Increase Damage +30%.
-  - _effect: {fileID: 11400000, guid: 30f5571275211334991b91308dc0c3d4, type: 2}
+    _title: Damage +30%
+    _description: Increase damage +30%.
+  - _effect: {fileID: 11400000, guid: 81126de7510f42359d479fec886286fb, type: 2}
+    _category: 1
     _rarity: 0
-    _title: Fire Rate
-    _description: Increase fire rate by 20%.
-  - _effect: {fileID: 11400000, guid: 9fbccc6d641f1134d9bc324773a229f5, type: 2}
+    _title: Damage +40%
+    _description: Increase damage +40%.
+  - _effect: {fileID: 11400000, guid: cfce53d6ccd34bb7b9782fdffe4bfc84, type: 2}
+    _category: 1
     _rarity: 0
-    _title: Parallel
-    _description: Increase projectile +1 to parallel.
-  - _effect: {fileID: 11400000, guid: aa173d47b4ed4b2f9220bfd3eb153c21, type: 2}
-    _rarity: 0
-    _title: Critical Chance
-    _description: Critical hit chance +10%.
-  - _effect: {fileID: 11400000, guid: 5bb4e0fe8c8d46f0b4062601d90a91b8, type: 2}
-    _rarity: 0
-    _title: Critical Power
-    _description: Critical damage +50%.
-  - _effect: {fileID: 11400000, guid: b3081f02e8f8482db6f8d081292a82dd, type: 2}
-    _rarity: 0
-    _title: Penetration
-    _description: Projectile penetration +1.
-  - _effect: {fileID: 11400000, guid: c7b6f7785f6342ba80e7872fa2a5c1a1, type: 2}
-    _rarity: 0
-    _title: Salvo
-    _description: 'Salvo +1 '
+    _title: Damage +50%
+    _description: Increase damage +50%.
+  - _effect: {fileID: 11400000, guid: 08a1e1353a2244ba9461abb2962f87b3, type: 2}
+    _category: 1
+    _rarity: 1
+    _title: Damage +60%
+    _description: Increase damage +60%.
+  - _effect: {fileID: 11400000, guid: 102abe2b75814ddba86ada4582d41e73, type: 2}
+    _category: 1
+    _rarity: 1
+    _title: Damage +70%
+    _description: Increase damage +70%.
+  - _effect: {fileID: 11400000, guid: e2ca469d87de4434a3281baff9e1e97d, type: 2}
+    _category: 1
+    _rarity: 1
+    _title: Damage +80%
+    _description: Increase damage +80%.
+  - _effect: {fileID: 11400000, guid: e6290668c22147158fb5923002003428, type: 2}
+    _category: 1
+    _rarity: 1
+    _title: Damage +90%
+    _description: Increase damage +90%.
   - _effect: {fileID: 11400000, guid: a3dce8986c9a42c68bea909fc8831053, type: 2}
+    _category: 1
     _rarity: 1
-    _title: Damage
+    _title: Damage +100%
     _description: Increase damage +100%.
-  - _effect: {fileID: 11400000, guid: f7c0618e65894e5eb2ec8cffa8780532, type: 2}
-    _rarity: 1
-    _title: Fire Rate
-    _description: Increase fire rate by 50%.
-  - _effect: {fileID: 11400000, guid: 91d57df9f7954bacab35c78cd4e08497, type: 2}
-    _rarity: 1
-    _title: Parallel
-    _description: Increase projectile +2 to parallel.
-  - _effect: {fileID: 11400000, guid: 93a656bf6cfe4ecea7362ff68e6d77ae, type: 2}
-    _rarity: 1
-    _title: Critical Chance
-    _description: Critical hit chance +20%.
-  - _effect: {fileID: 11400000, guid: 6a8587b9cc524a03a1c7aa26889eb99a, type: 2}
-    _rarity: 1
-    _title: Critical Power
-    _description: Critical damage +100%.
-  - _effect: {fileID: 11400000, guid: d69823c8ea6b4d7f89c8852e000b5e53, type: 2}
-    _rarity: 1
-    _title: Penetration
-    _description: Projectile penetration +2.
+  - _effect: {fileID: 11400000, guid: 219b9a8343d940dea57e8b4144d03c9e, type: 2}
+    _category: 1
+    _rarity: 2
+    _title: Damage +150%
+    _description: Increase damage +150%.
   - _effect: {fileID: 11400000, guid: 2b7e6751e6244ff2a453bad261ecf49d, type: 2}
+    _category: 1
     _rarity: 2
-    _title: Damage
+    _title: Damage +200%
     _description: Increase damage +200%.
+  - _effect: {fileID: 11400000, guid: e1110727eea14323b9066abdaa0e30e3, type: 2}
+    _category: 2
+    _rarity: 0
+    _title: Fire Rate +30%
+    _description: Increase fire rate +30%.
+  - _effect: {fileID: 11400000, guid: 19aea0d4bc9148749f3adfac547832d6, type: 2}
+    _category: 2
+    _rarity: 0
+    _title: Fire Rate +40%
+    _description: Increase fire rate +40%.
+  - _effect: {fileID: 11400000, guid: f7c0618e65894e5eb2ec8cffa8780532, type: 2}
+    _category: 2
+    _rarity: 0
+    _title: Fire Rate +50%
+    _description: Increase fire rate +50%.
+  - _effect: {fileID: 11400000, guid: e525034e6b884e8195a0b1eacd21f1af, type: 2}
+    _category: 2
+    _rarity: 1
+    _title: Fire Rate +60%
+    _description: Increase fire rate +60%.
+  - _effect: {fileID: 11400000, guid: dfb5814ef0a74e5bad30507f20817513, type: 2}
+    _category: 2
+    _rarity: 1
+    _title: Fire Rate +70%
+    _description: Increase fire rate +70%.
+  - _effect: {fileID: 11400000, guid: 041754ba499748bb895c32dc901aed33, type: 2}
+    _category: 2
+    _rarity: 1
+    _title: Fire Rate +80%
+    _description: Increase fire rate +80%.
+  - _effect: {fileID: 11400000, guid: 1c39a4825ef4401c9b01566dc62a56e1, type: 2}
+    _category: 2
+    _rarity: 1
+    _title: Fire Rate +90%
+    _description: Increase fire rate +90%.
   - _effect: {fileID: 11400000, guid: 18c489197918486db7c2f5330fe9a6f3, type: 2}
-    _rarity: 2
-    _title: Fire Rate
-    _description: Increase fire rate by 100%.
-  - _effect: {fileID: 11400000, guid: d5d4be9f2d3b4963a79e8b5afb0811c8, type: 2}
-    _rarity: 2
-    _title: Parallel
-    _description: Increase projectile +4 to parallel.
+    _category: 2
+    _rarity: 1
+    _title: Fire Rate +100%
+    _description: Increase fire rate +100%.
+  - _effect: {fileID: 11400000, guid: aa173d47b4ed4b2f9220bfd3eb153c21, type: 2}
+    _category: 3
+    _rarity: 0
+    _title: Crit Chance +10%
+    _description: Critical hit chance +10%.
+  - _effect: {fileID: 11400000, guid: 93a656bf6cfe4ecea7362ff68e6d77ae, type: 2}
+    _category: 3
+    _rarity: 0
+    _title: Crit Chance +20%
+    _description: Critical hit chance +20%.
+  - _effect: {fileID: 11400000, guid: 315ae9eaf5d34c27b03a1660b905a109, type: 2}
+    _category: 3
+    _rarity: 0
+    _title: Crit Chance +30%
+    _description: Critical hit chance +30%.
+  - _effect: {fileID: 11400000, guid: 373d2210d31d4f0d9defd2587d2b603c, type: 2}
+    _category: 3
+    _rarity: 1
+    _title: Crit Chance +40%
+    _description: Critical hit chance +40%.
   - _effect: {fileID: 11400000, guid: 28a1d5dec7af4bf09fa9e2c7810938fe, type: 2}
-    _rarity: 2
-    _title: Critical Chance
+    _category: 3
+    _rarity: 1
+    _title: Crit Chance +50%
     _description: Critical hit chance +50%.
+  - _effect: {fileID: 11400000, guid: 5995203bfe364e04a63c29b70c85eda2, type: 2}
+    _category: 3
+    _rarity: 1
+    _title: Crit Chance +60%
+    _description: Critical hit chance +60%.
+  - _effect: {fileID: 11400000, guid: 3dd72a49b6a9429a9ce5cce173595217, type: 2}
+    _category: 3
+    _rarity: 1
+    _title: Crit Chance +70%
+    _description: Critical hit chance +70%.
+  - _effect: {fileID: 11400000, guid: 202cc3b5cf1d4fafac946edfce744e5d, type: 2}
+    _category: 3
+    _rarity: 2
+    _title: Crit Chance +80%
+    _description: Critical hit chance +80%.
+  - _effect: {fileID: 11400000, guid: 9d557ce55bfd45d7beb90c8084fdde40, type: 2}
+    _category: 3
+    _rarity: 2
+    _title: Crit Chance +90%
+    _description: Critical hit chance +90%.
+  - _effect: {fileID: 11400000, guid: af65e7d081514e1fbe1b143402a340dc, type: 2}
+    _category: 3
+    _rarity: 2
+    _title: Crit Chance +100%
+    _description: Critical hit chance +100%.
+  - _effect: {fileID: 11400000, guid: 07fd5b152bab411eb8b04763b5e4e97a, type: 2}
+    _category: 4
+    _rarity: 0
+    _title: Crit Power +30%
+    _description: Critical damage +30%.
+  - _effect: {fileID: 11400000, guid: 788b0a7798754b639bf8f95df929e8e2, type: 2}
+    _category: 4
+    _rarity: 0
+    _title: Crit Power +40%
+    _description: Critical damage +40%.
+  - _effect: {fileID: 11400000, guid: 5bb4e0fe8c8d46f0b4062601d90a91b8, type: 2}
+    _category: 4
+    _rarity: 0
+    _title: Crit Power +50%
+    _description: Critical damage +50%.
+  - _effect: {fileID: 11400000, guid: fe7957183d5c4a60b35e24a6b718050c, type: 2}
+    _category: 4
+    _rarity: 1
+    _title: Crit Power +60%
+    _description: Critical damage +60%.
+  - _effect: {fileID: 11400000, guid: 2a5bc238b75b40a09d68dfd99cba4bb9, type: 2}
+    _category: 4
+    _rarity: 1
+    _title: Crit Power +70%
+    _description: Critical damage +70%.
+  - _effect: {fileID: 11400000, guid: 8d414a625a7a4330a8449f8ea982ff97, type: 2}
+    _category: 4
+    _rarity: 1
+    _title: Crit Power +80%
+    _description: Critical damage +80%.
+  - _effect: {fileID: 11400000, guid: 6c2d6e72f54f4aa6a7a9ffcd010fbc96, type: 2}
+    _category: 4
+    _rarity: 1
+    _title: Crit Power +90%
+    _description: Critical damage +90%.
+  - _effect: {fileID: 11400000, guid: 6a8587b9cc524a03a1c7aa26889eb99a, type: 2}
+    _category: 4
+    _rarity: 1
+    _title: Crit Power +100%
+    _description: Critical damage +100%.
+  - _effect: {fileID: 11400000, guid: 1e5e19b87fa74f8485fdad8165ca343e, type: 2}
+    _category: 4
+    _rarity: 2
+    _title: Crit Power +150%
+    _description: Critical damage +150%.
   - _effect: {fileID: 11400000, guid: f69604ad030f426ea0e0f8636447927f, type: 2}
+    _category: 4
     _rarity: 2
-    _title: Critical Power
+    _title: Crit Power +200%
     _description: Critical damage +200%.
+  - _effect: {fileID: 11400000, guid: b3081f02e8f8482db6f8d081292a82dd, type: 2}
+    _category: 5
+    _rarity: 0
+    _title: Penetration +1
+    _description: Projectile penetration +1.
+  - _effect: {fileID: 11400000, guid: d69823c8ea6b4d7f89c8852e000b5e53, type: 2}
+    _category: 5
+    _rarity: 1
+    _title: Penetration +2
+    _description: Projectile penetration +2.
   - _effect: {fileID: 11400000, guid: 29779d0340c74e1e94bd3d283cb6f2bd, type: 2}
+    _category: 5
     _rarity: 2
-    _title: Penetration
+    _title: Penetration +4
     _description: Projectile penetration +4.
+  - _effect: {fileID: 11400000, guid: 9fbccc6d641f1134d9bc324773a229f5, type: 2}
+    _category: 6
+    _rarity: 0
+    _title: Parallel +1
+    _description: Parallel projectiles +1.
+  - _effect: {fileID: 11400000, guid: 91d57df9f7954bacab35c78cd4e08497, type: 2}
+    _category: 6
+    _rarity: 1
+    _title: Parallel +2
+    _description: Parallel projectiles +2.
+  - _effect: {fileID: 11400000, guid: d5d4be9f2d3b4963a79e8b5afb0811c8, type: 2}
+    _category: 6
+    _rarity: 2
+    _title: Parallel +4
+    _description: Parallel projectiles +4.
+  - _effect: {fileID: 11400000, guid: c7b6f7785f6342ba80e7872fa2a5c1a1, type: 2}
+    _category: 7
+    _rarity: 0
+    _title: Salvo +1
+    _description: Salvo +1.

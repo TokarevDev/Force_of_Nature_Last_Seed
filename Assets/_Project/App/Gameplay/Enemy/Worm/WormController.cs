@@ -57,6 +57,19 @@ public sealed class WormController : MonoBehaviour
 
     private Vector3 _tmpEuler;
 
+    public bool HasWorm => _segments.Count > 0;
+
+    public float HeadPathProgressNormalized
+    {
+        get
+        {
+            if (_rail == null || _rail.TotalLength <= 0f)
+                return 0f;
+
+            return Mathf.Clamp01(_headDistance / _rail.TotalLength);
+        }
+    }
+
     /// <summary>
     /// Initializes worm movement with the generated segment list.
     /// Called by WormSpawner after all segments are created.

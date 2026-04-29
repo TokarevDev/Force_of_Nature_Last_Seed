@@ -44,7 +44,7 @@ public sealed class WormSegment : MonoBehaviour
 
         if (_cocoonVisual != null)
         {
-            _cocoonRenderer = _cocoonVisual.GetComponentInChildren<SpriteRenderer>();
+            _cocoonRenderer = _cocoonVisual.GetComponentInChildren<SpriteRenderer>(true);
             _cocoonTransform = _cocoonVisual.transform;
         }
     }
@@ -69,10 +69,18 @@ public sealed class WormSegment : MonoBehaviour
 
     public void EnableCocoon()
     {
+        EnableCocoon(Color.white);
+    }
+
+    public void EnableCocoon(Color visualColor)
+    {
         if (Type != WormSegmentType.Body)
             return;
 
         HasCocoon = true;
+
+        if (_cocoonRenderer != null)
+            _cocoonRenderer.color = visualColor;
 
         if (_cocoonVisual != null)
             _cocoonVisual.SetActive(true);
@@ -81,6 +89,9 @@ public sealed class WormSegment : MonoBehaviour
     public void DisableCocoon()
     {
         HasCocoon = false;
+
+        if (_cocoonRenderer != null)
+            _cocoonRenderer.color = Color.white;
 
         if (_cocoonVisual != null)
             _cocoonVisual.SetActive(false);

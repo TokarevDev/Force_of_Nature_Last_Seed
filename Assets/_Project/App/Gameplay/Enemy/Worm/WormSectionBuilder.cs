@@ -9,7 +9,9 @@ public static class WormSectionBuilder
 {
     private const int SECTION_SIZE = 7;
 
-    public static List<WormSection> BuildSections(List<WormSegment> segments)
+    public static List<WormSection> BuildSections(
+        List<WormSegment> segments,
+        IReadOnlyList<CocoonRewardProfile> cocoonProfiles = null)
     {
         List<WormSection> sections = new();
         List<WormSegment> buffer = new();
@@ -28,7 +30,13 @@ public static class WormSectionBuilder
 
             if (buffer.Count == SECTION_SIZE)
             {
-                CreateSection(buffer, sections, sectionIndex, ref sectionsWithoutCocoon);
+                CreateSection(
+                    buffer,
+                    sections,
+                    sectionIndex,
+                    cocoonProfiles,
+                    ref sectionsWithoutCocoon);
+
                 buffer.Clear();
                 sectionIndex++;
             }
@@ -36,7 +44,12 @@ public static class WormSectionBuilder
 
         if (buffer.Count > 0)
         {
-            CreateSection(buffer, sections, sectionIndex, ref sectionsWithoutCocoon);
+            CreateSection(
+                buffer,
+                sections,
+                sectionIndex,
+                cocoonProfiles,
+                ref sectionsWithoutCocoon);
         }
 
         return sections;
@@ -46,6 +59,7 @@ public static class WormSectionBuilder
         List<WormSegment> buffer,
         List<WormSection> sections,
         int sectionIndex,
+        IReadOnlyList<CocoonRewardProfile> cocoonProfiles,
         ref int sectionsWithoutCocoon)
     {
         WormSection section = new();
@@ -55,7 +69,12 @@ public static class WormSectionBuilder
             section.AddSegment(buffer[i]);
         }
 
-        TryPlaceCocoon(buffer, section, sectionIndex, ref sectionsWithoutCocoon);
+        TryPlaceCocoon(
+            buffer,
+            section,
+            sectionIndex,
+            cocoonProfiles,
+            ref sectionsWithoutCocoon);
 
         sections.Add(section);
     }
@@ -68,6 +87,7 @@ public static class WormSectionBuilder
         List<WormSegment> buffer,
         WormSection section,
         int sectionIndex,
+        IReadOnlyList<CocoonRewardProfile> cocoonProfiles,
         ref int sectionsWithoutCocoon)
     {
         if (buffer.Count == 0)
@@ -97,8 +117,70 @@ public static class WormSectionBuilder
 
         sectionsWithoutCocoon = 0;
 
-        centerSegment.EnableCocoon();
+        CocoonRewardProfile profile = RollCocoonProfile(cocoonProfiles);
+        centerSegment.EnableCocoon(profile.VisualColor);
 
-        section.SetCocoon(true);
+        section.SetCocoon(profile);
+    }
+
+    private static CocoonRewardProfile RollCocoonProfile(
+        IReadOnlyList<CocoonRewardProfile> cocoonProfiles)
+    {
+        IReadOnlyList<CocoonRewardProfile> profiles = HasSpawnableProfile(cocoonProfiles)
+            ? cocoonProfiles
+            : CocoonRewardProfile.Defaults;
+
+        float totalWeight = 0f;
+
+        for (int i = 0; i < profiles.Count; i++)
+        {
+            CocoonRewardProfile profile = profiles[i];
+
+            if (!IsSpawnableProfile(profile))
+                continue;
+
+            totalWeight += profile.SpawnWeight;
+        }
+
+        if (totalWeight <= 0f)
+            return CocoonRewardProfile.Default;
+
+        float roll = Random.value * totalWeight;
+        float current = 0f;
+
+        for (int i = 0; i < profiles.Count; i++)
+        {
+            CocoonRewardProfile profile = profiles[i];
+
+            if (!IsSpawnableProfile(profile))
+                continue;
+
+            current += profile.SpawnWeight;
+
+            if (roll <= current)
+                return profile;
+        }
+
+        return CocoonRewardProfile.Default;
+    }
+
+    private static bool HasSpawnableProfile(
+        IReadOnlyList<CocoonRewardProfile> profiles)
+    {
+        if (profiles == null)
+            return false;
+
+        for (int i = 0; i < profiles.Count; i++)
+        {
+            if (IsSpawnableProfile(profiles[i]))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool IsSpawnableProfile(CocoonRewardProfile profile)
+    {
+        return profile != null && profile.SpawnWeight > 0f;
     }
 }

@@ -32,10 +32,16 @@ public sealed class RewardFlowController : IDisposable
         _isDisposed = true;
     }
 
-    public void Open()
+    public bool Open(CocoonRewardProfile cocoonProfile = null)
     {
-        _currentChoices = _rollService.Roll3(_applyService.RuntimeState);
-        _popup.Show(_currentChoices);
+        _currentChoices = _rollService.Roll3(
+            _applyService.RuntimeState,
+            cocoonProfile?.RarityWeights);
+
+        if (_currentChoices == null || _currentChoices.Count == 0)
+            return false;
+
+        return _popup.Show(_currentChoices);
     }
 
     public void OnSelected(RewardChoiceData choice)

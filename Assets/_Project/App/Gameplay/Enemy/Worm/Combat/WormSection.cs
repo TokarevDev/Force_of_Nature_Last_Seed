@@ -11,23 +11,42 @@ public sealed class WormSection
     public int CurrentHP { get; private set; }
     public int Index { get; set; }
 
-    public bool HasCocoon { get; private set; }
+    public CocoonRewardProfile CocoonProfile { get; private set; }
+    public bool HasCocoon => CocoonProfile != null;
     public bool HasReward => HasCocoon;
 
     private readonly List<WormSegment> _segments = new();
 
     public IReadOnlyList<WormSegment> Segments => _segments;
     public bool IsDestroyed => CurrentHP <= 0;
+    public bool HasTakenDamage => CurrentHP < MaxHP;
 
     public void Init(int hp)
     {
-        MaxHP = hp;
-        CurrentHP = hp;
+        SetHp(hp, notify: false);
     }
 
-    public void SetCocoon(bool value)
+    public void SetHp(int hp)
     {
-        HasCocoon = value;
+        SetHp(hp, notify: true);
+    }
+
+    public bool HasVisibleAliveSegment()
+    {
+        for (int i = 0; i < _segments.Count; i++)
+        {
+            WormSegment segment = _segments[i];
+
+            if (segment != null && segment.IsAlive && segment.gameObject.activeInHierarchy)
+                return true;
+        }
+
+        return false;
+    }
+
+    public void SetCocoon(CocoonRewardProfile profile)
+    {
+        CocoonProfile = profile;
     }
 
     public void AddSegment(WormSegment segment)
@@ -76,6 +95,17 @@ public sealed class WormSection
 
         if (CurrentHP == 0)
             Destroyed?.Invoke(this);
+    }
+
+    private void SetHp(int hp, bool notify)
+    {
+        int clampedHp = Mathf.Max(1, hp);
+
+        MaxHP = clampedHp;
+        CurrentHP = clampedHp;
+
+        if (notify)
+            HPChanged?.Invoke(this);
     }
 
     public List<WormSegment> ReleaseSegments()

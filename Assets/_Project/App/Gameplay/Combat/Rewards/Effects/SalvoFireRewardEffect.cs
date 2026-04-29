@@ -8,7 +8,7 @@ public sealed class SalvoFireRewardEffect : RewardEffect
 
     public override bool CanApply(WeaponRuntimeState state)
     {
-        return state != null && state.CanAddSalvoShots;
+        return state != null && state.CanApplySalvoShots(_extraShots);
     }
 
     public override void Apply(WeaponRuntimeState state)

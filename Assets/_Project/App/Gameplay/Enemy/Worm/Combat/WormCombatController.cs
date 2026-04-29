@@ -12,6 +12,7 @@ public sealed class WormCombatController : MonoBehaviour
     public event Action<WormSection, int> SectionDamaged;
 
     public event Action<DamageViewRequest> DamageDealt;
+    public event Action<int, int> DestructionProgressChanged;
 
     public static event Action OnWormDied;
 
@@ -22,6 +23,11 @@ public sealed class WormCombatController : MonoBehaviour
 
     private WormSegment _head;
     private WormSegment _tail;
+    private int _totalProgressSegments;
+    private int _destroyedProgressSegments;
+
+    public int TotalProgressSegments => _totalProgressSegments;
+    public int DestroyedProgressSegments => _destroyedProgressSegments;
 
     public void Init(WormSegment head, WormSegment tail, List<WormSection> sections)
     {
@@ -29,7 +35,14 @@ public sealed class WormCombatController : MonoBehaviour
         _tail = tail;
 
         _sections.Clear();
-        _sections.AddRange(sections);
+
+        if (sections != null)
+            _sections.AddRange(sections);
+
+        _totalProgressSegments = CountProgressSegments(_sections);
+        _destroyedProgressSegments = 0;
+
+        NotifyDestructionProgressChanged();
     }
 
     public void RegisterHit(WormSegment segment, in DamageInfo damageInfo)
@@ -52,6 +65,7 @@ public sealed class WormCombatController : MonoBehaviour
     private void DestroySection(WormSection section)
     {
         bool rewardTriggered = section.HasReward;
+        CocoonRewardProfile rewardProfile = section.CocoonProfile;
 
         List<WormSegment> removedSegments = section.ReleaseSegments();
 
@@ -69,6 +83,11 @@ public sealed class WormCombatController : MonoBehaviour
         }
 
         _sections.Remove(section);
+        _destroyedProgressSegments = Mathf.Min(
+            _destroyedProgressSegments + CountProgressSegments(removedSegments),
+            _totalProgressSegments);
+
+        NotifyDestructionProgressChanged();
 
         int removedFromChain = 0;
         int firstRemovedIndex = -1;
@@ -81,7 +100,7 @@ public sealed class WormCombatController : MonoBehaviour
 
         if (rewardTriggered && _rewardInstaller != null)
         {
-            _rewardInstaller.OpenReward();
+            _rewardInstaller.OpenReward(rewardProfile);
         }
 
         if (_sections.Count == 0)
@@ -126,5 +145,48 @@ public sealed class WormCombatController : MonoBehaviour
         }
 
         return null;
+    }
+
+    private void NotifyDestructionProgressChanged()
+    {
+        DestructionProgressChanged?.Invoke(
+            _destroyedProgressSegments,
+            _totalProgressSegments);
+    }
+
+    private static int CountProgressSegments(List<WormSection> sections)
+    {
+        if (sections == null)
+            return 0;
+
+        int count = 0;
+
+        for (int i = 0; i < sections.Count; i++)
+        {
+            WormSection section = sections[i];
+
+            if (section == null)
+                continue;
+
+            count += section.Segments.Count;
+        }
+
+        return count;
+    }
+
+    private static int CountProgressSegments(List<WormSegment> segments)
+    {
+        if (segments == null)
+            return 0;
+
+        int count = 0;
+
+        for (int i = 0; i < segments.Count; i++)
+        {
+            if (segments[i] != null)
+                count++;
+        }
+
+        return count;
     }
 }

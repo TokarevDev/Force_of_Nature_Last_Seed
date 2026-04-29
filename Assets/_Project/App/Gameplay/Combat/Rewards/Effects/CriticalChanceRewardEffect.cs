@@ -8,7 +8,7 @@ public sealed class CriticalChanceRewardEffect : RewardEffect
 
     public override bool CanApply(WeaponRuntimeState state)
     {
-        return state != null && state.CanAddCriticalChance;
+        return state != null && state.CanApplyCriticalChance(_chanceBonus);
     }
 
     public override void Apply(WeaponRuntimeState state)

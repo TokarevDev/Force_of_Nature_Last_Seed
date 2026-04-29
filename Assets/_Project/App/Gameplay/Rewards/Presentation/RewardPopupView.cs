@@ -13,12 +13,12 @@ public sealed class RewardPopupView : MonoBehaviour
 
     public Action<RewardChoiceData> OnSelected;
 
-    public void Show(List<RewardChoiceData> choices)
+    public bool Show(List<RewardChoiceData> choices)
     {
         if (choices == null || choices.Count == 0)
         {
-            Debug.LogWarning("No reward choices");
-            return;
+            Hide();
+            return false;
         }
 
         Time.timeScale = 0f;
@@ -36,6 +36,8 @@ public sealed class RewardPopupView : MonoBehaviour
             _buttons[i].gameObject.SetActive(true);
             _buttons[i].Bind(choices[i], OnClicked);
         }
+
+        return true;
     }
 
     private void OnClicked(RewardChoiceData data)

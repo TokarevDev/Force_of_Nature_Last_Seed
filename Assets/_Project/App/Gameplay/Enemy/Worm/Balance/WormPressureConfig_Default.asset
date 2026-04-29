@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b8194f798504f6f998c8a65b983e7a4, type: 3}
+  m_Name: WormPressureConfig_Default
+  m_EditorClassIdentifier: Assembly-CSharp::WormPressureConfig
+  _enabled: 1
+  _targetHeadProgress: 0.5
+  _targetReachTime: 120
+  _startDelay: 3
+  _progressDeadZone: 0.03
+  _sampleInterval: 1
+  _increasePerSample: 0.03
+  _recoveryPerSample: 0.01
+  _maxMultiplier: 2.5

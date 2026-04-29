@@ -2,19 +2,46 @@ using UnityEngine;
 
 public static class WormSectionHPGenerator
 {
+    private static readonly int[] EarlyLevelOneHp =
+    {
+        16,
+        24,
+        40,
+        48,
+        80,
+        160
+    };
+
+    private const float LevelOneSectionGrowth = 1.08f;
+    private const float PerLevelMultiplier = 1.43f;
+
     public static int GetHP(int sectionIndex)
     {
+        return GetHP(sectionIndex, 1);
+    }
 
-        int[] early = { 16, 24, 40, 48, 80, 160 };
+    public static int GetHP(int sectionIndex, int levelNumber)
+    {
+        int safeSectionIndex = Mathf.Max(0, sectionIndex);
+        int safeLevelNumber = Mathf.Max(1, levelNumber);
 
-        if (sectionIndex < early.Length)
-            return early[sectionIndex];
+        int levelOneHp = GetLevelOneHp(safeSectionIndex);
+        float levelMultiplier = Mathf.Pow(PerLevelMultiplier, safeLevelNumber - 1);
+        float scaledHp = levelOneHp * levelMultiplier;
 
-        float baseHP = 160f;
-        float multiplier = 1.15f;
+        if (scaledHp >= int.MaxValue)
+            return int.MaxValue;
 
-        int k = sectionIndex - (early.Length - 1);
-        float hp = baseHP * Mathf.Pow(multiplier, k);
+        return Mathf.Max(1, Mathf.RoundToInt(scaledHp));
+    }
+
+    private static int GetLevelOneHp(int sectionIndex)
+    {
+        if (sectionIndex < EarlyLevelOneHp.Length)
+            return EarlyLevelOneHp[sectionIndex];
+
+        int growthStep = sectionIndex - (EarlyLevelOneHp.Length - 1);
+        float hp = EarlyLevelOneHp[^1] * Mathf.Pow(LevelOneSectionGrowth, growthStep);
 
         return Mathf.RoundToInt(hp);
     }

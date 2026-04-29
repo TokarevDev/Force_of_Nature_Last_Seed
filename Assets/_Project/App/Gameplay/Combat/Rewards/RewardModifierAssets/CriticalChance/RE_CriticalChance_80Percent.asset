@@ -9,7 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 82ab0a4fd85d48a4a17de7ec944a93d6, type: 3}
-  m_Name: RE_PenetrationEffect
-  m_EditorClassIdentifier: Assembly-CSharp::PenetrationRewardEffect
-  _bonusPenetration: 1
+  m_Script: {fileID: 11500000, guid: 1db05a1e2c2b4f8c8dc199f3324a8a10, type: 3}
+  m_Name: RE_CriticalChance_80Percent
+  m_EditorClassIdentifier: Assembly-CSharp::CriticalChanceRewardEffect
+  _chanceBonus: 0.8
+  _criticalDamageMultiplier: 2

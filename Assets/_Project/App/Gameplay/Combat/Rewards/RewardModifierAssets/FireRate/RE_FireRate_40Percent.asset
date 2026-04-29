@@ -9,7 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dfbb51c7784e5a544b70a2c7174b0872, type: 3}
-  m_Name: MOD_Parallel
-  m_EditorClassIdentifier: Assembly-CSharp::AddModifierRewardEffect
-  _modifier: {fileID: 11400000, guid: 5ebfbc3fccff5554ebbacaf4e78753bb, type: 2}
+  m_Script: {fileID: 11500000, guid: 238ca1e3fc26a694784c2a6306f82c9a, type: 3}
+  m_Name: RE_FireRate_40Percent
+  m_EditorClassIdentifier: Assembly-CSharp::FireRateRewardEffect
+  _bonus: 0.4

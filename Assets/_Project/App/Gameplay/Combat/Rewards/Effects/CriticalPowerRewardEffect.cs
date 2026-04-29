@@ -9,7 +9,7 @@ public sealed class CriticalPowerRewardEffect : RewardEffect
     {
         return state != null
             && state.CriticalChance > 0f
-            && state.CanAddCriticalDamage;
+            && state.CanApplyCriticalDamageBonus(_criticalDamageBonus);
     }
 
     public override void Apply(WeaponRuntimeState state)

@@ -166,7 +166,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -406,6 +406,7 @@ GameObject:
   - component: {fileID: 91581456}
   - component: {fileID: 91581455}
   - component: {fileID: 91581457}
+  - component: {fileID: 91581458}
   m_Layer: 3
   m_Name: WormSpawner
   m_TagString: Untagged
@@ -446,7 +447,11 @@ MonoBehaviour:
   _wormController: {fileID: 91581456}
   _wormCombat: {fileID: 91581457}
   _hpPresenter: {fileID: 1262977638}
-  _totalLength: 650
+  _rewardInstaller: {fileID: 57053535}
+  _weapon: {fileID: 501089295}
+  _hpScalingConfig: {fileID: 11400000, guid: 0cf733b5054a4ec2a3770fda9b75f3d8, type: 2}
+  _levelNumber: 1
+  _totalLength: 420
   _poolPadding: 32
   _prewarmBatchSize: 64
 --- !u!114 &91581456
@@ -486,6 +491,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WormCombatController
   _wormController: {fileID: 91581456}
   _rewardInstaller: {fileID: 57053535}
+--- !u!114 &91581458
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 91581453}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30f272d7b93f4f2bbf624c52ea343c25, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::WormPressureDirector
+  _wormController: {fileID: 91581456}
+  _wormSpawner: {fileID: 91581455}
+  _config: {fileID: 11400000, guid: f4fdc2588a7a4e6bb52610d93c58f5d9, type: 2}
 --- !u!1 &91589505
 GameObject:
   m_ObjectHideFlags: 0
@@ -1505,6 +1525,7 @@ GameObject:
   - component: {fileID: 352036265}
   - component: {fileID: 352036267}
   - component: {fileID: 352036266}
+  - component: {fileID: 352036268}
   m_Layer: 5
   m_Name: WormProgressText
   m_TagString: Untagged
@@ -1551,7 +1572,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Progress: 27%'
+  m_text: 'Progress: 0%'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 9a2157e1f9c4c4d38841fbb92558f587, type: 2}
   m_sharedMaterial: {fileID: -6360588970910393389, guid: 9a2157e1f9c4c4d38841fbb92558f587, type: 2}
@@ -1631,6 +1652,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 352036264}
   m_CullTransparentMesh: 1
+--- !u!114 &352036268
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 352036264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c2f3bb0411b4b319d58589e8ad6a74d, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::WormProgressPresenter
+  _wormCombat: {fileID: 91581457}
+  _text: {fileID: 352036266}
+  _format: 'Progress: {0}%'
 --- !u!1 &352281319
 GameObject:
   m_ObjectHideFlags: 0

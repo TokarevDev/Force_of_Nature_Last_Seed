@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 [DisallowMultipleComponent]
@@ -10,6 +11,11 @@ public sealed class RewardInstaller : MonoBehaviour
     [SerializeField] private ProjectileWeapon _weapon;
 
     private RewardFlowController _rewardFlow;
+
+    public IReadOnlyList<CocoonRewardProfile> CocoonProfiles =>
+        _database != null
+            ? _database.CocoonProfiles
+            : CocoonRewardProfile.Defaults;
 
     private void Awake()
     {
@@ -24,8 +30,13 @@ public sealed class RewardInstaller : MonoBehaviour
         _rewardFlow?.Dispose();
     }
 
-    public void OpenReward()
+    public bool OpenReward()
     {
-        _rewardFlow.Open();
+        return OpenReward(null);
+    }
+
+    public bool OpenReward(CocoonRewardProfile cocoonProfile)
+    {
+        return _rewardFlow != null && _rewardFlow.Open(cocoonProfile);
     }
 }

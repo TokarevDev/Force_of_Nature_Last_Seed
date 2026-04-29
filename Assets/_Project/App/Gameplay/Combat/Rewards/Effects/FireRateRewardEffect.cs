@@ -7,7 +7,7 @@ public sealed class FireRateRewardEffect : RewardEffect
 
     public override bool CanApply(WeaponRuntimeState state)
     {
-        return state != null && state.CanAddFireRateBonus;
+        return state != null && state.CanApplyFireRateBonus(_bonus);
     }
 
     public override void Apply(WeaponRuntimeState state)
