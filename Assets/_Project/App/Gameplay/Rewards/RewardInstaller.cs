@@ -9,6 +9,7 @@ public sealed class RewardInstaller : MonoBehaviour
 
     [SerializeField] private RewardPopupView _popup;
     [SerializeField] private ProjectileWeapon _weapon;
+    [SerializeField] private AcaciaThornWeapon _acaciaThornWeapon;
 
     private RewardFlowController _rewardFlow;
 
@@ -20,7 +21,7 @@ public sealed class RewardInstaller : MonoBehaviour
     private void Awake()
     {
         var roll = new RewardRollService(_database);
-        var apply = new RewardApplyService(_weapon);
+        var apply = new RewardApplyService(_weapon, _acaciaThornWeapon);
 
         _rewardFlow = new RewardFlowController(roll, apply, _popup);
     }

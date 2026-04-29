@@ -11,7 +11,10 @@ public enum RewardModifierCategory
     Penetration = 5,
     ParallelProjectiles = 6,
     Salvo = 7,
-    Spread = 8
+    AcaciaThornUnlock = 8,
+    AcaciaThornDamage = 9,
+    AcaciaThornFireRate = 10,
+    AcaciaThornSplit = 11
 }
 
 [Serializable]

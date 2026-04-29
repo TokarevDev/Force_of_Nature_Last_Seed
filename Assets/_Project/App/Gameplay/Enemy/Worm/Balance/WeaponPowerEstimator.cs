@@ -11,6 +11,36 @@ public static class WeaponPowerEstimator
     }
 
     public static WeaponPowerSnapshot Estimate(
+        ProjectileWeapon mainWeapon,
+        AcaciaThornWeapon acaciaThornWeapon)
+    {
+        WeaponPowerSnapshot mainPower = Estimate(mainWeapon);
+        WeaponPowerSnapshot acaciaPower = Estimate(acaciaThornWeapon);
+
+        if (!mainPower.IsValid)
+            return acaciaPower;
+
+        if (!acaciaPower.IsValid)
+            return mainPower;
+
+        return new WeaponPowerSnapshot(
+            true,
+            mainPower.EstimatedDps + acaciaPower.EstimatedDps,
+            Mathf.Max(mainPower.DamagePerProjectile, acaciaPower.DamagePerProjectile),
+            mainPower.ProjectilesPerShot + acaciaPower.ProjectilesPerShot,
+            Mathf.Max(mainPower.SalvoShots, acaciaPower.SalvoShots),
+            Mathf.Min(mainPower.ShotCycleTime, acaciaPower.ShotCycleTime));
+    }
+
+    public static WeaponPowerSnapshot Estimate(AcaciaThornWeapon weapon)
+    {
+        if (weapon == null)
+            return WeaponPowerSnapshot.Invalid;
+
+        return Estimate(weapon.Config, weapon.RuntimeState);
+    }
+
+    public static WeaponPowerSnapshot Estimate(
         WeaponConfig config,
         WeaponRuntimeState runtimeState)
     {
@@ -56,19 +86,42 @@ public static class WeaponPowerEstimator
 
     private static int EstimateProjectilesPerShot(WeaponRuntimeState runtimeState)
     {
-        int spreadCount = 1;
-
-        var modifiers = runtimeState.ShotModifiers;
-
-        for (int i = 0; i < modifiers.Count; i++)
-        {
-            if (modifiers[i] is SpreadModifierData spread)
-                spreadCount += Mathf.Max(0, spread.Count - 1);
-        }
-
         return Mathf.Max(
             1,
-            runtimeState.ParallelProjectileCount * spreadCount);
+            runtimeState.ParallelProjectileCount);
+    }
+
+    private static WeaponPowerSnapshot Estimate(
+        AcaciaThornWeaponConfig config,
+        AcaciaThornRuntimeState runtimeState)
+    {
+        if (config == null || runtimeState == null || !runtimeState.IsUnlocked)
+            return WeaponPowerSnapshot.Invalid;
+
+        int damagePerProjectile = AcaciaThornRuntimeState.ClampDamage(
+            Mathf.Max(1, config.Damage) * (double)runtimeState.DamageMultiplier);
+
+        int splitCount = Mathf.Max(
+            0,
+            config.BaseSplitCount + runtimeState.ExtraSplitProjectiles);
+
+        float estimatedHitsPerShot = 1f +
+            splitCount * config.EstimatedSplitHitChance +
+            config.BounceCount * config.EstimatedBounceHitChance;
+
+        float shotCycleTime = EstimateShotCycleTime(config, runtimeState);
+
+        float estimatedDps = damagePerProjectile *
+            Mathf.Max(1f, estimatedHitsPerShot) /
+            shotCycleTime;
+
+        return new WeaponPowerSnapshot(
+            true,
+            estimatedDps,
+            damagePerProjectile,
+            1 + splitCount,
+            1,
+            shotCycleTime);
     }
 
     private static float EstimateShotCycleTime(
@@ -77,8 +130,8 @@ public static class WeaponPowerEstimator
         int salvoShots)
     {
         float fireRateBonus = Mathf.Min(
-            runtimeState.FireRateBonus,
-            config.MaxFireRateBonus);
+            runtimeState.FireRateBonus * config.FireRateBonusEffectiveness,
+            config.MaxFireRateBonus * config.FireRateBonusEffectiveness);
 
         float shotCooldown = Mathf.Max(
             config.MinShotCooldown,
@@ -88,5 +141,20 @@ public static class WeaponPowerEstimator
             Mathf.Max(0.01f, runtimeState.SalvoInterval);
 
         return Mathf.Max(0.01f, shotCooldown + salvoTime);
+    }
+
+    private static float EstimateShotCycleTime(
+        AcaciaThornWeaponConfig config,
+        AcaciaThornRuntimeState runtimeState)
+    {
+        float fireRateBonus = Mathf.Min(
+            runtimeState.FireRateBonus * config.FireRateBonusEffectiveness,
+            config.MaxFireRateBonus * config.FireRateBonusEffectiveness);
+
+        return Mathf.Max(
+            0.01f,
+            Mathf.Max(
+                config.MinCooldown,
+                config.Cooldown / (1f + fireRateBonus)));
     }
 }

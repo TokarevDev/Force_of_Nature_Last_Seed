@@ -9,6 +9,7 @@ public sealed class PlayerShooter : MonoBehaviour
 {
     [Header("Weapon")]
     [SerializeField] private MonoBehaviour _weaponBehaviour;
+    [SerializeField] private AcaciaThornWeapon _acaciaThornWeapon;
 
     [Header("Refs")]
     [SerializeField] private PoolRegistry _registry;
@@ -21,7 +22,7 @@ public sealed class PlayerShooter : MonoBehaviour
     private IWeapon _weapon;
     private bool _initialized;
 
-    public void Init()
+    public void Init(IScreenBounds screenBounds)
     {
         if (_initialized)
             return;
@@ -66,6 +67,10 @@ public sealed class PlayerShooter : MonoBehaviour
 
         _weapon.Init(pool, _firePoint);
         _weapon.ApplyConfig(_startConfig);
+
+        if (_acaciaThornWeapon != null)
+            _acaciaThornWeapon.Init(_firePoint, screenBounds, _registry.transform);
+
         _initialized = true;
     }
 
@@ -78,5 +83,6 @@ public sealed class PlayerShooter : MonoBehaviour
             return;
 
         _weapon.Tick();
+        _acaciaThornWeapon?.Tick();
     }
 }

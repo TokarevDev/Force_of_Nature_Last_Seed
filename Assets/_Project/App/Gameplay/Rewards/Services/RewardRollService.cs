@@ -19,7 +19,7 @@ public sealed class RewardRollService
     }
 
     public List<RewardChoiceData> Roll3(
-        WeaponRuntimeState state,
+        RewardRuntimeContext context,
         IReadOnlyList<RewardRarityWeight> rarityWeights = null)
     {
         var result = new List<RewardChoiceData>(MAX_CHOICES);
@@ -30,9 +30,9 @@ public sealed class RewardRollService
             return result;
         }
 
-        if (state == null)
+        if (context == null)
         {
-            Debug.LogWarning("Cannot roll rewards: weapon runtime state is not initialized.");
+            Debug.LogWarning("Cannot roll rewards: runtime context is not initialized.");
             return result;
         }
 
@@ -44,7 +44,7 @@ public sealed class RewardRollService
             return result;
         }
 
-        var pools = BuildPools(source, state);
+        var pools = BuildPools(source, context);
         IReadOnlyList<RewardRarityWeight> weights = GetWeights(rarityWeights);
         int count = Mathf.Min(MAX_CHOICES, CountRewards(pools));
         var usedCategories = new HashSet<RewardModifierCategory>();
@@ -72,7 +72,7 @@ public sealed class RewardRollService
 
     private Dictionary<RewardRarity, List<RewardModifierEntry>> BuildPools(
         IReadOnlyList<RewardModifierEntry> source,
-        WeaponRuntimeState state)
+        RewardRuntimeContext context)
     {
         var pools = new Dictionary<RewardRarity, List<RewardModifierEntry>>();
 
@@ -81,7 +81,7 @@ public sealed class RewardRollService
             if (entry == null || entry.Effect == null)
                 continue;
 
-            if (!entry.Effect.CanApply(state))
+            if (!entry.Effect.CanApply(context))
                 continue;
 
             if (!pools.TryGetValue(entry.Rarity, out var pool))

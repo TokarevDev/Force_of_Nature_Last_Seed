@@ -35,7 +35,7 @@ public sealed class RewardFlowController : IDisposable
     public bool Open(CocoonRewardProfile cocoonProfile = null)
     {
         _currentChoices = _rollService.Roll3(
-            _applyService.RuntimeState,
+            _applyService.RuntimeContext,
             cocoonProfile?.RarityWeights);
 
         if (_currentChoices == null || _currentChoices.Count == 0)

@@ -24,7 +24,7 @@ public sealed class GameSceneBootstrap : MonoBehaviour
             _poolRegistry.Init(_screenBounds);
 
         if (_playerShooter != null)
-            _playerShooter.Init();
+            _playerShooter.Init(_screenBounds);
     }
 
     private void ResolveReferences()

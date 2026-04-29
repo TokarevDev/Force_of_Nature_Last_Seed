@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: WormHpScalingConfig_Default
   m_EditorClassIdentifier: Assembly-CSharp::WormHpScalingConfig
   _enabled: 1
-  _targetSectionLifetime: 6
+  _targetSectionLifetime: 4.8
   _dynamicHpWeight: 1
   _useBaseHpAsFloor: 1
   _levelMultiplier: 1.12

@@ -82,8 +82,8 @@ public sealed class ProjectileWeapon : MonoBehaviour, IWeapon
         if (_config == null) return;
 
         float effectiveFireRateBonus = Mathf.Min(
-            _runtimeState.FireRateBonus,
-            _config.MaxFireRateBonus);
+            _runtimeState.FireRateBonus * _config.FireRateBonusEffectiveness,
+            _config.MaxFireRateBonus * _config.FireRateBonusEffectiveness);
 
         _currentShotCooldown = Mathf.Max(
             _config.MinShotCooldown,

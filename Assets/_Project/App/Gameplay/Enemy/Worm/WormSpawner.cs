@@ -22,6 +22,7 @@ public sealed class WormSpawner : MonoBehaviour
 
     [Header("Adaptive HP")]
     [SerializeField] private ProjectileWeapon _weapon;
+    [SerializeField] private AcaciaThornWeapon _acaciaThornWeapon;
     [SerializeField] private WormHpScalingConfig _hpScalingConfig;
 
     [Header("Generation")]
@@ -47,12 +48,18 @@ public sealed class WormSpawner : MonoBehaviour
     {
         if (_weapon != null)
             _weapon.RuntimeStatsChanged += OnWeaponRuntimeStatsChanged;
+
+        if (_acaciaThornWeapon != null)
+            _acaciaThornWeapon.RuntimeStatsChanged += OnWeaponRuntimeStatsChanged;
     }
 
     private void OnDisable()
     {
         if (_weapon != null)
             _weapon.RuntimeStatsChanged -= OnWeaponRuntimeStatsChanged;
+
+        if (_acaciaThornWeapon != null)
+            _acaciaThornWeapon.RuntimeStatsChanged -= OnWeaponRuntimeStatsChanged;
     }
 
     private void Awake()
@@ -127,7 +134,7 @@ public sealed class WormSpawner : MonoBehaviour
         sections.Sort((a, b) =>
             a.GetCenterSegmentIndex().CompareTo(b.GetCenterSegmentIndex()));
 
-        WeaponPowerSnapshot power = WeaponPowerEstimator.Estimate(_weapon);
+        WeaponPowerSnapshot power = WeaponPowerEstimator.Estimate(_weapon, _acaciaThornWeapon);
         int totalSections = sections.Count;
 
         for (int i = 0; i < sections.Count; i++)
@@ -162,7 +169,7 @@ public sealed class WormSpawner : MonoBehaviour
         if (!_isSpawned || _sections.Count == 0)
             return;
 
-        WeaponPowerSnapshot power = WeaponPowerEstimator.Estimate(_weapon);
+        WeaponPowerSnapshot power = WeaponPowerEstimator.Estimate(_weapon, _acaciaThornWeapon);
 
         if (!power.IsValid)
             return;

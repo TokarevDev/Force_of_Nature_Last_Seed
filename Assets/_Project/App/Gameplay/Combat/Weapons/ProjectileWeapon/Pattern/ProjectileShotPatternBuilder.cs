@@ -19,26 +19,21 @@ public sealed class ProjectileShotPatternBuilder
         var settings = CollectSettings(runtimeState);
         var baseShot = new ShotSpawnData(origin, rotation);
 
-        var positions = new List<Vector3>(settings.ParallelCount);
         Vector3 right = baseShot.Rotation * Vector3.right;
 
-        positions.Add(baseShot.Position);
-
-        int sideCount = settings.ParallelCount - 1;
-
-        for (int i = 1; i <= sideCount; i++)
+        for (int i = 0; i < settings.ParallelCount; i++)
         {
-            float offset = ((i + 1) / 2) * settings.Spacing;
+            Vector3 position = baseShot.Position;
 
-            if (i % 2 == 1)
-                positions.Add(baseShot.Position + right * offset);
-            else
-                positions.Add(baseShot.Position - right * offset);
-        }
+            if (i > 0)
+            {
+                float offset = ((i + 1) / 2) * settings.Spacing;
+                position += i % 2 == 1
+                    ? right * offset
+                    : -right * offset;
+            }
 
-        foreach (var position in positions)
-        {
-            AddSpreadShots(shots, position, baseShot.Rotation, settings);
+            shots.Add(new ShotSpawnData(position, baseShot.Rotation));
         }
     }
 
@@ -47,51 +42,15 @@ public sealed class ProjectileShotPatternBuilder
         var settings = new ShotPatternSettings
         {
             ParallelCount = runtimeState.ParallelProjectileCount,
-            SpreadCount = 1,
-            SpreadAngle = 0f,
             Spacing = runtimeState.ParallelSpacing
         };
 
-        foreach (var modifier in runtimeState.ShotModifiers)
-        {
-            if (modifier is SpreadModifierData spread)
-            {
-                settings.SpreadCount += spread.Count - 1;
-                settings.SpreadAngle += spread.Angle * 0.5f;
-            }
-        }
-
         return settings;
-    }
-
-    private static void AddSpreadShots(
-        List<ShotSpawnData> shots,
-        Vector3 position,
-        Quaternion baseRotation,
-        ShotPatternSettings settings)
-    {
-        if (settings.SpreadCount <= 1)
-        {
-            shots.Add(new ShotSpawnData(position, baseRotation));
-            return;
-        }
-
-        float step = settings.SpreadAngle / (settings.SpreadCount - 1);
-        float start = -settings.SpreadAngle * 0.5f;
-
-        for (int i = 0; i < settings.SpreadCount; i++)
-        {
-            float angle = start + step * i;
-            Quaternion rotation = baseRotation * Quaternion.Euler(0f, 0f, angle);
-            shots.Add(new ShotSpawnData(position, rotation));
-        }
     }
 
     private struct ShotPatternSettings
     {
         public int ParallelCount;
-        public int SpreadCount;
-        public float SpreadAngle;
         public float Spacing;
     }
 }

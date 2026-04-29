@@ -10,13 +10,13 @@ public sealed class WeaponRuntimeState
     private const float FloatEpsilon = 0.0001f;
 
     public const int MaxParallelProjectiles = 10;
-    public const int MaxSalvoShots = 5;
+    public const int MaxSalvoShots = 20;
     public const int MaxSalvoExtraShots = MaxSalvoShots - 1;
     public const int MaxProjectileDamage = 9999999;
-    public const float DefaultMaxFireRateBonus = 2f;
-    public const float MaxDamageMultiplier = 80f;
-    public const float MaxCriticalDamageMultiplier = 10f;
-    public const int MaxPenetrationBonus = 5;
+    public const float DefaultMaxFireRateBonus = 100f;
+    public const float MaxDamageMultiplier = 100000f;
+    public const float MaxCriticalDamageMultiplier = 100f;
+    public const int MaxPenetrationBonus = 100;
     public const float MaxCriticalChance = 1f;
 
     private readonly List<ShotModifierData> _shotModifiers = new();
