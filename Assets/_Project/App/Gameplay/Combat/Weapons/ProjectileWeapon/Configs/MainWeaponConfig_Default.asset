@@ -13,13 +13,13 @@ MonoBehaviour:
   m_Name: MainWeaponConfig_Default
   m_EditorClassIdentifier: Assembly-CSharp::WeaponConfig
   FireRate: 2.5
-  MinShotCooldown: 0.5
-  MaxFireRateBonus: 100
-  FireRateBonusEffectiveness: 0.1
+  MinShotCooldown: 0.25
+  MaxFireRateBonus: 3
+  MaxProjectileSpeedBonus: 2
   MaxDamageMultiplier: 100000
-  MaxCriticalChance: 0.8
+  MaxCriticalChance: 1
   MaxCriticalDamageMultiplier: 100
-  MaxPenetrationBonus: 10
+  MaxPenetrationBonus: 5
   MaxParallelProjectiles: 8
   MaxSalvoExtraShots: 5
   Projectile: {fileID: 11400000, guid: 0ce9c42391f600d419964b6d2b80397b, type: 2}

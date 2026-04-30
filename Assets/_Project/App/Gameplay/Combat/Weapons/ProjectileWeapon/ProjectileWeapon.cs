@@ -31,6 +31,7 @@ public sealed class ProjectileWeapon : MonoBehaviour, IWeapon
 
     public WeaponConfig Config => _config;
     public WeaponRuntimeState RuntimeState => _runtimeState;
+    public int CurrentProjectileDamage => BuildProjectileDamage();
 
     public void Init(ProjectilePool pool, Transform firePoint)
     {
@@ -46,6 +47,7 @@ public sealed class ProjectileWeapon : MonoBehaviour, IWeapon
             _runtimeState = new WeaponRuntimeState();
 
         _runtimeState.SetFireRateBonusLimit(_config.MaxFireRateBonus);
+        _runtimeState.SetProjectileSpeedBonusLimit(_config.MaxProjectileSpeedBonus);
         _runtimeState.SetProgressionLimits(
             _config.MaxDamageMultiplier,
             _config.MaxCriticalChance,
@@ -81,13 +83,13 @@ public sealed class ProjectileWeapon : MonoBehaviour, IWeapon
     {
         if (_config == null) return;
 
-        float effectiveFireRateBonus = Mathf.Min(
-            _runtimeState.FireRateBonus * _config.FireRateBonusEffectiveness,
-            _config.MaxFireRateBonus * _config.FireRateBonusEffectiveness);
+        float cappedFireRateBonus = Mathf.Min(
+            _runtimeState.FireRateBonus,
+            _config.MaxFireRateBonus);
 
         _currentShotCooldown = Mathf.Max(
             _config.MinShotCooldown,
-            _config.FireRate / (1f + effectiveFireRateBonus));
+            _config.FireRate / (1f + cappedFireRateBonus));
 
         if (resetFiringCycle)
         {
@@ -184,14 +186,23 @@ public sealed class ProjectileWeapon : MonoBehaviour, IWeapon
 
     private ProjectileRuntimeStats BuildProjectileStats()
     {
-        int finalDamage = WeaponRuntimeState.ClampDamage(
-            _config.Projectile.Damage * (double)_runtimeState.DamageMultiplier);
+        int finalDamage = BuildProjectileDamage();
 
         return new ProjectileRuntimeStats(
             finalDamage,
             _runtimeState.PenetrationBonus,
             _runtimeState.CriticalChance,
-            _runtimeState.CriticalDamageMultiplier
+            _runtimeState.CriticalDamageMultiplier,
+            1f + _runtimeState.ProjectileSpeedBonus
         );
+    }
+
+    private int BuildProjectileDamage()
+    {
+        if (_config == null || _config.Projectile == null || _runtimeState == null)
+            return 0;
+
+        return WeaponRuntimeState.ClampDamage(
+            _config.Projectile.Damage * (double)_runtimeState.DamageMultiplier);
     }
 }

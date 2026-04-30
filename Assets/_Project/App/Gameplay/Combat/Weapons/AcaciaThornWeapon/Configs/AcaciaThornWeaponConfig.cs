@@ -8,11 +8,19 @@ public sealed class AcaciaThornWeaponConfig : ScriptableObject
     public Sprite Sprite;
     [Min(1)] public int Damage = 6;
     [Min(0.05f)] public float Cooldown = 3f;
+    [Min(0.01f)] public float SalvoInterval = 0.2f;
 
     [Header("Fire Rate Limits")]
     [Min(0.05f)] public float MinCooldown = 0.75f;
     [Min(0f)] public float MaxFireRateBonus = AcaciaThornRuntimeState.DefaultMaxFireRateBonus;
-    [Min(0f)] public float FireRateBonusEffectiveness = 0.1f;
+
+    [Header("Projectile Speed Limits")]
+    [Min(0f)] public float MaxProjectileSpeedBonus = AcaciaThornRuntimeState.DefaultMaxProjectileSpeedBonus;
+
+    [Header("Critical")]
+    [Range(0f, AcaciaThornRuntimeState.MaxCriticalChance)] public float MaxCriticalChance = AcaciaThornRuntimeState.MaxCriticalChance;
+    [Min(1f)] public float CriticalDamageMultiplier = 2f;
+    [Min(1f)] public float MaxCriticalDamageMultiplier = AcaciaThornRuntimeState.MaxCriticalDamageMultiplier;
 
     [Header("Projectile")]
     [Min(0.1f)] public float Speed = 10f;
@@ -26,8 +34,8 @@ public sealed class AcaciaThornWeaponConfig : ScriptableObject
 
     [Header("Progression Limits")]
     [Min(1f)] public float MaxDamageMultiplier = AcaciaThornRuntimeState.MaxDamageMultiplier;
-    [Range(0, AcaciaThornRuntimeState.MaxExtraSplitProjectiles)]
-    public int MaxExtraSplitProjectiles = 4;
+    [Range(0, AcaciaThornRuntimeState.MaxSalvoExtraShots)]
+    public int MaxSalvoExtraShots = AcaciaThornRuntimeState.MaxSalvoExtraShots;
 
     [Header("Power Estimate")]
     [Range(0f, 1f)] public float EstimatedSplitHitChance = 0.55f;

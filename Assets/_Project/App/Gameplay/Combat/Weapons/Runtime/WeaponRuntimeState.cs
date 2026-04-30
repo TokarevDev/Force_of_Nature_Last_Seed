@@ -13,10 +13,11 @@ public sealed class WeaponRuntimeState
     public const int MaxSalvoShots = 20;
     public const int MaxSalvoExtraShots = MaxSalvoShots - 1;
     public const int MaxProjectileDamage = 9999999;
-    public const float DefaultMaxFireRateBonus = 100f;
+    public const float DefaultMaxFireRateBonus = 3f;
+    public const float DefaultMaxProjectileSpeedBonus = 2f;
     public const float MaxDamageMultiplier = 100000f;
     public const float MaxCriticalDamageMultiplier = 100f;
-    public const int MaxPenetrationBonus = 100;
+    public const int MaxPenetrationBonus = 5;
     public const float MaxCriticalChance = 1f;
 
     private readonly List<ShotModifierData> _shotModifiers = new();
@@ -37,7 +38,9 @@ public sealed class WeaponRuntimeState
     public float ParallelSpacing { get; private set; } = 0.5f;
     public int SalvoExtraShots { get; private set; }
     public float SalvoInterval { get; private set; } = 0.2f;
+    public float ProjectileSpeedBonus { get; private set; }
     public float MaxFireRateBonus { get; private set; } = DefaultMaxFireRateBonus;
+    public float MaxProjectileSpeedBonus { get; private set; } = DefaultMaxProjectileSpeedBonus;
     public IReadOnlyList<ShotModifierData> ShotModifiers => _shotModifiers;
 
     public bool CanAddDamageMultiplier => DamageMultiplier < _maxDamageMultiplier;
@@ -47,6 +50,7 @@ public sealed class WeaponRuntimeState
     public bool CanAddPenetration => PenetrationBonus < _maxPenetrationBonus;
     public bool CanAddParallelProjectiles => ParallelProjectileCount < _maxParallelProjectiles;
     public bool CanAddSalvoShots => SalvoExtraShots < _maxSalvoExtraShots;
+    public bool CanAddProjectileSpeedBonus => ProjectileSpeedBonus < MaxProjectileSpeedBonus;
 
     public bool CanApplyDamageMultiplier(float multiplier)
     {
@@ -62,6 +66,14 @@ public sealed class WeaponRuntimeState
             return false;
 
         return FireRateBonus + bonus <= MaxFireRateBonus + FloatEpsilon;
+    }
+
+    public bool CanApplyProjectileSpeedBonus(float bonus)
+    {
+        if (bonus <= 0f)
+            return false;
+
+        return ProjectileSpeedBonus + bonus <= MaxProjectileSpeedBonus + FloatEpsilon;
     }
 
     public bool CanApplyCriticalChance(float chanceBonus)
@@ -175,6 +187,12 @@ public sealed class WeaponRuntimeState
         FireRateBonus = UnityEngine.Mathf.Min(FireRateBonus, MaxFireRateBonus);
     }
 
+    public void SetProjectileSpeedBonusLimit(float maxProjectileSpeedBonus)
+    {
+        MaxProjectileSpeedBonus = UnityEngine.Mathf.Max(0f, maxProjectileSpeedBonus);
+        ProjectileSpeedBonus = UnityEngine.Mathf.Min(ProjectileSpeedBonus, MaxProjectileSpeedBonus);
+    }
+
     public float AddFireRateBonus(float bonus)
     {
         float accepted = UnityEngine.Mathf.Min(
@@ -182,6 +200,16 @@ public sealed class WeaponRuntimeState
             MaxFireRateBonus - FireRateBonus);
 
         FireRateBonus += UnityEngine.Mathf.Max(0f, accepted);
+        return accepted;
+    }
+
+    public float AddProjectileSpeedBonus(float bonus)
+    {
+        float accepted = UnityEngine.Mathf.Min(
+            UnityEngine.Mathf.Max(0f, bonus),
+            MaxProjectileSpeedBonus - ProjectileSpeedBonus);
+
+        ProjectileSpeedBonus += UnityEngine.Mathf.Max(0f, accepted);
         return accepted;
     }
 

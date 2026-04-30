@@ -6,11 +6,11 @@ public sealed class RewardRollService
     private const int MAX_CHOICES = 3;
 
     private readonly RewardDatabase _database;
-    private readonly List<RewardRarityWeight> _defaultWeights = new()
+    private readonly List<RewardRaritySlot> _defaultSlots = new()
     {
-        new RewardRarityWeight(RewardRarity.Common, 1f),
-        new RewardRarityWeight(RewardRarity.Rare, 0.3f),
-        new RewardRarityWeight(RewardRarity.Legendary, 0.1f)
+        new RewardRaritySlot(RewardRarity.Common),
+        new RewardRaritySlot(RewardRarity.Common),
+        new RewardRaritySlot(RewardRarity.Common)
     };
 
     public RewardRollService(RewardDatabase database)
@@ -20,7 +20,7 @@ public sealed class RewardRollService
 
     public List<RewardChoiceData> Roll3(
         RewardRuntimeContext context,
-        IReadOnlyList<RewardRarityWeight> rarityWeights = null)
+        CocoonRewardProfile cocoonProfile = null)
     {
         var result = new List<RewardChoiceData>(MAX_CHOICES);
 
@@ -45,19 +45,28 @@ public sealed class RewardRollService
         }
 
         var pools = BuildPools(source, context);
-        IReadOnlyList<RewardRarityWeight> weights = GetWeights(rarityWeights);
-        int count = Mathf.Min(MAX_CHOICES, CountRewards(pools));
+        IReadOnlyList<RewardRaritySlot> slots = GetSlots(cocoonProfile);
+        int count = Mathf.Min(MAX_CHOICES, Mathf.Min(CountRewards(pools), slots.Count));
         var usedCategories = new HashSet<RewardModifierCategory>();
         var usedCategoryRarities = new HashSet<int>();
 
         for (int i = 0; i < count; i++)
         {
-            if (!TryRollReward(
+            RewardRarity rarity = slots[i] != null
+                ? slots[i].RollRarity()
+                : RewardRarity.Common;
+
+            if (!TryRollRewardForRarity(
                     pools,
-                    weights,
+                    rarity,
                     usedCategories,
                     usedCategoryRarities,
-                    out RewardModifierEntry selected))
+                    out RewardModifierEntry selected)
+                && !TryRollReward(
+                    pools,
+                    usedCategories,
+                    usedCategoryRarities,
+                    out selected))
             {
                 break;
             }
@@ -68,6 +77,62 @@ public sealed class RewardRollService
         }
 
         return result;
+    }
+
+    private bool TryRollRewardForRarity(
+        Dictionary<RewardRarity, List<RewardModifierEntry>> pools,
+        RewardRarity rarity,
+        HashSet<RewardModifierCategory> usedCategories,
+        HashSet<int> usedCategoryRarities,
+        out RewardModifierEntry selected)
+    {
+        selected = null;
+
+        if (TryRollRewardForRarity(
+                pools,
+                rarity,
+                usedCategories,
+                usedCategoryRarities,
+                RewardPickMode.UniqueCategory,
+                out selected))
+        {
+            return true;
+        }
+
+        if (TryRollRewardForRarity(
+                pools,
+                rarity,
+                usedCategories,
+                usedCategoryRarities,
+                RewardPickMode.UniqueCategoryRarity,
+                out selected))
+        {
+            return true;
+        }
+
+        return TryRollRewardForRarity(
+            pools,
+            rarity,
+            usedCategories,
+            usedCategoryRarities,
+            RewardPickMode.Any,
+            out selected);
+    }
+
+    private static bool TryRollRewardForRarity(
+        Dictionary<RewardRarity, List<RewardModifierEntry>> pools,
+        RewardRarity rarity,
+        HashSet<RewardModifierCategory> usedCategories,
+        HashSet<int> usedCategoryRarities,
+        RewardPickMode mode,
+        out RewardModifierEntry selected)
+    {
+        selected = null;
+
+        if (!pools.TryGetValue(rarity, out var pool))
+            return false;
+
+        return TryTakeReward(pool, usedCategories, usedCategoryRarities, mode, out selected);
     }
 
     private Dictionary<RewardRarity, List<RewardModifierEntry>> BuildPools(
@@ -96,9 +161,8 @@ public sealed class RewardRollService
         return pools;
     }
 
-    private bool TryRollReward(
+    private static bool TryRollReward(
         Dictionary<RewardRarity, List<RewardModifierEntry>> pools,
-        IReadOnlyList<RewardRarityWeight> weights,
         HashSet<RewardModifierCategory> usedCategories,
         HashSet<int> usedCategoryRarities,
         out RewardModifierEntry selected)
@@ -107,7 +171,6 @@ public sealed class RewardRollService
 
         if (TryRollReward(
                 pools,
-                weights,
                 usedCategories,
                 usedCategoryRarities,
                 RewardPickMode.UniqueCategory,
@@ -118,7 +181,6 @@ public sealed class RewardRollService
 
         if (TryRollReward(
                 pools,
-                weights,
                 usedCategories,
                 usedCategoryRarities,
                 RewardPickMode.UniqueCategoryRarity,
@@ -129,16 +191,14 @@ public sealed class RewardRollService
 
         return TryRollReward(
             pools,
-            weights,
             usedCategories,
             usedCategoryRarities,
             RewardPickMode.Any,
             out selected);
     }
 
-    private bool TryRollReward(
+    private static bool TryRollReward(
         Dictionary<RewardRarity, List<RewardModifierEntry>> pools,
-        IReadOnlyList<RewardRarityWeight> weights,
         HashSet<RewardModifierCategory> usedCategories,
         HashSet<int> usedCategoryRarities,
         RewardPickMode mode,
@@ -146,179 +206,69 @@ public sealed class RewardRollService
     {
         selected = null;
 
-        if (!TryRollRarity(
-                pools,
-                weights,
-                usedCategories,
-                usedCategoryRarities,
-                mode,
-                out RewardRarity rarity))
-        {
+        if (pools == null || pools.Count == 0)
             return false;
-        }
 
-        List<RewardModifierEntry> pool = pools[rarity];
-        return TryTakeReward(pool, usedCategories, usedCategoryRarities, mode, out selected);
-    }
-
-    private bool TryRollRarity(
-        Dictionary<RewardRarity, List<RewardModifierEntry>> pools,
-        IReadOnlyList<RewardRarityWeight> weights,
-        HashSet<RewardModifierCategory> usedCategories,
-        HashSet<int> usedCategoryRarities,
-        RewardPickMode mode,
-        out RewardRarity selectedRarity)
-    {
-        selectedRarity = RewardRarity.Common;
         float totalWeight = 0f;
 
-        for (int i = 0; i < weights.Count; i++)
+        foreach (var pool in pools.Values)
         {
-            RewardRarityWeight weight = weights[i];
-
-            if (!CanRollRarity(
-                    pools,
-                    weight,
-                    usedCategories,
-                    usedCategoryRarities,
-                    mode))
-            {
+            if (pool == null)
                 continue;
-            }
 
-            totalWeight += weight.Weight;
+            for (int i = 0; i < pool.Count; i++)
+            {
+                RewardModifierEntry entry = pool[i];
+
+                if (IsEligible(entry, usedCategories, usedCategoryRarities, mode))
+                    totalWeight += entry.Weight;
+            }
         }
 
         if (totalWeight <= 0f)
-        {
-            return TryGetAnyAvailableRarity(
-                pools,
-                usedCategories,
-                usedCategoryRarities,
-                mode,
-                out selectedRarity);
-        }
+            return false;
 
         float roll = Random.value * totalWeight;
-        float current = 0f;
+        float currentWeight = 0f;
 
-        for (int i = 0; i < weights.Count; i++)
+        foreach (var pool in pools.Values)
         {
-            RewardRarityWeight weight = weights[i];
+            if (pool == null)
+                continue;
 
-            if (!CanRollRarity(
-                    pools,
-                    weight,
-                    usedCategories,
-                    usedCategoryRarities,
-                    mode))
+            for (int i = 0; i < pool.Count; i++)
             {
-                continue;
-            }
+                RewardModifierEntry entry = pool[i];
 
-            current += weight.Weight;
-            if (roll > current)
-                continue;
+                if (!IsEligible(entry, usedCategories, usedCategoryRarities, mode))
+                    continue;
 
-            selectedRarity = weight.Rarity;
-            return true;
-        }
+                currentWeight += entry.Weight;
 
-        return TryGetAnyAvailableRarity(
-            pools,
-            usedCategories,
-            usedCategoryRarities,
-            mode,
-            out selectedRarity);
-    }
+                if (roll > currentWeight)
+                    continue;
 
-    private static bool TryGetAnyAvailableRarity(
-        Dictionary<RewardRarity, List<RewardModifierEntry>> pools,
-        HashSet<RewardModifierCategory> usedCategories,
-        HashSet<int> usedCategoryRarities,
-        RewardPickMode mode,
-        out RewardRarity selectedRarity)
-    {
-        selectedRarity = RewardRarity.Common;
-
-        foreach (var pool in pools)
-        {
-            if (pool.Value == null
-                || !HasEligibleReward(
-                    pool.Value,
-                    usedCategories,
-                    usedCategoryRarities,
-                    mode))
-            {
-                continue;
-            }
-
-            selectedRarity = pool.Key;
-            return true;
-        }
-
-        return false;
-    }
-
-    private IReadOnlyList<RewardRarityWeight> GetWeights(
-        IReadOnlyList<RewardRarityWeight> overrideWeights)
-    {
-        if (HasPositiveWeight(overrideWeights))
-            return overrideWeights;
-
-        var weights = _database.RarityWeights;
-
-        if (HasPositiveWeight(weights))
-            return weights;
-
-        return _defaultWeights;
-    }
-
-    private static bool HasPositiveWeight(IReadOnlyList<RewardRarityWeight> weights)
-    {
-        if (weights == null)
-            return false;
-
-        for (int i = 0; i < weights.Count; i++)
-        {
-            RewardRarityWeight weight = weights[i];
-
-            if (weight != null && weight.Weight > 0f)
+                selected = entry;
+                pool.RemoveAt(i);
                 return true;
+            }
         }
 
         return false;
     }
 
-    private static bool CanRollRarity(
-        Dictionary<RewardRarity, List<RewardModifierEntry>> pools,
-        RewardRarityWeight weight,
-        HashSet<RewardModifierCategory> usedCategories,
-        HashSet<int> usedCategoryRarities,
-        RewardPickMode mode)
+    private IReadOnlyList<RewardRaritySlot> GetSlots(
+        CocoonRewardProfile cocoonProfile)
     {
-        return weight != null
-            && weight.Weight > 0f
-            && pools.TryGetValue(weight.Rarity, out var pool)
-            && HasEligibleReward(pool, usedCategories, usedCategoryRarities, mode);
+        if (HasRaritySlots(cocoonProfile?.RaritySlots))
+            return cocoonProfile.RaritySlots;
+
+        return _defaultSlots;
     }
 
-    private static bool HasEligibleReward(
-        List<RewardModifierEntry> pool,
-        HashSet<RewardModifierCategory> usedCategories,
-        HashSet<int> usedCategoryRarities,
-        RewardPickMode mode)
+    private static bool HasRaritySlots(IReadOnlyList<RewardRaritySlot> slots)
     {
-        if (pool == null)
-            return false;
-
-        for (int i = 0; i < pool.Count; i++)
-        {
-            if (IsEligible(pool[i], usedCategories, usedCategoryRarities, mode))
-                return true;
-        }
-
-        return false;
+        return slots != null && slots.Count > 0;
     }
 
     private static bool TryTakeReward(
@@ -333,19 +283,21 @@ public sealed class RewardRollService
         if (pool == null || pool.Count == 0)
             return false;
 
-        int eligibleCount = 0;
+        float totalWeight = 0f;
 
         for (int i = 0; i < pool.Count; i++)
         {
-            if (IsEligible(pool[i], usedCategories, usedCategoryRarities, mode))
-                eligibleCount++;
+            RewardModifierEntry entry = pool[i];
+
+            if (IsEligible(entry, usedCategories, usedCategoryRarities, mode))
+                totalWeight += entry.Weight;
         }
 
-        if (eligibleCount == 0)
+        if (totalWeight <= 0f)
             return false;
 
-        int targetIndex = Random.Range(0, eligibleCount);
-        int currentIndex = 0;
+        float roll = Random.value * totalWeight;
+        float currentWeight = 0f;
 
         for (int i = 0; i < pool.Count; i++)
         {
@@ -354,11 +306,10 @@ public sealed class RewardRollService
             if (!IsEligible(entry, usedCategories, usedCategoryRarities, mode))
                 continue;
 
-            if (currentIndex != targetIndex)
-            {
-                currentIndex++;
+            currentWeight += entry.Weight;
+
+            if (roll > currentWeight)
                 continue;
-            }
 
             selected = entry;
             pool.RemoveAt(i);
@@ -375,6 +326,9 @@ public sealed class RewardRollService
         RewardPickMode mode)
     {
         if (entry == null)
+            return false;
+
+        if (entry.Weight <= 0f)
             return false;
 
         return mode switch

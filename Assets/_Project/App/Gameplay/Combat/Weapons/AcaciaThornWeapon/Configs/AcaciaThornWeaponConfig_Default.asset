@@ -16,9 +16,13 @@ MonoBehaviour:
   Sprite: {fileID: -7451194681563383075, guid: 3fa1538327f1b7c40a7c6931e14bf590, type: 3}
   Damage: 6
   Cooldown: 3
+  SalvoInterval: 0.2
   MinCooldown: 0.75
-  MaxFireRateBonus: 100
-  FireRateBonusEffectiveness: 0.1
+  MaxFireRateBonus: 3
+  MaxProjectileSpeedBonus: 2
+  MaxCriticalChance: 1
+  CriticalDamageMultiplier: 2
+  MaxCriticalDamageMultiplier: 100
   Speed: 10
   LifeTime: 4
   RotateSprite: -27
@@ -28,6 +32,6 @@ MonoBehaviour:
   BounceCount: 2
   PrewarmCount: 48
   MaxDamageMultiplier: 100000
-  MaxExtraSplitProjectiles: 4
+  MaxSalvoExtraShots: 5
   EstimatedSplitHitChance: 0.55
   EstimatedBounceHitChance: 0.25

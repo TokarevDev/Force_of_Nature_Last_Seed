@@ -9,7 +9,9 @@ public sealed class WeaponConfig : ScriptableObject
     [Header("Fire Rate Limits")]
     [Min(0.05f)] public float MinShotCooldown = 0.5f;
     [Min(0f)] public float MaxFireRateBonus = WeaponRuntimeState.DefaultMaxFireRateBonus;
-    [Min(0f)] public float FireRateBonusEffectiveness = 0.1f;
+
+    [Header("Projectile Speed Limits")]
+    [Min(0f)] public float MaxProjectileSpeedBonus = WeaponRuntimeState.DefaultMaxProjectileSpeedBonus;
 
     [Header("Progression Limits")]
     [Min(1f)] public float MaxDamageMultiplier = WeaponRuntimeState.MaxDamageMultiplier;

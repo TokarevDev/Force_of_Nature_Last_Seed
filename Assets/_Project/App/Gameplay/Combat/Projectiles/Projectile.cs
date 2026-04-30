@@ -113,7 +113,7 @@ public sealed class Projectile : MonoBehaviour
         _criticalChance = stats.CriticalChance;
         _criticalDamageMultiplier = stats.CriticalDamageMultiplier;
 
-        _movement.SetSpeed(config.Speed);
+        _movement.SetSpeed(config.Speed * stats.ProjectileSpeedMultiplier);
 
         if (_bounce != null)
         {

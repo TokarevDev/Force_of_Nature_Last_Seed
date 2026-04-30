@@ -12,6 +12,9 @@ public sealed class AcaciaThornWeapon : MonoBehaviour
     private Transform _firePoint;
     private float _cooldownTimer;
     private float _currentCooldown;
+    private float _salvoTimer;
+    private int _salvoShotsRemaining;
+    private bool _isSalvoActive;
     private bool _initialized;
 
     public event Action RuntimeStatsChanged;
@@ -49,7 +52,12 @@ public sealed class AcaciaThornWeapon : MonoBehaviour
         _runtimeState.SetProgressionLimits(
             _config.MaxDamageMultiplier,
             _config.MaxFireRateBonus,
-            _config.MaxExtraSplitProjectiles);
+            _config.MaxSalvoExtraShots,
+            _config.MaxProjectileSpeedBonus,
+            _config.MaxCriticalChance,
+            _config.CriticalDamageMultiplier,
+            _config.MaxCriticalDamageMultiplier);
+        _runtimeState.SetBaseDamage(_config.Damage);
 
         _pool.Init(
             _config.ProjectilePrefab,
@@ -67,22 +75,31 @@ public sealed class AcaciaThornWeapon : MonoBehaviour
         if (!_initialized || !_runtimeState.IsUnlocked || !_pool.IsInitialized)
             return;
 
+        if (_isSalvoActive)
+        {
+            TickSalvo();
+            return;
+        }
+
         _cooldownTimer -= Time.deltaTime;
 
         if (_cooldownTimer > 0f)
             return;
 
-        Fire();
-        _cooldownTimer = _currentCooldown;
+        StartSalvo();
     }
 
-    public void Unlock()
+    public void Unlock(int baseDamage)
     {
         if (!_runtimeState.CanUnlock)
             return;
 
-        _runtimeState.Unlock();
+        int fallbackBaseDamage = _config != null ? _config.Damage : 1;
+        _runtimeState.Unlock(Mathf.Max(fallbackBaseDamage, baseDamage));
         _cooldownTimer = 0f;
+        _salvoTimer = 0f;
+        _salvoShotsRemaining = 0;
+        _isSalvoActive = false;
         RuntimeStatsChanged?.Invoke();
     }
 
@@ -105,13 +122,72 @@ public sealed class AcaciaThornWeapon : MonoBehaviour
         RuntimeStatsChanged?.Invoke();
     }
 
-    public void AddExtraSplitProjectiles(int extraProjectiles)
+    public void AddSalvoShots(int extraShots)
     {
-        if (!_runtimeState.CanApplyExtraSplitProjectiles(extraProjectiles))
+        if (!_runtimeState.CanApplySalvoShots(extraShots))
             return;
 
-        _runtimeState.AddExtraSplitProjectiles(extraProjectiles);
+        _runtimeState.AddSalvoShots(extraShots);
         RuntimeStatsChanged?.Invoke();
+    }
+
+    public void AddProjectileSpeedBonus(float bonus)
+    {
+        if (!_runtimeState.CanApplyProjectileSpeedBonus(bonus))
+            return;
+
+        _runtimeState.AddProjectileSpeedBonus(bonus);
+        RuntimeStatsChanged?.Invoke();
+    }
+
+    public void AddCriticalChance(float chanceBonus)
+    {
+        if (!_runtimeState.CanApplyCriticalChance(chanceBonus))
+            return;
+
+        _runtimeState.AddCriticalChance(chanceBonus);
+        RuntimeStatsChanged?.Invoke();
+    }
+
+    public void AddCriticalDamageBonus(float damageBonus)
+    {
+        if (!_runtimeState.CanApplyCriticalDamageBonus(damageBonus))
+            return;
+
+        _runtimeState.AddCriticalDamageBonus(damageBonus);
+        RuntimeStatsChanged?.Invoke();
+    }
+
+    private void StartSalvo()
+    {
+        _salvoShotsRemaining = 1 + Mathf.Max(0, _runtimeState.SalvoExtraShots);
+        FireSalvoShot();
+    }
+
+    private void TickSalvo()
+    {
+        _salvoTimer -= Time.deltaTime;
+
+        if (_salvoTimer > 0f)
+            return;
+
+        FireSalvoShot();
+    }
+
+    private void FireSalvoShot()
+    {
+        Fire();
+        _salvoShotsRemaining--;
+
+        if (_salvoShotsRemaining <= 0)
+        {
+            _isSalvoActive = false;
+            _cooldownTimer = _currentCooldown;
+            return;
+        }
+
+        _isSalvoActive = true;
+        _salvoTimer = Mathf.Max(0.01f, _config.SalvoInterval);
     }
 
     private void Fire()
@@ -127,11 +203,14 @@ public sealed class AcaciaThornWeapon : MonoBehaviour
             (Vector3)(direction * Mathf.Max(0f, _config.SpawnOffset));
 
         AcaciaThornProjectile projectile = _pool.Get();
+        int damage = BuildDamage(out DamageKind damageKind, out bool isCritical);
         projectile.Activate(
             position,
             direction,
-            BuildDamage(),
-            _config.Speed,
+            damage,
+            damageKind,
+            isCritical,
+            GetProjectileSpeed(),
             _config.LifeTime,
             _config.BounceCount,
             GetSplitCount(),
@@ -141,30 +220,42 @@ public sealed class AcaciaThornWeapon : MonoBehaviour
             _config.SpriteScale);
     }
 
-    private int BuildDamage()
+    private int BuildDamage(out DamageKind damageKind, out bool isCritical)
     {
-        double rawDamage = Mathf.Max(1, _config.Damage) *
+        double rawDamage = Mathf.Max(1, _runtimeState.BaseDamage) *
             (double)_runtimeState.DamageMultiplier;
+
+        isCritical = _runtimeState.CriticalChance > 0f &&
+            UnityEngine.Random.value < _runtimeState.CriticalChance;
+        damageKind = isCritical ? DamageKind.Critical : DamageKind.Normal;
+
+        if (isCritical)
+            rawDamage *= _runtimeState.CriticalDamageMultiplier;
 
         return AcaciaThornRuntimeState.ClampDamage(rawDamage);
     }
 
     private int GetSplitCount()
     {
+        return Mathf.Max(0, _config.BaseSplitCount);
+    }
+
+    private float GetProjectileSpeed()
+    {
         return Mathf.Max(
-            0,
-            _config.BaseSplitCount + _runtimeState.ExtraSplitProjectiles);
+            0.1f,
+            _config.Speed * (1f + _runtimeState.ProjectileSpeedBonus));
     }
 
     private void RebuildCooldown(bool resetTimer)
     {
-        float effectiveFireRateBonus = Mathf.Min(
-            _runtimeState.FireRateBonus * _config.FireRateBonusEffectiveness,
-            _config.MaxFireRateBonus * _config.FireRateBonusEffectiveness);
+        float cappedFireRateBonus = Mathf.Min(
+            _runtimeState.FireRateBonus,
+            _config.MaxFireRateBonus);
 
         _currentCooldown = Mathf.Max(
             _config.MinCooldown,
-            _config.Cooldown / (1f + effectiveFireRateBonus));
+            _config.Cooldown / (1f + cappedFireRateBonus));
 
         if (resetTimer)
             _cooldownTimer = 0f;
@@ -176,7 +267,7 @@ public sealed class AcaciaThornWeapon : MonoBehaviour
     [ContextMenu("Debug/Unlock Acacia Thorn")]
     private void DebugUnlockAcaciaThorn()
     {
-        Unlock();
+        Unlock(_config != null ? _config.Damage : 1);
     }
 
     [ContextMenu("Debug/Fire Acacia Thorn Once")]
@@ -189,7 +280,7 @@ public sealed class AcaciaThornWeapon : MonoBehaviour
         }
 
         if (!_runtimeState.IsUnlocked)
-            Unlock();
+            Unlock(_config != null ? _config.Damage : 1);
 
         Fire();
         _cooldownTimer = _currentCooldown;

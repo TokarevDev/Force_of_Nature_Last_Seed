@@ -4,11 +4,9 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Game/Rewards/Reward Database")]
 public sealed class RewardDatabase : ScriptableObject
 {
-    [SerializeField] private List<RewardRarityWeight> _rarityWeights = new();
     [SerializeField] private List<CocoonRewardProfile> _cocoonProfiles = new();
     [SerializeField] private List<RewardModifierEntry> _rewards;
 
-    public IReadOnlyList<RewardRarityWeight> RarityWeights => _rarityWeights;
     public IReadOnlyList<CocoonRewardProfile> CocoonProfiles =>
         HasSpawnableCocoonProfile(_cocoonProfiles)
             ? _cocoonProfiles
@@ -18,33 +16,17 @@ public sealed class RewardDatabase : ScriptableObject
 
     private void OnEnable()
     {
-        EnsureDefaultRarityWeights();
         EnsureDefaultCocoonProfiles();
     }
 
     private void Reset()
     {
-        EnsureDefaultRarityWeights();
         EnsureDefaultCocoonProfiles();
     }
 
     private void OnValidate()
     {
-        EnsureDefaultRarityWeights();
         EnsureDefaultCocoonProfiles();
-    }
-
-    private void EnsureDefaultRarityWeights()
-    {
-        if (_rarityWeights == null)
-            _rarityWeights = new List<RewardRarityWeight>();
-
-        if (_rarityWeights.Count > 0)
-            return;
-
-        _rarityWeights.Add(new RewardRarityWeight(RewardRarity.Common, 1f));
-        _rarityWeights.Add(new RewardRarityWeight(RewardRarity.Rare, 0.3f));
-        _rarityWeights.Add(new RewardRarityWeight(RewardRarity.Legendary, 0.1f));
     }
 
     private void EnsureDefaultCocoonProfiles()
@@ -84,39 +66,39 @@ public sealed class CocoonRewardProfile
             "White",
             Color.white,
             0.62f,
-            new RewardRarityWeight(RewardRarity.Common, 1f),
-            new RewardRarityWeight(RewardRarity.Rare, 0.1f),
-            new RewardRarityWeight(RewardRarity.Legendary, 0f)),
+            new RewardRaritySlot(RewardRarity.Common),
+            new RewardRaritySlot(RewardRarity.Common),
+            new RewardRaritySlot(RewardRarity.Common)),
+
+        new(
+            "Green",
+            new Color32(95, 220, 130, 255),
+            0.28f,
+            new RewardRaritySlot(RewardRarity.Common),
+            new RewardRaritySlot(RewardRarity.Common),
+            new RewardRaritySlot(RewardRarity.Rare)),
 
         new(
             "Blue",
             new Color32(125, 220, 255, 255),
-            0.28f,
-            new RewardRarityWeight(RewardRarity.Common, 1f),
-            new RewardRarityWeight(RewardRarity.Rare, 0.25f),
-            new RewardRarityWeight(RewardRarity.Legendary, 0.01f)),
-
-        new(
-            "Purple",
-            new Color32(210, 120, 255, 255),
             0.08f,
-            new RewardRarityWeight(RewardRarity.Common, 0.8f),
-            new RewardRarityWeight(RewardRarity.Rare, 0.45f),
-            new RewardRarityWeight(RewardRarity.Legendary, 0.05f)),
+            new RewardRaritySlot(RewardRarity.Rare),
+            new RewardRaritySlot(RewardRarity.Rare),
+            new RewardRaritySlot(RewardRarity.Common, RewardRarity.Legendary, 0.05f)),
 
         new(
-            "Gold",
-            new Color32(255, 211, 90, 255),
+            "Orange",
+            new Color32(255, 150, 60, 255),
             0.02f,
-            new RewardRarityWeight(RewardRarity.Common, 0.25f),
-            new RewardRarityWeight(RewardRarity.Rare, 0.75f),
-            new RewardRarityWeight(RewardRarity.Legendary, 0.15f))
+            new RewardRaritySlot(RewardRarity.Legendary),
+            new RewardRaritySlot(RewardRarity.Legendary),
+            new RewardRaritySlot(RewardRarity.Rare, RewardRarity.Legendary, 0.3f))
     };
 
     [SerializeField] private string _displayName = "White";
     [SerializeField] private Color _visualColor = Color.white;
     [SerializeField][Min(0f)] private float _spawnWeight = 1f;
-    [SerializeField] private List<RewardRarityWeight> _rarityWeights = new();
+    [SerializeField] private List<RewardRaritySlot> _raritySlots = new();
 
     public static IReadOnlyList<CocoonRewardProfile> Defaults => DefaultProfileSet;
     public static CocoonRewardProfile Default => DefaultProfileSet[0];
@@ -124,7 +106,7 @@ public sealed class CocoonRewardProfile
     public string DisplayName => _displayName;
     public Color VisualColor => _visualColor;
     public float SpawnWeight => Mathf.Max(0f, _spawnWeight);
-    public IReadOnlyList<RewardRarityWeight> RarityWeights => _rarityWeights;
+    public IReadOnlyList<RewardRaritySlot> RaritySlots => _raritySlots;
 
     public CocoonRewardProfile()
     {
@@ -134,24 +116,24 @@ public sealed class CocoonRewardProfile
         string displayName,
         Color visualColor,
         float spawnWeight,
-        params RewardRarityWeight[] rarityWeights)
+        params RewardRaritySlot[] raritySlots)
     {
         _displayName = displayName;
         _visualColor = visualColor;
         _spawnWeight = Mathf.Max(0f, spawnWeight);
-        _rarityWeights = new List<RewardRarityWeight>();
+        _raritySlots = new List<RewardRaritySlot>();
 
-        if (rarityWeights == null)
+        if (raritySlots == null)
             return;
 
-        for (int i = 0; i < rarityWeights.Length; i++)
+        for (int i = 0; i < raritySlots.Length; i++)
         {
-            RewardRarityWeight weight = rarityWeights[i];
+            RewardRaritySlot slot = raritySlots[i];
 
-            if (weight == null)
+            if (slot == null)
                 continue;
 
-            _rarityWeights.Add(new RewardRarityWeight(weight.Rarity, weight.Weight));
+            _raritySlots.Add(slot.Clone());
         }
     }
 
@@ -168,14 +150,14 @@ public sealed class CocoonRewardProfile
 
     private CocoonRewardProfile Clone()
     {
-        int weightCount = _rarityWeights != null ? _rarityWeights.Count : 0;
-        RewardRarityWeight[] weights = new RewardRarityWeight[weightCount];
+        int slotCount = _raritySlots != null ? _raritySlots.Count : 0;
+        RewardRaritySlot[] slots = new RewardRaritySlot[slotCount];
 
-        for (int i = 0; i < weightCount; i++)
+        for (int i = 0; i < slotCount; i++)
         {
-            RewardRarityWeight weight = _rarityWeights[i];
-            weights[i] = weight != null
-                ? new RewardRarityWeight(weight.Rarity, weight.Weight)
+            RewardRaritySlot slot = _raritySlots[i];
+            slots[i] = slot != null
+                ? slot.Clone()
                 : null;
         }
 
@@ -183,6 +165,6 @@ public sealed class CocoonRewardProfile
             _displayName,
             _visualColor,
             _spawnWeight,
-            weights);
+            slots);
     }
 }

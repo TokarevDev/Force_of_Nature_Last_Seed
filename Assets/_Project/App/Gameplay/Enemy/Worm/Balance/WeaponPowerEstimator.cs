@@ -98,30 +98,45 @@ public static class WeaponPowerEstimator
         if (config == null || runtimeState == null || !runtimeState.IsUnlocked)
             return WeaponPowerSnapshot.Invalid;
 
-        int damagePerProjectile = AcaciaThornRuntimeState.ClampDamage(
-            Mathf.Max(1, config.Damage) * (double)runtimeState.DamageMultiplier);
+        int damagePerProjectile = EstimateDamagePerProjectile(
+            runtimeState.BaseDamage,
+            runtimeState);
 
-        int splitCount = Mathf.Max(
-            0,
-            config.BaseSplitCount + runtimeState.ExtraSplitProjectiles);
+        int splitCount = Mathf.Max(0, config.BaseSplitCount);
+        int salvoShots = Mathf.Max(1, 1 + runtimeState.SalvoExtraShots);
 
         float estimatedHitsPerShot = 1f +
             splitCount * config.EstimatedSplitHitChance +
             config.BounceCount * config.EstimatedBounceHitChance;
 
-        float shotCycleTime = EstimateShotCycleTime(config, runtimeState);
+        float shotCycleTime = EstimateShotCycleTime(config, runtimeState, salvoShots);
 
         float estimatedDps = damagePerProjectile *
             Mathf.Max(1f, estimatedHitsPerShot) /
-            shotCycleTime;
+            shotCycleTime *
+            salvoShots;
 
         return new WeaponPowerSnapshot(
             true,
             estimatedDps,
             damagePerProjectile,
             1 + splitCount,
-            1,
+            salvoShots,
             shotCycleTime);
+    }
+
+    private static int EstimateDamagePerProjectile(
+        int baseDamage,
+        AcaciaThornRuntimeState runtimeState)
+    {
+        double rawDamage = Mathf.Max(1, baseDamage) * (double)runtimeState.DamageMultiplier;
+        int damage = AcaciaThornRuntimeState.ClampDamage(rawDamage);
+
+        float criticalChance = Mathf.Clamp01(runtimeState.CriticalChance);
+        float criticalBonus = Mathf.Max(0f, runtimeState.CriticalDamageMultiplier - 1f);
+        float expectedCriticalMultiplier = 1f + criticalChance * criticalBonus;
+
+        return AcaciaThornRuntimeState.ClampDamage(damage * (double)expectedCriticalMultiplier);
     }
 
     private static float EstimateShotCycleTime(
@@ -130,8 +145,8 @@ public static class WeaponPowerEstimator
         int salvoShots)
     {
         float fireRateBonus = Mathf.Min(
-            runtimeState.FireRateBonus * config.FireRateBonusEffectiveness,
-            config.MaxFireRateBonus * config.FireRateBonusEffectiveness);
+            runtimeState.FireRateBonus,
+            config.MaxFireRateBonus);
 
         float shotCooldown = Mathf.Max(
             config.MinShotCooldown,
@@ -145,16 +160,20 @@ public static class WeaponPowerEstimator
 
     private static float EstimateShotCycleTime(
         AcaciaThornWeaponConfig config,
-        AcaciaThornRuntimeState runtimeState)
+        AcaciaThornRuntimeState runtimeState,
+        int salvoShots)
     {
         float fireRateBonus = Mathf.Min(
-            runtimeState.FireRateBonus * config.FireRateBonusEffectiveness,
-            config.MaxFireRateBonus * config.FireRateBonusEffectiveness);
+            runtimeState.FireRateBonus,
+            config.MaxFireRateBonus);
 
-        return Mathf.Max(
-            0.01f,
-            Mathf.Max(
-                config.MinCooldown,
-                config.Cooldown / (1f + fireRateBonus)));
+        float cooldown = Mathf.Max(
+            config.MinCooldown,
+            config.Cooldown / (1f + fireRateBonus));
+
+        float salvoTime = Mathf.Max(0, salvoShots - 1) *
+            Mathf.Max(0.01f, config.SalvoInterval);
+
+        return Mathf.Max(0.01f, cooldown + salvoTime);
     }
 }

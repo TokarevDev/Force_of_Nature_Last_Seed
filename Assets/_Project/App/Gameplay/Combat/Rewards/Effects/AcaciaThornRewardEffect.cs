@@ -5,7 +5,10 @@ public enum AcaciaThornUpgradeType
     Unlock = 0,
     DamageMultiplier = 1,
     FireRateBonus = 2,
-    ExtraSplitProjectiles = 3
+    ExtraSalvoShots = 3,
+    ProjectileSpeedBonus = 4,
+    CriticalChance = 5,
+    CriticalPower = 6
 }
 
 [CreateAssetMenu(menuName = "Game/Rewards/Effects/Acacia Thorn")]
@@ -14,7 +17,10 @@ public sealed class AcaciaThornRewardEffect : RewardEffect
     [SerializeField] private AcaciaThornUpgradeType _upgradeType;
     [SerializeField] private float _damageMultiplier = 1.5f;
     [SerializeField] private float _fireRateBonus = 0.5f;
-    [SerializeField] private int _extraSplitProjectiles = 1;
+    [SerializeField] private int _extraSalvoShots = 1;
+    [SerializeField] private float _projectileSpeedBonus = 0.25f;
+    [SerializeField][Range(0f, 1f)] private float _criticalChanceBonus = 0.1f;
+    [SerializeField][Min(0f)] private float _criticalDamageBonus = 0.5f;
 
     public override bool CanApply(RewardRuntimeContext context)
     {
@@ -35,8 +41,17 @@ public sealed class AcaciaThornRewardEffect : RewardEffect
             case AcaciaThornUpgradeType.FireRateBonus:
                 return state.CanApplyFireRateBonus(_fireRateBonus);
 
-            case AcaciaThornUpgradeType.ExtraSplitProjectiles:
-                return state.CanApplyExtraSplitProjectiles(_extraSplitProjectiles);
+            case AcaciaThornUpgradeType.ExtraSalvoShots:
+                return state.CanApplySalvoShots(_extraSalvoShots);
+
+            case AcaciaThornUpgradeType.ProjectileSpeedBonus:
+                return state.CanApplyProjectileSpeedBonus(_projectileSpeedBonus);
+
+            case AcaciaThornUpgradeType.CriticalChance:
+                return state.CanApplyCriticalChance(_criticalChanceBonus);
+
+            case AcaciaThornUpgradeType.CriticalPower:
+                return state.CanApplyCriticalDamageBonus(_criticalDamageBonus);
 
             default:
                 return false;
@@ -58,7 +73,7 @@ public sealed class AcaciaThornRewardEffect : RewardEffect
         switch (_upgradeType)
         {
             case AcaciaThornUpgradeType.Unlock:
-                weapon.Unlock();
+                weapon.Unlock(GetMainWeaponDamageSnapshot(context));
                 break;
 
             case AcaciaThornUpgradeType.DamageMultiplier:
@@ -69,13 +84,31 @@ public sealed class AcaciaThornRewardEffect : RewardEffect
                 weapon.AddFireRateBonus(_fireRateBonus);
                 break;
 
-            case AcaciaThornUpgradeType.ExtraSplitProjectiles:
-                weapon.AddExtraSplitProjectiles(_extraSplitProjectiles);
+            case AcaciaThornUpgradeType.ExtraSalvoShots:
+                weapon.AddSalvoShots(_extraSalvoShots);
+                break;
+
+            case AcaciaThornUpgradeType.ProjectileSpeedBonus:
+                weapon.AddProjectileSpeedBonus(_projectileSpeedBonus);
+                break;
+
+            case AcaciaThornUpgradeType.CriticalChance:
+                weapon.AddCriticalChance(_criticalChanceBonus);
+                break;
+
+            case AcaciaThornUpgradeType.CriticalPower:
+                weapon.AddCriticalDamageBonus(_criticalDamageBonus);
                 break;
         }
     }
 
     public override void Apply(WeaponRuntimeState state)
     {
+    }
+
+    private static int GetMainWeaponDamageSnapshot(RewardRuntimeContext context)
+    {
+        ProjectileWeapon mainWeapon = context?.MainWeapon;
+        return mainWeapon != null ? mainWeapon.CurrentProjectileDamage : 0;
     }
 }

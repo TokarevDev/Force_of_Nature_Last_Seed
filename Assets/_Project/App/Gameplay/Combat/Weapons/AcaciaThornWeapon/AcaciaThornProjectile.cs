@@ -21,9 +21,11 @@ public sealed class AcaciaThornProjectile : MonoBehaviour
     private float _hitCooldownTimer;
     private float _baseVisualRotation;
     private int _damage;
+    private DamageKind _damageKind;
     private int _bouncesLeft;
     private int _splitCount;
     private bool _canSplit;
+    private bool _isCritical;
     private bool _active;
 
     public void Init(AcaciaThornProjectilePool pool, IScreenBounds screenBounds)
@@ -36,6 +38,8 @@ public sealed class AcaciaThornProjectile : MonoBehaviour
         Vector3 position,
         Vector2 direction,
         int damage,
+        DamageKind damageKind,
+        bool isCritical,
         float speed,
         float lifeTime,
         int bounces,
@@ -48,6 +52,8 @@ public sealed class AcaciaThornProjectile : MonoBehaviour
         _spawnPosition = position;
         _direction = NormalizeDirection(direction);
         _damage = Mathf.Max(1, damage);
+        _damageKind = damageKind;
+        _isCritical = isCritical;
         _speed = Mathf.Max(0.1f, speed);
         _lifeTime = Mathf.Max(0.05f, lifeTime);
         _timer = _lifeTime;
@@ -131,9 +137,9 @@ public sealed class AcaciaThornProjectile : MonoBehaviour
         receiver.TakeDamage(new DamageInfo(
             _damage,
             hitPosition,
-            DamageKind.Normal,
+            _damageKind,
             this,
-            false));
+            _isCritical));
 
         _hitCooldownTimer = _hitCooldown;
 
@@ -171,6 +177,8 @@ public sealed class AcaciaThornProjectile : MonoBehaviour
                 position,
                 GetRandomDirection(),
                 _damage,
+                _damageKind,
+                _isCritical,
                 _speed,
                 _lifeTime,
                 _bouncesLeft,

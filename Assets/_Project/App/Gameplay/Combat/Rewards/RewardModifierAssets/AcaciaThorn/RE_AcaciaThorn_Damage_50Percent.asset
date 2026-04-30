@@ -15,4 +15,7 @@ MonoBehaviour:
   _upgradeType: 1
   _damageMultiplier: 1.5
   _fireRateBonus: 0.5
-  _extraSplitProjectiles: 1
+  _extraSalvoShots: 1
+  _projectileSpeedBonus: 0.25
+  _criticalChanceBonus: 0.1
+  _criticalDamageBonus: 0.5

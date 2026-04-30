@@ -6,16 +6,19 @@ public readonly struct ProjectileRuntimeStats
     public readonly int ExtraPenetration;
     public readonly float CriticalChance;
     public readonly float CriticalDamageMultiplier;
+    public readonly float ProjectileSpeedMultiplier;
 
     public ProjectileRuntimeStats(
         int damage,
         int extraPenetration,
         float criticalChance,
-        float criticalDamageMultiplier)
+        float criticalDamageMultiplier,
+        float projectileSpeedMultiplier)
     {
         Damage = Mathf.Max(0, damage);
         ExtraPenetration = Mathf.Max(0, extraPenetration);
         CriticalChance = Mathf.Clamp01(criticalChance);
         CriticalDamageMultiplier = Mathf.Max(1f, criticalDamageMultiplier);
+        ProjectileSpeedMultiplier = Mathf.Max(0.1f, projectileSpeedMultiplier);
     }
 }
