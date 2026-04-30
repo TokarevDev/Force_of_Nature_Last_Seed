@@ -136,6 +136,7 @@ public sealed class WormSpawner : MonoBehaviour
 
         WeaponPowerSnapshot power = WeaponPowerEstimator.Estimate(_weapon, _acaciaThornWeapon);
         int totalSections = sections.Count;
+        int previousHp = 0;
 
         for (int i = 0; i < sections.Count; i++)
         {
@@ -143,8 +144,10 @@ public sealed class WormSpawner : MonoBehaviour
 
             int baseHp = WormSectionHPGenerator.GetHP(i, _levelNumber);
             int hp = ResolveSectionHp(baseHp, i, totalSections, power);
+            hp = EnsureHpAbovePrevious(hp, previousHp);
 
             sections[i].Init(hp);
+            previousHp = hp;
         }
     }
 
@@ -175,18 +178,27 @@ public sealed class WormSpawner : MonoBehaviour
             return;
 
         int totalSections = _sections.Count;
+        int previousHp = 0;
 
         for (int i = 0; i < _sections.Count; i++)
         {
             WormSection section = _sections[i];
+            int sectionIndex = section != null ? section.Index : i;
+            int baseHp = WormSectionHPGenerator.GetHP(sectionIndex, _levelNumber);
+            int hp = ResolveSectionHp(baseHp, sectionIndex, totalSections, power);
+            hp = EnsureHpAbovePrevious(hp, previousHp);
 
-            if (!CanRebalanceSection(section))
+            if (CanRebalanceSection(section))
+            {
+                section.SetHp(hp);
+                previousHp = hp;
                 continue;
+            }
 
-            int baseHp = WormSectionHPGenerator.GetHP(i, _levelNumber);
-            int hp = ResolveSectionHp(baseHp, i, totalSections, power);
-
-            section.SetHp(hp);
+            if (section != null)
+                previousHp = Mathf.Max(Mathf.Max(previousHp, section.MaxHP), hp);
+            else
+                previousHp = Mathf.Max(previousHp, hp);
         }
     }
 
@@ -214,6 +226,19 @@ public sealed class WormSpawner : MonoBehaviour
             && !section.IsDestroyed
             && !section.HasTakenDamage
             && !section.HasVisibleAliveSegment();
+    }
+
+    private static int EnsureHpAbovePrevious(int hp, int previousHp)
+    {
+        if (previousHp <= 0)
+            return Mathf.Max(1, hp);
+
+        if (previousHp >= WeaponRuntimeState.MaxProjectileDamage)
+            return WeaponRuntimeState.MaxProjectileDamage;
+
+        return Mathf.Min(
+            WeaponRuntimeState.MaxProjectileDamage,
+            Mathf.Max(hp, previousHp + 1));
     }
 
     private IReadOnlyList<CocoonRewardProfile> GetCocoonProfiles()

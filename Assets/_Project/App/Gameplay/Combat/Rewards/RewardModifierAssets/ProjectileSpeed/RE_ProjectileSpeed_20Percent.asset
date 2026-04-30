@@ -10,6 +10,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1926886637a040e7b99cb5bf57d9f10d, type: 3}
-  m_Name: RE_ProjectileSpeed_200Percent
+  m_Name: RE_ProjectileSpeed_20Percent
   m_EditorClassIdentifier: Assembly-CSharp::ProjectileSpeedRewardEffect
-  _bonus: 2
+  _bonus: 0.2

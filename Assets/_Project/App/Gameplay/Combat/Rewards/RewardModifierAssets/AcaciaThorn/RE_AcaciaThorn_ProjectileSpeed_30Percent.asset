@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a8b7c6d5e4f34129a0b9c8d7e6f5a4b3, type: 3}
-  m_Name: RE_AcaciaThorn_ProjectileSpeed_25Percent
+  m_Name: RE_AcaciaThorn_ProjectileSpeed_30Percent
   m_EditorClassIdentifier: Assembly-CSharp::AcaciaThornRewardEffect
   _upgradeType: 4
   _damageMultiplier: 1.5
   _fireRateBonus: 0.5
   _extraSalvoShots: 1
-  _projectileSpeedBonus: 0.25
+  _projectileSpeedBonus: 0.3
   _criticalChanceBonus: 0.1
   _criticalDamageBonus: 0.5

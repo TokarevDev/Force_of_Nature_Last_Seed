@@ -6,9 +6,6 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public sealed class WormDamagePopupView : MonoBehaviour
 {
-    private const int Thousand = 1000;
-    private const int Million = 1000000;
-
     public enum AnimationMode
     {
         Normal = 0,
@@ -199,21 +196,7 @@ public sealed class WormDamagePopupView : MonoBehaviour
 
     private void SetDamageText(int amount)
     {
-        int safeAmount = Mathf.Max(0, amount);
-
-        if (safeAmount >= Million)
-        {
-            _text.SetText("{0:0.#}M", safeAmount / (float)Million);
-            return;
-        }
-
-        if (safeAmount >= Thousand)
-        {
-            _text.SetText("{0:0.#}K", safeAmount / (float)Thousand);
-            return;
-        }
-
-        _text.SetText("{0}", safeAmount);
+        _text.text = WormHpFormatter.Format(amount);
     }
 
     private void ApplySorting(bool isCritical)

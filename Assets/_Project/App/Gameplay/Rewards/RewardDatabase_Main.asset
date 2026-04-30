@@ -15,7 +15,8 @@ MonoBehaviour:
   _cocoonProfiles:
   - _displayName: White
     _visualColor: {r: 1, g: 1, b: 1, a: 1}
-    _spawnWeight: 0.62
+    _spawnWeight: 1
+    _minDestroyedProgressToSpawn: 0
     _raritySlots:
     - _rarity: 0
       _alternateRarity: 2
@@ -28,7 +29,8 @@ MonoBehaviour:
       _alternateChance: 0
   - _displayName: Green
     _visualColor: {r: 0.37254903, g: 0.8627451, b: 0.50980395, a: 1}
-    _spawnWeight: 0.28
+    _spawnWeight: 0.8
+    _minDestroyedProgressToSpawn: 0
     _raritySlots:
     - _rarity: 0
       _alternateRarity: 2
@@ -41,7 +43,8 @@ MonoBehaviour:
       _alternateChance: 0
   - _displayName: Blue
     _visualColor: {r: 0.49019608, g: 0.8627451, b: 1, a: 1}
-    _spawnWeight: 0.08
+    _spawnWeight: 0.6
+    _minDestroyedProgressToSpawn: 0
     _raritySlots:
     - _rarity: 1
       _alternateRarity: 2
@@ -54,7 +57,8 @@ MonoBehaviour:
       _alternateChance: 0.05
   - _displayName: Orange
     _visualColor: {r: 1, g: 0.5882353, b: 0.23529412, a: 1}
-    _spawnWeight: 0.02
+    _spawnWeight: 0.3
+    _minDestroyedProgressToSpawn: 0.4
     _raritySlots:
     - _rarity: 2
       _alternateRarity: 2
@@ -107,19 +111,19 @@ MonoBehaviour:
     _rarity: 0
     _weight: 0.35
     _title: Projectile Speed
-    _description: Projectile speed +50%.
+    _description: Projectile speed +20%.
   - _effect: {fileID: 11400000, guid: dee330ff29124320a5766dca6713e335, type: 2}
     _category: 15
     _rarity: 1
     _weight: 0.35
     _title: Projectile Speed
-    _description: Projectile speed +100%.
+    _description: Projectile speed +30%.
   - _effect: {fileID: 11400000, guid: f905895ef2c442fab53d000e11208662, type: 2}
     _category: 15
     _rarity: 2
     _weight: 0.35
     _title: Projectile Speed
-    _description: Projectile speed +200%.
+    _description: Projectile speed +50%.
   - _effect: {fileID: 11400000, guid: 93a656bf6cfe4ecea7362ff68e6d77ae, type: 2}
     _category: 3
     _rarity: 0
@@ -257,10 +261,16 @@ MonoBehaviour:
     _rarity: 0
     _weight: 0.35
     _title: Acacia Speed
-    _description: Acacia projectile speed +25%.
+    _description: Acacia projectile speed +20%.
   - _effect: {fileID: 11400000, guid: 0d6ed69b2c9e49039005ef6d827f5183, type: 2}
     _category: 12
     _rarity: 1
+    _weight: 0.35
+    _title: Acacia Speed
+    _description: Acacia projectile speed +30%.
+  - _effect: {fileID: 11400000, guid: 9a4f6b8c1d2e4f70a1b2c3d4e5f60791, type: 2}
+    _category: 12
+    _rarity: 2
     _weight: 0.35
     _title: Acacia Speed
     _description: Acacia projectile speed +50%.

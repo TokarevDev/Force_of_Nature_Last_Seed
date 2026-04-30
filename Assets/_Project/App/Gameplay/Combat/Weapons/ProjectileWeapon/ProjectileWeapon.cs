@@ -154,7 +154,9 @@ public sealed class ProjectileWeapon : MonoBehaviour, IWeapon
 
     private float GetSalvoInterval()
     {
-        return Mathf.Max(0.01f, _runtimeState.SalvoInterval);
+        return Mathf.Max(
+            0.01f,
+            _runtimeState.SalvoInterval / GetProjectileSpeedMultiplier());
     }
 
     private void Fire()
@@ -193,8 +195,13 @@ public sealed class ProjectileWeapon : MonoBehaviour, IWeapon
             _runtimeState.PenetrationBonus,
             _runtimeState.CriticalChance,
             _runtimeState.CriticalDamageMultiplier,
-            1f + _runtimeState.ProjectileSpeedBonus
+            GetProjectileSpeedMultiplier()
         );
+    }
+
+    private float GetProjectileSpeedMultiplier()
+    {
+        return Mathf.Max(0.1f, 1f + _runtimeState.ProjectileSpeedBonus);
     }
 
     private int BuildProjectileDamage()

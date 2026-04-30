@@ -65,7 +65,8 @@ public sealed class CocoonRewardProfile
         new(
             "White",
             Color.white,
-            0.62f,
+            1f,
+            0f,
             new RewardRaritySlot(RewardRarity.Common),
             new RewardRaritySlot(RewardRarity.Common),
             new RewardRaritySlot(RewardRarity.Common)),
@@ -73,7 +74,8 @@ public sealed class CocoonRewardProfile
         new(
             "Green",
             new Color32(95, 220, 130, 255),
-            0.28f,
+            0.8f,
+            0f,
             new RewardRaritySlot(RewardRarity.Common),
             new RewardRaritySlot(RewardRarity.Common),
             new RewardRaritySlot(RewardRarity.Rare)),
@@ -81,7 +83,8 @@ public sealed class CocoonRewardProfile
         new(
             "Blue",
             new Color32(125, 220, 255, 255),
-            0.08f,
+            0.6f,
+            0f,
             new RewardRaritySlot(RewardRarity.Rare),
             new RewardRaritySlot(RewardRarity.Rare),
             new RewardRaritySlot(RewardRarity.Common, RewardRarity.Legendary, 0.05f)),
@@ -89,7 +92,8 @@ public sealed class CocoonRewardProfile
         new(
             "Orange",
             new Color32(255, 150, 60, 255),
-            0.02f,
+            0.3f,
+            0.4f,
             new RewardRaritySlot(RewardRarity.Legendary),
             new RewardRaritySlot(RewardRarity.Legendary),
             new RewardRaritySlot(RewardRarity.Rare, RewardRarity.Legendary, 0.3f))
@@ -98,6 +102,7 @@ public sealed class CocoonRewardProfile
     [SerializeField] private string _displayName = "White";
     [SerializeField] private Color _visualColor = Color.white;
     [SerializeField][Min(0f)] private float _spawnWeight = 1f;
+    [SerializeField][Range(0f, 1f)] private float _minDestroyedProgressToSpawn;
     [SerializeField] private List<RewardRaritySlot> _raritySlots = new();
 
     public static IReadOnlyList<CocoonRewardProfile> Defaults => DefaultProfileSet;
@@ -106,6 +111,7 @@ public sealed class CocoonRewardProfile
     public string DisplayName => _displayName;
     public Color VisualColor => _visualColor;
     public float SpawnWeight => Mathf.Max(0f, _spawnWeight);
+    public float MinDestroyedProgressToSpawn => Mathf.Clamp01(_minDestroyedProgressToSpawn);
     public IReadOnlyList<RewardRaritySlot> RaritySlots => _raritySlots;
 
     public CocoonRewardProfile()
@@ -116,11 +122,13 @@ public sealed class CocoonRewardProfile
         string displayName,
         Color visualColor,
         float spawnWeight,
+        float minDestroyedProgressToSpawn,
         params RewardRaritySlot[] raritySlots)
     {
         _displayName = displayName;
         _visualColor = visualColor;
         _spawnWeight = Mathf.Max(0f, spawnWeight);
+        _minDestroyedProgressToSpawn = Mathf.Clamp01(minDestroyedProgressToSpawn);
         _raritySlots = new List<RewardRaritySlot>();
 
         if (raritySlots == null)
@@ -165,6 +173,7 @@ public sealed class CocoonRewardProfile
             _displayName,
             _visualColor,
             _spawnWeight,
+            _minDestroyedProgressToSpawn,
             slots);
     }
 }

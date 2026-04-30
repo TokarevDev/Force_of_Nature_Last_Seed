@@ -187,7 +187,7 @@ public sealed class AcaciaThornWeapon : MonoBehaviour
         }
 
         _isSalvoActive = true;
-        _salvoTimer = Mathf.Max(0.01f, _config.SalvoInterval);
+        _salvoTimer = GetSalvoInterval();
     }
 
     private void Fire()
@@ -244,7 +244,19 @@ public sealed class AcaciaThornWeapon : MonoBehaviour
     {
         return Mathf.Max(
             0.1f,
-            _config.Speed * (1f + _runtimeState.ProjectileSpeedBonus));
+            _config.Speed * GetProjectileSpeedMultiplier());
+    }
+
+    private float GetSalvoInterval()
+    {
+        return Mathf.Max(
+            0.01f,
+            _config.SalvoInterval / GetProjectileSpeedMultiplier());
+    }
+
+    private float GetProjectileSpeedMultiplier()
+    {
+        return Mathf.Max(0.1f, 1f + _runtimeState.ProjectileSpeedBonus);
     }
 
     private void RebuildCooldown(bool resetTimer)

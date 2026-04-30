@@ -79,6 +79,9 @@ public sealed class PlayerShooter : MonoBehaviour
         if (!_initialized)
             return;
 
+        if (GameplayInputBlocker.IsBlocked)
+            return;
+
         if (!CombatState.CanShoot)
             return;
 

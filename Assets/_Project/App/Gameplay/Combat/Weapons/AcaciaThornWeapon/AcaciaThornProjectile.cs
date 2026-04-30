@@ -26,6 +26,7 @@ public sealed class AcaciaThornProjectile : MonoBehaviour
     private int _splitCount;
     private bool _canSplit;
     private bool _isCritical;
+    private bool _hasHitWorm;
     private bool _active;
 
     public void Init(AcaciaThornProjectilePool pool, IScreenBounds screenBounds)
@@ -60,6 +61,7 @@ public sealed class AcaciaThornProjectile : MonoBehaviour
         _bouncesLeft = Mathf.Max(0, bounces);
         _splitCount = Mathf.Max(0, splitCount);
         _canSplit = canSplit;
+        _hasHitWorm = false;
         _hitDelayTimer = _spawnHitDelay;
         _hitCooldownTimer = 0f;
         _baseVisualRotation = baseVisualRotation;
@@ -134,6 +136,8 @@ public sealed class AcaciaThornProjectile : MonoBehaviour
             return;
 
         Vector3 hitPosition = collision.ClosestPoint(transform.position);
+        _hasHitWorm = true;
+
         receiver.TakeDamage(new DamageInfo(
             _damage,
             hitPosition,
@@ -187,6 +191,7 @@ public sealed class AcaciaThornProjectile : MonoBehaviour
                 _renderer != null ? _renderer.sprite : null,
                 _baseVisualRotation,
                 _renderer != null ? _renderer.transform.localScale.x : 1f);
+            projectile._hasHitWorm = true;
         }
     }
 
@@ -202,7 +207,7 @@ public sealed class AcaciaThornProjectile : MonoBehaviour
 
     private void TryBounceFromScreen()
     {
-        if (_screenBounds == null)
+        if (_screenBounds == null || !_hasHitWorm)
             return;
 
         Vector3 position = transform.position;

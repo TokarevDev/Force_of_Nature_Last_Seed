@@ -8,6 +8,11 @@ using UnityEngine;
 public static class WormSectionBuilder
 {
     private const int SECTION_SIZE = 7;
+    private const float LateProgressStart = 0.5f;
+    private const float LateWhiteWeightMultiplier = 0.25f;
+    private const float LateGreenWeightMultiplier = 1.25f;
+    private const float LateBlueWeightMultiplier = 1.6f;
+    private const float LateLegendaryWeightMultiplier = 2.3f;
 
     public static List<WormSection> BuildSections(
         List<WormSegment> segments,
@@ -18,6 +23,7 @@ public static class WormSectionBuilder
 
         int sectionIndex = 0;
         int sectionsWithoutCocoon = 0;
+        int totalSections = CountGameplaySections(segments);
 
         for (int i = 0; i < segments.Count; i++)
         {
@@ -34,6 +40,7 @@ public static class WormSectionBuilder
                     buffer,
                     sections,
                     sectionIndex,
+                    totalSections,
                     cocoonProfiles,
                     ref sectionsWithoutCocoon);
 
@@ -48,6 +55,7 @@ public static class WormSectionBuilder
                 buffer,
                 sections,
                 sectionIndex,
+                totalSections,
                 cocoonProfiles,
                 ref sectionsWithoutCocoon);
         }
@@ -59,6 +67,7 @@ public static class WormSectionBuilder
         List<WormSegment> buffer,
         List<WormSection> sections,
         int sectionIndex,
+        int totalSections,
         IReadOnlyList<CocoonRewardProfile> cocoonProfiles,
         ref int sectionsWithoutCocoon)
     {
@@ -73,6 +82,7 @@ public static class WormSectionBuilder
             buffer,
             section,
             sectionIndex,
+            totalSections,
             cocoonProfiles,
             ref sectionsWithoutCocoon);
 
@@ -87,6 +97,7 @@ public static class WormSectionBuilder
         List<WormSegment> buffer,
         WormSection section,
         int sectionIndex,
+        int totalSections,
         IReadOnlyList<CocoonRewardProfile> cocoonProfiles,
         ref int sectionsWithoutCocoon)
     {
@@ -117,14 +128,17 @@ public static class WormSectionBuilder
 
         sectionsWithoutCocoon = 0;
 
-        CocoonRewardProfile profile = RollCocoonProfile(cocoonProfiles);
+        CocoonRewardProfile profile = RollCocoonProfile(
+            cocoonProfiles,
+            GetSectionProgress(sectionIndex, totalSections));
         centerSegment.EnableCocoon(profile.VisualColor);
 
         section.SetCocoon(profile);
     }
 
     private static CocoonRewardProfile RollCocoonProfile(
-        IReadOnlyList<CocoonRewardProfile> cocoonProfiles)
+        IReadOnlyList<CocoonRewardProfile> cocoonProfiles,
+        float sectionProgress)
     {
         IReadOnlyList<CocoonRewardProfile> profiles = HasSpawnableProfile(cocoonProfiles)
             ? cocoonProfiles
@@ -136,10 +150,10 @@ public static class WormSectionBuilder
         {
             CocoonRewardProfile profile = profiles[i];
 
-            if (!IsSpawnableProfile(profile))
+            if (!IsSpawnableProfile(profile, sectionProgress))
                 continue;
 
-            totalWeight += profile.SpawnWeight;
+            totalWeight += GetEffectiveSpawnWeight(profile, sectionProgress);
         }
 
         if (totalWeight <= 0f)
@@ -152,10 +166,10 @@ public static class WormSectionBuilder
         {
             CocoonRewardProfile profile = profiles[i];
 
-            if (!IsSpawnableProfile(profile))
+            if (!IsSpawnableProfile(profile, sectionProgress))
                 continue;
 
-            current += profile.SpawnWeight;
+            current += GetEffectiveSpawnWeight(profile, sectionProgress);
 
             if (roll <= current)
                 return profile;
@@ -182,5 +196,103 @@ public static class WormSectionBuilder
     private static bool IsSpawnableProfile(CocoonRewardProfile profile)
     {
         return profile != null && profile.SpawnWeight > 0f;
+    }
+
+    private static bool IsSpawnableProfile(
+        CocoonRewardProfile profile,
+        float sectionProgress)
+    {
+        return IsSpawnableProfile(profile)
+            && sectionProgress + Mathf.Epsilon >= profile.MinDestroyedProgressToSpawn;
+    }
+
+    private static float GetEffectiveSpawnWeight(
+        CocoonRewardProfile profile,
+        float sectionProgress)
+    {
+        float baseWeight = profile.SpawnWeight;
+
+        if (sectionProgress < LateProgressStart)
+            return baseWeight;
+
+        float t = Mathf.InverseLerp(
+            LateProgressStart,
+            1f,
+            sectionProgress);
+        float quality = GetRewardQuality(profile);
+        float lateMultiplier;
+
+        if (quality < 0.25f)
+            lateMultiplier = Mathf.Lerp(1f, LateWhiteWeightMultiplier, t);
+        else if (quality < 0.75f)
+            lateMultiplier = Mathf.Lerp(1f, LateGreenWeightMultiplier, t);
+        else if (quality < 1.5f)
+            lateMultiplier = Mathf.Lerp(1f, LateBlueWeightMultiplier, t);
+        else
+            lateMultiplier = Mathf.Lerp(1f, LateLegendaryWeightMultiplier, t);
+
+        return baseWeight * lateMultiplier;
+    }
+
+    private static float GetRewardQuality(CocoonRewardProfile profile)
+    {
+        IReadOnlyList<RewardRaritySlot> slots = profile.RaritySlots;
+
+        if (slots == null || slots.Count == 0)
+            return 0f;
+
+        float total = 0f;
+        int slotCount = 0;
+
+        for (int i = 0; i < slots.Count; i++)
+        {
+            RewardRaritySlot slot = slots[i];
+
+            if (slot == null)
+                continue;
+
+            float alternateChance = slot.AlternateChance;
+            total += GetRarityScore(slot.Rarity) * (1f - alternateChance);
+            total += GetRarityScore(slot.AlternateRarity) * alternateChance;
+            slotCount++;
+        }
+
+        return slotCount > 0 ? total / slotCount : 0f;
+    }
+
+    private static float GetRarityScore(RewardRarity rarity)
+    {
+        return rarity switch
+        {
+            RewardRarity.Rare => 1f,
+            RewardRarity.Legendary => 2f,
+            _ => 0f
+        };
+    }
+
+    private static int CountGameplaySections(List<WormSegment> segments)
+    {
+        if (segments == null || segments.Count == 0)
+            return 0;
+
+        int gameplaySegmentCount = 0;
+
+        for (int i = 0; i < segments.Count; i++)
+        {
+            WormSegment segment = segments[i];
+
+            if (segment != null && segment.Type is not (WormSegmentType.Head or WormSegmentType.Tail))
+                gameplaySegmentCount++;
+        }
+
+        return Mathf.CeilToInt(gameplaySegmentCount / (float)SECTION_SIZE);
+    }
+
+    private static float GetSectionProgress(int sectionIndex, int totalSections)
+    {
+        if (totalSections <= 1)
+            return 0f;
+
+        return Mathf.Clamp01(sectionIndex / (float)(totalSections - 1));
     }
 }

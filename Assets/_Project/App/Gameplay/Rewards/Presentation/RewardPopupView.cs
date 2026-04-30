@@ -13,6 +13,8 @@ public sealed class RewardPopupView : MonoBehaviour
 
     public Action<RewardChoiceData> OnSelected;
 
+    private bool _inputLocked;
+
     public bool Show(List<RewardChoiceData> choices)
     {
         if (choices == null || choices.Count == 0)
@@ -22,6 +24,7 @@ public sealed class RewardPopupView : MonoBehaviour
         }
 
         Time.timeScale = 0f;
+        LockGameplayInput();
 
         _root.SetActive(true);
 
@@ -48,8 +51,32 @@ public sealed class RewardPopupView : MonoBehaviour
         Hide();
     }
 
+    private void OnDisable()
+    {
+        UnlockGameplayInput();
+    }
+
     private void Hide()
     {
         _root.SetActive(false);
+        UnlockGameplayInput();
+    }
+
+    private void LockGameplayInput()
+    {
+        if (_inputLocked)
+            return;
+
+        GameplayInputBlocker.PushLock();
+        _inputLocked = true;
+    }
+
+    private void UnlockGameplayInput()
+    {
+        if (!_inputLocked)
+            return;
+
+        GameplayInputBlocker.PopLock();
+        _inputLocked = false;
     }
 }
