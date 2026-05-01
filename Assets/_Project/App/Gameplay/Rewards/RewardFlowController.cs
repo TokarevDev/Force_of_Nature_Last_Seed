@@ -8,6 +8,7 @@ public sealed class RewardFlowController : IDisposable
     private readonly RewardPopupView _popup;
 
     private List<RewardChoiceData> _currentChoices;
+    private CocoonRewardProfile _currentCocoonProfile;
 
     private bool _isDisposed;
 
@@ -21,6 +22,8 @@ public sealed class RewardFlowController : IDisposable
         _popup = popup;
 
         _popup.OnSelected += OnSelected;
+        _popup.OnRerollRequested += OnRerollRequested;
+        _popup.OnTakeAllRequested += OnTakeAllRequested;
     }
 
     public void Dispose()
@@ -29,16 +32,16 @@ public sealed class RewardFlowController : IDisposable
             return;
 
         _popup.OnSelected -= OnSelected;
+        _popup.OnRerollRequested -= OnRerollRequested;
+        _popup.OnTakeAllRequested -= OnTakeAllRequested;
         _isDisposed = true;
     }
 
     public bool Open(CocoonRewardProfile cocoonProfile = null)
     {
-        _currentChoices = _rollService.Roll3(
-            _applyService.RuntimeContext,
-            cocoonProfile);
+        _currentCocoonProfile = cocoonProfile;
 
-        if (_currentChoices == null || _currentChoices.Count == 0)
+        if (!RollCurrentChoices())
             return false;
 
         return _popup.Show(_currentChoices);
@@ -47,5 +50,35 @@ public sealed class RewardFlowController : IDisposable
     public void OnSelected(RewardChoiceData choice)
     {
         _applyService.Apply(choice);
+    }
+
+    private void OnRerollRequested()
+    {
+        if (!RollCurrentChoices())
+            return;
+
+        _popup.Show(_currentChoices);
+    }
+
+    private void OnTakeAllRequested()
+    {
+        if (_currentChoices == null || _currentChoices.Count == 0)
+            return;
+
+        for (int i = 0; i < _currentChoices.Count; i++)
+        {
+            _applyService.Apply(_currentChoices[i]);
+        }
+
+        _popup.Close();
+    }
+
+    private bool RollCurrentChoices()
+    {
+        _currentChoices = _rollService.Roll3(
+            _applyService.RuntimeContext,
+            _currentCocoonProfile);
+
+        return _currentChoices != null && _currentChoices.Count > 0;
     }
 }

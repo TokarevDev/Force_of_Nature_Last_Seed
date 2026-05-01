@@ -5,6 +5,11 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public sealed class WormSpawner : MonoBehaviour
 {
+    private const int ThousandHp = 1000;
+    private const int TenThousandHp = 10000;
+    private const int MillionHp = 1000000;
+    private const int TenMillionHp = 10000000;
+
     [Header("Prefabs")]
     [SerializeField] private WormSegment _headPrefab;
 
@@ -236,9 +241,28 @@ public sealed class WormSpawner : MonoBehaviour
         if (previousHp >= WeaponRuntimeState.MaxProjectileDamage)
             return WeaponRuntimeState.MaxProjectileDamage;
 
+        int minimumIncrease = GetMinimumVisibleHpIncrease(previousHp);
+
         return Mathf.Min(
             WeaponRuntimeState.MaxProjectileDamage,
-            Mathf.Max(hp, previousHp + 1));
+            Mathf.Max(hp, previousHp + minimumIncrease));
+    }
+
+    private static int GetMinimumVisibleHpIncrease(int previousHp)
+    {
+        if (previousHp < ThousandHp)
+            return 1;
+
+        if (previousHp < TenThousandHp)
+            return 100;
+
+        if (previousHp < MillionHp)
+            return ThousandHp;
+
+        if (previousHp < TenMillionHp)
+            return 100000;
+
+        return MillionHp;
     }
 
     private IReadOnlyList<CocoonRewardProfile> GetCocoonProfiles()

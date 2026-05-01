@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 /// Displays reward choices and handles selection.
@@ -8,12 +9,35 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public sealed class RewardPopupView : MonoBehaviour
 {
+    private const string RerollButtonName = "ButtonUpdate";
+    private const string TakeAllButtonName = "ButtonAds";
+
     [SerializeField] private GameObject _root;
     [SerializeField] private List<RewardButtonView> _buttons;
+    [SerializeField] private Button _rerollButton;
+    [SerializeField] private Button _takeAllButton;
 
     public Action<RewardChoiceData> OnSelected;
+    public Action OnRerollRequested;
+    public Action OnTakeAllRequested;
 
     private bool _inputLocked;
+
+    private void Awake()
+    {
+        ResolveActionButtons();
+    }
+
+    private void OnEnable()
+    {
+        SubscribeActionButtons();
+    }
+
+    private void OnDisable()
+    {
+        UnsubscribeActionButtons();
+        UnlockGameplayInput();
+    }
 
     public bool Show(List<RewardChoiceData> choices)
     {
@@ -45,21 +69,50 @@ public sealed class RewardPopupView : MonoBehaviour
 
     private void OnClicked(RewardChoiceData data)
     {
-        Time.timeScale = 1f;
-
         OnSelected?.Invoke(data);
+        Close();
+    }
+
+    public void Close()
+    {
+        Time.timeScale = 1f;
         Hide();
     }
 
-    private void OnDisable()
+    private void OnRerollClicked()
     {
-        UnlockGameplayInput();
+        OnRerollRequested?.Invoke();
+    }
+
+    private void OnTakeAllClicked()
+    {
+        OnTakeAllRequested?.Invoke();
     }
 
     private void Hide()
     {
-        _root.SetActive(false);
+        if (_root != null)
+            _root.SetActive(false);
+
         UnlockGameplayInput();
+    }
+
+    private void SubscribeActionButtons()
+    {
+        if (_rerollButton != null)
+            _rerollButton.onClick.AddListener(OnRerollClicked);
+
+        if (_takeAllButton != null)
+            _takeAllButton.onClick.AddListener(OnTakeAllClicked);
+    }
+
+    private void UnsubscribeActionButtons()
+    {
+        if (_rerollButton != null)
+            _rerollButton.onClick.RemoveListener(OnRerollClicked);
+
+        if (_takeAllButton != null)
+            _takeAllButton.onClick.RemoveListener(OnTakeAllClicked);
     }
 
     private void LockGameplayInput()
@@ -78,5 +131,41 @@ public sealed class RewardPopupView : MonoBehaviour
 
         GameplayInputBlocker.PopLock();
         _inputLocked = false;
+    }
+
+    private void ResolveActionButtons()
+    {
+        if (_rerollButton == null)
+            _rerollButton = FindChildButton(RerollButtonName);
+
+        if (_takeAllButton == null)
+            _takeAllButton = FindChildButton(TakeAllButtonName);
+    }
+
+    private Button FindChildButton(string childName)
+    {
+        Transform child = FindChildByName(transform, childName);
+        return child != null ? child.GetComponent<Button>() : null;
+    }
+
+    private static Transform FindChildByName(Transform root, string childName)
+    {
+        if (root == null)
+            return null;
+
+        for (int i = 0; i < root.childCount; i++)
+        {
+            Transform child = root.GetChild(i);
+
+            if (child.name == childName)
+                return child;
+
+            Transform match = FindChildByName(child, childName);
+
+            if (match != null)
+                return match;
+        }
+
+        return null;
     }
 }
