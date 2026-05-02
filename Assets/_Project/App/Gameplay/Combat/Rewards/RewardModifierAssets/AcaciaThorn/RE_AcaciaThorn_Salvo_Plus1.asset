@@ -16,6 +16,8 @@ MonoBehaviour:
   _damageMultiplier: 1.5
   _fireRateBonus: 0.5
   _extraSalvoShots: 1
+  _extendsSalvoLimit: 0
+  _maxSalvoShotsAfterApply: 4
   _projectileSpeedBonus: 0.25
   _criticalChanceBonus: 0.1
   _criticalDamageBonus: 0.5

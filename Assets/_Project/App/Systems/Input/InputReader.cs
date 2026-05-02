@@ -1,18 +1,21 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 
 [DisallowMultipleComponent]
 public sealed class InputReader : MonoBehaviour
 {
-    [SerializeField] private bool _enableTouchTarget = true;
+    [FormerlySerializedAs("_enableTouchTarget")]
+    [SerializeField] private bool _enableTouchDrag = true;
 
     public float MoveX { get; private set; }
-    public bool HasTouchTargetX { get; private set; }
-    public float TouchTargetXNormalized { get; private set; }
+    public bool HasActiveTouch { get; private set; }
 
     private InputActions _input;
     private InputAction _touchPressAction;
     private InputAction _touchPositionAction;
+    private float _lastTouchX;
+    private float _touchDeltaXNormalized;
 
     private void Awake()
     {
@@ -59,31 +62,47 @@ public sealed class InputReader : MonoBehaviour
 
     private void OnTouchPressed(InputAction.CallbackContext context)
     {
-        if (!_enableTouchTarget)
+        if (!_enableTouchDrag)
             return;
 
-        SetTouchTarget(_touchPositionAction.ReadValue<Vector2>());
+        BeginTouch(_touchPositionAction.ReadValue<Vector2>());
     }
 
     private void OnTouchPositionChanged(InputAction.CallbackContext context)
     {
-        if (!_enableTouchTarget || !HasTouchTargetX || !_touchPressAction.IsPressed())
+        if (!_enableTouchDrag || !HasActiveTouch || !_touchPressAction.IsPressed())
             return;
 
-        SetTouchTarget(context.ReadValue<Vector2>());
+        AccumulateTouchDelta(context.ReadValue<Vector2>());
     }
 
-    private void SetTouchTarget(Vector2 screenPosition)
+    public float ConsumeTouchDeltaXNormalized()
     {
-        float screenWidth = Mathf.Max(1f, Screen.width);
+        float delta = _touchDeltaXNormalized;
+        _touchDeltaXNormalized = 0f;
 
-        TouchTargetXNormalized = Mathf.Clamp01(screenPosition.x / screenWidth);
-        HasTouchTargetX = true;
+        return delta;
+    }
+
+    private void BeginTouch(Vector2 screenPosition)
+    {
+        _lastTouchX = screenPosition.x;
+        _touchDeltaXNormalized = 0f;
+        HasActiveTouch = true;
+    }
+
+    private void AccumulateTouchDelta(Vector2 screenPosition)
+    {
+        float currentTouchX = screenPosition.x;
+        float deltaX = currentTouchX - _lastTouchX;
+
+        _lastTouchX = currentTouchX;
+        _touchDeltaXNormalized += deltaX / Mathf.Max(1f, Screen.width);
     }
 
     private void EnableTouchActions()
     {
-        if (!_enableTouchTarget)
+        if (!_enableTouchDrag)
             return;
 
         _touchPressAction.performed += OnTouchPressed;
@@ -104,18 +123,19 @@ public sealed class InputReader : MonoBehaviour
 
     private void OnTouchCanceled(InputAction.CallbackContext context)
     {
-        ResetTouchTarget();
+        ResetTouchDrag();
     }
 
-    private void ResetTouchTarget()
+    private void ResetTouchDrag()
     {
-        HasTouchTargetX = false;
-        TouchTargetXNormalized = 0f;
+        HasActiveTouch = false;
+        _lastTouchX = 0f;
+        _touchDeltaXNormalized = 0f;
     }
 
     private void ResetMovement()
     {
         MoveX = 0f;
-        ResetTouchTarget();
+        ResetTouchDrag();
     }
 }

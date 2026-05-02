@@ -13,9 +13,9 @@ public sealed class PlayerController : MonoBehaviour
 
     private void HandleMovement()
     {
-        if (_input.HasTouchTargetX)
+        if (_input.HasActiveTouch)
         {
-            _mover.MoveTowardNormalizedX(_input.TouchTargetXNormalized);
+            _mover.MoveByNormalizedScreenDeltaX(_input.ConsumeTouchDeltaXNormalized());
             return;
         }
 

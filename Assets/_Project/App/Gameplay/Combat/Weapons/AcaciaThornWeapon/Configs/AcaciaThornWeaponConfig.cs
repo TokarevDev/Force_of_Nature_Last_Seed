@@ -35,7 +35,7 @@ public sealed class AcaciaThornWeaponConfig : ScriptableObject
     [Header("Progression Limits")]
     [Min(1f)] public float MaxDamageMultiplier = AcaciaThornRuntimeState.MaxDamageMultiplier;
     [Range(0, AcaciaThornRuntimeState.MaxSalvoExtraShots)]
-    public int MaxSalvoExtraShots = AcaciaThornRuntimeState.MaxSalvoExtraShots;
+    public int MaxSalvoExtraShots = AcaciaThornRuntimeState.DefaultMaxSalvoExtraShots;
 
     [Header("Power Estimate")]
     [Range(0f, 1f)] public float EstimatedSplitHitChance = 0.55f;

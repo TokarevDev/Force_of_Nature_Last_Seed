@@ -120,6 +120,9 @@ public sealed class WormCombatController : MonoBehaviour
         if (segment == null || !segment.IsAlive)
             return null;
 
+        if (_wormController != null && _wormController.IsCatchingUpToCombatStart)
+            return null;
+
         if (segment.Type == WormSegmentType.Head)
             return GetFirstAliveSection();
 

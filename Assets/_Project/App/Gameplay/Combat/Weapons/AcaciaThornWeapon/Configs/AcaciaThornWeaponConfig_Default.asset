@@ -32,6 +32,6 @@ MonoBehaviour:
   BounceCount: 2
   PrewarmCount: 48
   MaxDamageMultiplier: 100000
-  MaxSalvoExtraShots: 5
+  MaxSalvoExtraShots: 3
   EstimatedSplitHitChance: 0.55
   EstimatedBounceHitChance: 0.25

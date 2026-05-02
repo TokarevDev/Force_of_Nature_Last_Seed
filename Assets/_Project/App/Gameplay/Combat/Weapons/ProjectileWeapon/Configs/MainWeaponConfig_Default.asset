@@ -20,6 +20,6 @@ MonoBehaviour:
   MaxCriticalChance: 1
   MaxCriticalDamageMultiplier: 100
   MaxPenetrationBonus: 5
-  MaxParallelProjectiles: 8
-  MaxSalvoExtraShots: 5
+  MaxParallelProjectiles: 5
+  MaxSalvoExtraShots: 3
   Projectile: {fileID: 11400000, guid: 0ce9c42391f600d419964b6d2b80397b, type: 2}

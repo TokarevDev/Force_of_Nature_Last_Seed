@@ -8,13 +8,15 @@ public sealed class AcaciaThornRuntimeState
     public const float DefaultMaxFireRateBonus = 3f;
     public const float DefaultMaxProjectileSpeedBonus = 2f;
     public const float MaxDamageMultiplier = 100000f;
+    public const int DefaultMaxSalvoShots = 4;
     public const int MaxSalvoShots = 6;
+    public const int DefaultMaxSalvoExtraShots = DefaultMaxSalvoShots - 1;
     public const int MaxSalvoExtraShots = MaxSalvoShots - 1;
     public const float MaxCriticalChance = 1f;
     public const float MaxCriticalDamageMultiplier = 100f;
 
     private float _maxDamageMultiplier = MaxDamageMultiplier;
-    private int _maxSalvoExtraShots = MaxSalvoExtraShots;
+    private int _maxSalvoExtraShots = DefaultMaxSalvoExtraShots;
     private float _maxCriticalChance = MaxCriticalChance;
     private float _maxCriticalDamageMultiplier = MaxCriticalDamageMultiplier;
 
@@ -101,10 +103,22 @@ public sealed class AcaciaThornRuntimeState
 
     public bool CanApplySalvoShots(int extraShots)
     {
+        return CanApplySalvoShots(extraShots, _maxSalvoExtraShots);
+    }
+
+    public bool CanApplySalvoShots(
+        int extraShots,
+        int maxSalvoExtraShotsAfterApply)
+    {
         if (!IsUnlocked || extraShots <= 0)
             return false;
 
-        return SalvoExtraShots + extraShots <= _maxSalvoExtraShots;
+        int targetLimit = Mathf.Clamp(
+            Mathf.Max(_maxSalvoExtraShots, maxSalvoExtraShotsAfterApply),
+            0,
+            MaxSalvoExtraShots);
+
+        return SalvoExtraShots + extraShots <= targetLimit;
     }
 
     public bool CanApplyProjectileSpeedBonus(float bonus)
@@ -173,6 +187,14 @@ public sealed class AcaciaThornRuntimeState
 
         SalvoExtraShots += Mathf.Max(0, accepted);
         return accepted;
+    }
+
+    public void ExpandSalvoExtraShotLimit(int maxSalvoExtraShots)
+    {
+        _maxSalvoExtraShots = Mathf.Clamp(
+            Mathf.Max(_maxSalvoExtraShots, maxSalvoExtraShots),
+            0,
+            MaxSalvoExtraShots);
     }
 
     public float AddProjectileSpeedBonus(float bonus)

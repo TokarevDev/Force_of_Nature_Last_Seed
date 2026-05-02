@@ -189,13 +189,19 @@ MonoBehaviour:
     _rarity: 2
     _weight: 0.25
     _title: Parallel
-    _description: Parallel projectiles +3.
+    _description: Parallel projectiles +2.
   - _effect: {fileID: 11400000, guid: c7b6f7785f6342ba80e7872fa2a5c1a1, type: 2}
     _category: 7
-    _rarity: 0
-    _weight: 0.7
+    _rarity: 1
+    _weight: 0.12
     _title: Salvo
     _description: Salvo +1.
+  - _effect: {fileID: 11400000, guid: 4f2c0f9c8f2145829d6134e9736a1c7b, type: 2}
+    _category: 7
+    _rarity: 2
+    _weight: 0.15
+    _title: Salvo
+    _description: Salvo +2.
   - _effect: {fileID: 11400000, guid: 0c4a5b6d7e8f491a9b0c1d2e3f4a5b6d, type: 2}
     _category: 8
     _rarity: 0
@@ -240,22 +246,16 @@ MonoBehaviour:
     _description: Acacia fire rate +50%.
   - _effect: {fileID: 11400000, guid: 5b90112233444e5fa0b1c2d3e4f50617, type: 2}
     _category: 11
-    _rarity: 0
-    _weight: 0.7
+    _rarity: 1
+    _weight: 0.12
     _title: Acacia Salvo
     _description: Acacia thorns +1.
   - _effect: {fileID: 11400000, guid: 6c01122334454f60a1b2c3d4e5f60718, type: 2}
     _category: 11
-    _rarity: 1
-    _weight: 0.7
+    _rarity: 2
+    _weight: 0.15
     _title: Acacia Salvo
     _description: Acacia thorns +2.
-  - _effect: {fileID: 11400000, guid: faae0b696faa4921894c59bf0a80810f, type: 2}
-    _category: 11
-    _rarity: 2
-    _weight: 0.7
-    _title: Acacia Salvo
-    _description: Acacia thorns +3.
   - _effect: {fileID: 11400000, guid: 7bd56e39e6254aeb9da3be3f235f4fee, type: 2}
     _category: 12
     _rarity: 0

@@ -647,6 +647,8 @@ MonoBehaviour:
   _weapon: {fileID: 501089295}
   _acaciaThornWeapon: {fileID: 501089296}
   _hpScalingConfig: {fileID: 11400000, guid: 0cf733b5054a4ec2a3770fda9b75f3d8, type: 2}
+  _adaptiveRebalanceUpgradeInterval: 1
+  _adaptiveRebalanceMinInterval: 5
   _levelNumber: 1
   _totalLength: 420
   _poolPadding: 32
@@ -668,6 +670,11 @@ MonoBehaviour:
   _catchUpTarget: {fileID: 1832324678}
   _catchUpSpeed: 3
   _catchUpStopOffset: 0
+  _catchUpExtraDistance: 1.5
+  _enableCombatSpeedBursts: 1
+  _combatBurstSpeed: 2
+  _combatBurstInterval: 10
+  _combatBurstDuration: 2.5
   _segmentSpacing: 0.5
   _activeDistancePadding: 0.5
   _waveAmplitude: 0.05

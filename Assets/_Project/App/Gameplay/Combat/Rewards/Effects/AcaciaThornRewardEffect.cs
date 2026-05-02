@@ -18,6 +18,8 @@ public sealed class AcaciaThornRewardEffect : RewardEffect
     [SerializeField] private float _damageMultiplier = 1.5f;
     [SerializeField] private float _fireRateBonus = 0.5f;
     [SerializeField] private int _extraSalvoShots = 1;
+    [SerializeField] private bool _extendsSalvoLimit;
+    [SerializeField][Min(1)] private int _maxSalvoShotsAfterApply = AcaciaThornRuntimeState.DefaultMaxSalvoShots;
     [SerializeField] private float _projectileSpeedBonus = 0.25f;
     [SerializeField][Range(0f, 1f)] private float _criticalChanceBonus = 0.1f;
     [SerializeField][Min(0f)] private float _criticalDamageBonus = 0.5f;
@@ -42,7 +44,9 @@ public sealed class AcaciaThornRewardEffect : RewardEffect
                 return state.CanApplyFireRateBonus(_fireRateBonus);
 
             case AcaciaThornUpgradeType.ExtraSalvoShots:
-                return state.CanApplySalvoShots(_extraSalvoShots);
+                return _extendsSalvoLimit
+                    ? state.CanApplySalvoShots(_extraSalvoShots, GetMaxSalvoExtraShotsAfterApply())
+                    : state.CanApplySalvoShots(_extraSalvoShots);
 
             case AcaciaThornUpgradeType.ProjectileSpeedBonus:
                 return state.CanApplyProjectileSpeedBonus(_projectileSpeedBonus);
@@ -85,6 +89,9 @@ public sealed class AcaciaThornRewardEffect : RewardEffect
                 break;
 
             case AcaciaThornUpgradeType.ExtraSalvoShots:
+                if (_extendsSalvoLimit)
+                    weapon.RuntimeState.ExpandSalvoExtraShotLimit(GetMaxSalvoExtraShotsAfterApply());
+
                 weapon.AddSalvoShots(_extraSalvoShots);
                 break;
 
@@ -110,5 +117,10 @@ public sealed class AcaciaThornRewardEffect : RewardEffect
     {
         ProjectileWeapon mainWeapon = context?.MainWeapon;
         return mainWeapon != null ? mainWeapon.CurrentProjectileDamage : 0;
+    }
+
+    private int GetMaxSalvoExtraShotsAfterApply()
+    {
+        return Mathf.Max(0, _maxSalvoShotsAfterApply - 1);
     }
 }

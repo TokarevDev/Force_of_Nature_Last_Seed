@@ -4,10 +4,22 @@ using UnityEngine;
 public sealed class AddModifierRewardEffect : RewardEffect
 {
     [SerializeField] private ShotModifierData _modifier;
+    [SerializeField] private bool _extendsParallelLimit;
+    [SerializeField][Min(1)] private int _maxParallelProjectilesAfterApply = WeaponRuntimeState.DefaultMaxParallelProjectiles;
 
     public override bool CanApply(WeaponRuntimeState state)
     {
-        return state != null && state.CanAddShotModifier(_modifier);
+        if (state == null)
+            return false;
+
+        if (_extendsParallelLimit && TryGetParallelBonus(out int bonusProjectiles))
+        {
+            return state.CanApplyParallelProjectiles(
+                bonusProjectiles,
+                _maxParallelProjectilesAfterApply);
+        }
+
+        return state.CanAddShotModifier(_modifier);
     }
 
     public override void Apply(WeaponRuntimeState state)
@@ -15,9 +27,26 @@ public sealed class AddModifierRewardEffect : RewardEffect
         if (state == null)
             return;
 
+        if (_extendsParallelLimit && _modifier is ParallelModifierData)
+            state.ExpandParallelProjectileLimit(_maxParallelProjectilesAfterApply);
+
         if (!state.AddShotModifier(_modifier))
         {
             Debug.LogWarning("Modifier is null in AddModifierRewardEffect");
         }
+    }
+
+    private bool TryGetParallelBonus(out int bonusProjectiles)
+    {
+        bonusProjectiles = 0;
+
+        ParallelModifierData parallel = _modifier as ParallelModifierData;
+
+        if (parallel == null)
+            return false;
+
+        bonusProjectiles = Mathf.Max(0, parallel.Count - 1);
+
+        return bonusProjectiles > 0;
     }
 }

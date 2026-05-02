@@ -27,6 +27,13 @@ public sealed class WormController : MonoBehaviour
     [SerializeField] private Transform _catchUpTarget;
     [SerializeField][Min(0f)] private float _catchUpSpeed = 6f;
     [SerializeField][Min(0f)] private float _catchUpStopOffset = 0f;
+    [SerializeField][Min(0f)] private float _catchUpExtraDistance = 1.5f;
+
+    [Header("Combat Speed Bursts")]
+    [SerializeField] private bool _enableCombatSpeedBursts = true;
+    [SerializeField][Min(0f)] private float _combatBurstSpeed = 2f;
+    [SerializeField][Min(0.1f)] private float _combatBurstInterval = 10f;
+    [SerializeField][Min(0.1f)] private float _combatBurstDuration = 2.5f;
 
     [Header("Segments")]
     [SerializeField] private float _segmentSpacing = 0.5f;
@@ -54,10 +61,14 @@ public sealed class WormController : MonoBehaviour
     private int _rollbackSplitIndex = -1;
     private int _rollbackRemovedCount;
     private float _rollbackStartHeadDistance;
+    private bool _hasReachedCombatStart;
+    private float _combatBurstTimer;
+    private float _combatBurstRemainingTime;
 
     private Vector3 _tmpEuler;
 
     public bool HasWorm => _segments.Count > 0;
+    public bool IsCatchingUpToCombatStart { get; private set; }
 
     public float HeadPathProgressNormalized
     {
@@ -87,6 +98,10 @@ public sealed class WormController : MonoBehaviour
         _rollbackSplitIndex = -1;
         _rollbackRemovedCount = 0;
         _rollbackStartHeadDistance = 0f;
+        _hasReachedCombatStart = false;
+        _combatBurstTimer = 0f;
+        _combatBurstRemainingTime = 0f;
+        IsCatchingUpToCombatStart = _catchUpTarget != null;
 
         UpdateSegments();
     }
@@ -97,17 +112,24 @@ public sealed class WormController : MonoBehaviour
             return;
 
         if (!_isSectionRollback)
-            _headDistance += GetForwardSpeed() * Time.deltaTime;
+            _headDistance += GetForwardSpeed(Time.deltaTime) * Time.deltaTime;
 
         UpdateSegments();
     }
 
-    private float GetForwardSpeed()
+    private float GetForwardSpeed(float deltaTime)
     {
-        if (!ShouldCatchUp())
-            return _speed;
+        IsCatchingUpToCombatStart = ShouldCatchUp();
 
-        return Mathf.Max(_speed, _catchUpSpeed);
+        if (IsCatchingUpToCombatStart)
+            return Mathf.Max(_speed, _catchUpSpeed);
+
+        UpdateCombatBurst(deltaTime);
+
+        if (_combatBurstRemainingTime > 0f)
+            return Mathf.Max(_speed, _combatBurstSpeed);
+
+        return _speed;
     }
 
     private bool ShouldCatchUp()
@@ -116,9 +138,41 @@ public sealed class WormController : MonoBehaviour
             return false;
 
         float targetDistance = _rail.GetClosestDistance(_catchUpTarget.position);
-        targetDistance = Mathf.Max(0f, targetDistance - _catchUpStopOffset);
+        targetDistance = Mathf.Max(
+            0f,
+            targetDistance - _catchUpStopOffset + _catchUpExtraDistance);
 
         return _headDistance < targetDistance;
+    }
+
+    private void UpdateCombatBurst(float deltaTime)
+    {
+        if (!_enableCombatSpeedBursts || deltaTime <= 0f)
+            return;
+
+        if (!_hasReachedCombatStart)
+        {
+            _hasReachedCombatStart = true;
+            _combatBurstTimer = 0f;
+            _combatBurstRemainingTime = 0f;
+            return;
+        }
+
+        if (_combatBurstRemainingTime > 0f)
+        {
+            _combatBurstRemainingTime = Mathf.Max(
+                0f,
+                _combatBurstRemainingTime - deltaTime);
+            return;
+        }
+
+        _combatBurstTimer += deltaTime;
+
+        if (_combatBurstTimer < _combatBurstInterval)
+            return;
+
+        _combatBurstTimer = 0f;
+        _combatBurstRemainingTime = _combatBurstDuration;
     }
 
     /// <summary>

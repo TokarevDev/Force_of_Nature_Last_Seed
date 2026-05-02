@@ -13,3 +13,5 @@ MonoBehaviour:
   m_Name: RE_Parallel_Plus2
   m_EditorClassIdentifier: Assembly-CSharp::AddModifierRewardEffect
   _modifier: {fileID: 11400000, guid: f7e2882094044dc3850b210653251613, type: 2}
+  _extendsParallelLimit: 0
+  _maxParallelProjectilesAfterApply: 5

@@ -14,3 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SalvoFireRewardEffect
   _extraShots: 1
   _shotInterval: 0.2
+  _extendsSalvoLimit: 0
+  _maxSalvoShotsAfterApply: 4

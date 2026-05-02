@@ -29,6 +29,8 @@ public sealed class WormSpawner : MonoBehaviour
     [SerializeField] private ProjectileWeapon _weapon;
     [SerializeField] private AcaciaThornWeapon _acaciaThornWeapon;
     [SerializeField] private WormHpScalingConfig _hpScalingConfig;
+    [SerializeField][Min(1)] private int _adaptiveRebalanceUpgradeInterval = 1;
+    [SerializeField][Min(0f)] private float _adaptiveRebalanceMinInterval = 5f;
 
     [Header("Generation")]
     [SerializeField][Min(1)] private int _levelNumber = 1;
@@ -48,6 +50,9 @@ public sealed class WormSpawner : MonoBehaviour
     private bool _isSpawned;
     private int _bodyPoolCapacity;
     private float _runtimePressureMultiplier = 1f;
+    private int _pendingAdaptiveUpgradeChanges;
+    private float _lastAdaptiveRebalanceTime;
+    private bool _hasAppliedAdaptiveUpgradeRebalance;
 
     private void OnEnable()
     {
@@ -124,6 +129,9 @@ public sealed class WormSpawner : MonoBehaviour
 
         _sections.Clear();
         _sections.AddRange(sections);
+        _pendingAdaptiveUpgradeChanges = 0;
+        _lastAdaptiveRebalanceTime = Time.time;
+        _hasAppliedAdaptiveUpgradeRebalance = false;
 
         _wormFactory.AttachDamageReceivers(segments, _wormCombat);
 
@@ -139,7 +147,7 @@ public sealed class WormSpawner : MonoBehaviour
         sections.Sort((a, b) =>
             a.GetCenterSegmentIndex().CompareTo(b.GetCenterSegmentIndex()));
 
-        WeaponPowerSnapshot power = WeaponPowerEstimator.Estimate(_weapon, _acaciaThornWeapon);
+        WeaponPowerSnapshot power = GetWeaponPowerForHp();
         int totalSections = sections.Count;
         int previousHp = 0;
 
@@ -164,12 +172,20 @@ public sealed class WormSpawner : MonoBehaviour
             return;
 
         _runtimePressureMultiplier = clampedMultiplier;
-        RebalanceFutureSections();
+
+        if (UsesDynamicHp())
+            RebalanceFutureSections();
     }
 
     private void OnWeaponRuntimeStatsChanged()
     {
-        RebalanceFutureSections();
+        if (!UsesDynamicHp() || !_isSpawned)
+            return;
+
+        _pendingAdaptiveUpgradeChanges++;
+
+        if (ShouldRebalanceAfterUpgradeChange())
+            RebalanceAdaptiveHpWave();
     }
 
     private void RebalanceFutureSections()
@@ -177,7 +193,7 @@ public sealed class WormSpawner : MonoBehaviour
         if (!_isSpawned || _sections.Count == 0)
             return;
 
-        WeaponPowerSnapshot power = WeaponPowerEstimator.Estimate(_weapon, _acaciaThornWeapon);
+        WeaponPowerSnapshot power = GetWeaponPowerForHp();
 
         if (!power.IsValid)
             return;
@@ -223,6 +239,37 @@ public sealed class WormSpawner : MonoBehaviour
             _levelNumber,
             power,
             _runtimePressureMultiplier);
+    }
+
+    private WeaponPowerSnapshot GetWeaponPowerForHp()
+    {
+        return UsesDynamicHp()
+            ? WeaponPowerEstimator.Estimate(_weapon, _acaciaThornWeapon)
+            : WeaponPowerSnapshot.Invalid;
+    }
+
+    private bool UsesDynamicHp()
+    {
+        return _hpScalingConfig != null && _hpScalingConfig.UsesDynamicHp;
+    }
+
+    private bool ShouldRebalanceAfterUpgradeChange()
+    {
+        if (!_hasAppliedAdaptiveUpgradeRebalance)
+            return true;
+
+        if (_pendingAdaptiveUpgradeChanges >= _adaptiveRebalanceUpgradeInterval)
+            return true;
+
+        return Time.time - _lastAdaptiveRebalanceTime >= _adaptiveRebalanceMinInterval;
+    }
+
+    private void RebalanceAdaptiveHpWave()
+    {
+        _pendingAdaptiveUpgradeChanges = 0;
+        _lastAdaptiveRebalanceTime = Time.time;
+        _hasAppliedAdaptiveUpgradeRebalance = true;
+        RebalanceFutureSections();
     }
 
     private static bool CanRebalanceSection(WormSection section)

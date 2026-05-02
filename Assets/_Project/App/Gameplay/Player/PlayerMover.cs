@@ -3,8 +3,6 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public sealed class PlayerMover : MonoBehaviour
 {
-    private const float TargetEpsilon = 0.01f;
-
     [SerializeField] private float _speed = 10f;
     [SerializeField] private float _smooth = 10f;
     [SerializeField] private float _edgePadding = 0.5f;
@@ -48,55 +46,23 @@ public sealed class PlayerMover : MonoBehaviour
         transform.position = pos;
     }
 
-    public void MoveTowardNormalizedX(float normalizedX)
+    public void MoveByNormalizedScreenDeltaX(float normalizedDeltaX)
     {
         if (!CanProcessMovement())
             return;
 
-        float deltaTime = Time.deltaTime;
-
-        if (deltaTime <= 0f)
-            return;
-
         float minX = _screenBounds.Left + _edgePadding;
         float maxX = _screenBounds.Right - _edgePadding;
-        float targetX = Mathf.Lerp(minX, maxX, Mathf.Clamp01(normalizedX));
+        float movementAreaWidth = maxX - minX;
+        float movementDeltaX = normalizedDeltaX * movementAreaWidth;
 
         Vector3 pos = transform.position;
-        float deltaX = targetX - pos.x;
-
-        if (Mathf.Abs(deltaX) <= TargetEpsilon)
-        {
-            pos.x = targetX;
-            transform.position = pos;
-            _currentInput = 0f;
-            return;
-        }
-
-        float targetInput = Mathf.Sign(deltaX);
-
-        if (!Mathf.Approximately(_currentInput, 0f)
-            && Mathf.Sign(_currentInput) != targetInput)
-        {
-            _currentInput = 0f;
-        }
-
-        _currentInput = Mathf.Lerp(_currentInput, targetInput, _smooth * deltaTime);
-
-        float step = _currentInput * _speed * deltaTime;
-
-        if (Mathf.Abs(step) >= Mathf.Abs(deltaX))
-        {
-            pos.x = targetX;
-            _currentInput = 0f;
-        }
-        else
-        {
-            pos.x += step;
-        }
-
-        pos.x = Mathf.Clamp(pos.x, minX, maxX);
+        pos.x = Mathf.Clamp(pos.x + movementDeltaX, minX, maxX);
         transform.position = pos;
+
+        _currentInput = Mathf.Approximately(movementDeltaX, 0f)
+            ? 0f
+            : Mathf.Sign(movementDeltaX);
     }
 
     private bool CanProcessMovement()

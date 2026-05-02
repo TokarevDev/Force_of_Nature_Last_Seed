@@ -8,6 +8,9 @@ using UnityEngine;
 public static class WormSectionBuilder
 {
     private const int SECTION_SIZE = 7;
+    private const int FirstCocoonSectionIndex = 1;
+    private const int EarlyEmptySectionsBetweenCocoons = 2;
+    private const int LateEmptySectionsBetweenCocoons = 3;
     private const float LateProgressStart = 0.5f;
     private const float LateWhiteWeightMultiplier = 0.25f;
     private const float LateGreenWeightMultiplier = 1.25f;
@@ -106,19 +109,12 @@ public static class WormSectionBuilder
 
         int centerIndex = buffer.Count / 2;
         WormSegment centerSegment = buffer[centerIndex];
-
-        bool spawnCocoon;
-
-        if (sectionIndex < 2)
-        {
-            spawnCocoon = true;
-        }
-        else
-        {
-            spawnCocoon =
-                sectionsWithoutCocoon >= 2 ||
-                (sectionsWithoutCocoon >= 1 && Random.value < 0.35f);
-        }
+        float sectionProgress = GetSectionProgress(sectionIndex, totalSections);
+        bool spawnCocoon = ShouldPlaceCocoon(
+            sectionIndex,
+            totalSections,
+            sectionProgress,
+            sectionsWithoutCocoon);
 
         if (!spawnCocoon)
         {
@@ -130,10 +126,29 @@ public static class WormSectionBuilder
 
         CocoonRewardProfile profile = RollCocoonProfile(
             cocoonProfiles,
-            GetSectionProgress(sectionIndex, totalSections));
+            sectionProgress);
         centerSegment.EnableCocoon(profile.VisualColor);
 
         section.SetCocoon(profile);
+    }
+
+    private static bool ShouldPlaceCocoon(
+        int sectionIndex,
+        int totalSections,
+        float sectionProgress,
+        int sectionsWithoutCocoon)
+    {
+        if (sectionIndex <= 0 || sectionIndex >= totalSections - 1)
+            return false;
+
+        if (sectionIndex == FirstCocoonSectionIndex)
+            return true;
+
+        int requiredEmptySections = sectionProgress < LateProgressStart
+            ? EarlyEmptySectionsBetweenCocoons
+            : LateEmptySectionsBetweenCocoons;
+
+        return sectionsWithoutCocoon >= requiredEmptySections;
     }
 
     private static CocoonRewardProfile RollCocoonProfile(

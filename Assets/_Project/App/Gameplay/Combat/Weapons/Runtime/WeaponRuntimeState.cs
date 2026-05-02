@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 /// <summary>
 /// Runtime state of weapon that accumulates all modifier effects.
@@ -9,8 +10,11 @@ public sealed class WeaponRuntimeState
 {
     private const float FloatEpsilon = 0.0001f;
 
-    public const int MaxParallelProjectiles = 10;
-    public const int MaxSalvoShots = 20;
+    public const int DefaultMaxParallelProjectiles = 5;
+    public const int MaxParallelProjectiles = 8;
+    public const int DefaultMaxSalvoShots = 4;
+    public const int MaxSalvoShots = 6;
+    public const int DefaultMaxSalvoExtraShots = DefaultMaxSalvoShots - 1;
     public const int MaxSalvoExtraShots = MaxSalvoShots - 1;
     public const int MaxProjectileDamage = 9999999;
     public const float DefaultMaxFireRateBonus = 3f;
@@ -26,8 +30,8 @@ public sealed class WeaponRuntimeState
     private float _maxCriticalDamageMultiplier = MaxCriticalDamageMultiplier;
     private int _maxPenetrationBonus = MaxPenetrationBonus;
     private float _maxCriticalChance = MaxCriticalChance;
-    private int _maxParallelProjectiles = MaxParallelProjectiles;
-    private int _maxSalvoExtraShots = MaxSalvoExtraShots;
+    private int _maxParallelProjectiles = DefaultMaxParallelProjectiles;
+    private int _maxSalvoExtraShots = DefaultMaxSalvoExtraShots;
 
     public float DamageMultiplier { get; private set; } = 1f;
     public float FireRateBonus { get; private set; }
@@ -102,18 +106,42 @@ public sealed class WeaponRuntimeState
 
     public bool CanApplyParallelProjectiles(int bonusProjectiles)
     {
-        if (bonusProjectiles <= 0)
-            return false;
-
-        return ParallelProjectileCount + bonusProjectiles <= _maxParallelProjectiles;
+        return CanApplyParallelProjectiles(bonusProjectiles, _maxParallelProjectiles);
     }
 
     public bool CanApplySalvoShots(int extraShots)
     {
+        return CanApplySalvoShots(extraShots, _maxSalvoExtraShots);
+    }
+
+    public bool CanApplyParallelProjectiles(
+        int bonusProjectiles,
+        int maxParallelProjectilesAfterApply)
+    {
+        if (bonusProjectiles <= 0)
+            return false;
+
+        int targetLimit = Mathf.Clamp(
+            Mathf.Max(_maxParallelProjectiles, maxParallelProjectilesAfterApply),
+            1,
+            MaxParallelProjectiles);
+
+        return ParallelProjectileCount + bonusProjectiles <= targetLimit;
+    }
+
+    public bool CanApplySalvoShots(
+        int extraShots,
+        int maxSalvoExtraShotsAfterApply)
+    {
         if (extraShots <= 0)
             return false;
 
-        return SalvoExtraShots + extraShots <= _maxSalvoExtraShots;
+        int targetLimit = Mathf.Clamp(
+            Mathf.Max(_maxSalvoExtraShots, maxSalvoExtraShotsAfterApply),
+            0,
+            MaxSalvoExtraShots);
+
+        return SalvoExtraShots + extraShots <= targetLimit;
     }
 
     public float ApplyDamageMultiplier(float multiplier)
@@ -264,6 +292,22 @@ public sealed class WeaponRuntimeState
             SalvoInterval = UnityEngine.Mathf.Max(0.01f, interval);
 
         return accepted;
+    }
+
+    public void ExpandParallelProjectileLimit(int maxParallelProjectiles)
+    {
+        _maxParallelProjectiles = Mathf.Clamp(
+            Mathf.Max(_maxParallelProjectiles, maxParallelProjectiles),
+            1,
+            MaxParallelProjectiles);
+    }
+
+    public void ExpandSalvoExtraShotLimit(int maxSalvoExtraShots)
+    {
+        _maxSalvoExtraShots = Mathf.Clamp(
+            Mathf.Max(_maxSalvoExtraShots, maxSalvoExtraShots),
+            0,
+            MaxSalvoExtraShots);
     }
 
     public bool AddShotModifier(ShotModifierData modifier)
