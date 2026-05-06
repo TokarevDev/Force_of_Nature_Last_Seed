@@ -25,6 +25,9 @@ public sealed class RewardButtonView : MonoBehaviour
     [SerializeField] private Sprite _rareButtonSprite;
     [SerializeField] private Sprite _legendaryButtonSprite;
 
+    [Header("Text Highlighting")]
+    [SerializeField] private Color32 _numberColor = new(105, 255, 120, 255);
+
     private RewardChoiceData _data;
 
     private event Action<RewardChoiceData> _onClick;
@@ -38,7 +41,11 @@ public sealed class RewardButtonView : MonoBehaviour
             _title.text = data.Title;
 
         if (_description != null)
-            _description.text = data.Description;
+        {
+            _description.text = RewardTextFormatter.HighlightNumbers(
+                data.Description,
+                _numberColor);
+        }
 
         ApplyRarityVisual(data.Rarity);
         ApplyButtonSprite(data.Rarity);
@@ -46,8 +53,15 @@ public sealed class RewardButtonView : MonoBehaviour
         if (_button == null)
             return;
 
+        _button.interactable = true;
         _button.onClick.RemoveAllListeners();
         _button.onClick.AddListener(OnClick);
+    }
+
+    public void SetInteractable(bool interactable)
+    {
+        if (_button != null)
+            _button.interactable = interactable;
     }
 
     private void ApplyRarityVisual(RewardRarity rarity)

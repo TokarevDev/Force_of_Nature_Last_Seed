@@ -152,6 +152,11 @@ public sealed class Projectile : MonoBehaviour
         gameObject.SetActive(true);
     }
 
+    public void ForceRelease()
+    {
+        ReleaseSelf();
+    }
+
     private void UpdateVisualRotation()
     {
         if (_movement == null) return;

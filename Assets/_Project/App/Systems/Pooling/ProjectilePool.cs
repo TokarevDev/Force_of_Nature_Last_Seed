@@ -18,6 +18,7 @@ public sealed class ProjectilePool : MonoBehaviour
     private Projectile _prefab;
     private IScreenBounds _screenBounds;
     private readonly Queue<Projectile> _pool = new();
+    private readonly List<Projectile> _active = new();
     private bool _initialized;
 
     /// <summary>
@@ -40,10 +41,12 @@ public sealed class ProjectilePool : MonoBehaviour
     /// </summary>
     public Projectile Get()
     {
-        if (_pool.Count == 0)
-            return CreateNew();
+        Projectile projectile = _pool.Count == 0
+            ? CreateNew()
+            : _pool.Dequeue();
 
-        return _pool.Dequeue();
+        _active.Add(projectile);
+        return projectile;
     }
 
     /// <summary>
@@ -51,8 +54,25 @@ public sealed class ProjectilePool : MonoBehaviour
     /// </summary>
     public void Release(Projectile projectile)
     {
+        if (projectile == null)
+            return;
+
+        _active.Remove(projectile);
         projectile.gameObject.SetActive(false);
         _pool.Enqueue(projectile);
+    }
+
+    public void ReleaseAllActive()
+    {
+        for (int i = _active.Count - 1; i >= 0; i--)
+        {
+            Projectile projectile = _active[i];
+
+            if (projectile != null)
+                projectile.ForceRelease();
+        }
+
+        _active.Clear();
     }
 
     /// <summary>

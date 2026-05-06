@@ -21,6 +21,7 @@ public sealed class WormDamagePopupPresenter : MonoBehaviour
     [SerializeField, Range(0.1f, 1f)] private float _veryCrowdedScaleMultiplier = 0.55f;
 
     private readonly Queue<WormDamagePopupView> _pool = new();
+    private readonly List<WormDamagePopupView> _activePopups = new();
     private readonly List<WormDamagePopupView> _activeNonCriticalPopups = new();
 
     private int _activeCount;
@@ -65,6 +66,7 @@ public sealed class WormDamagePopupPresenter : MonoBehaviour
         WormDamagePopupView.AnimationMode animationMode = GetAnimationMode(request, isCritical);
 
         _activeCount++;
+        _activePopups.Add(popup);
         float scaleMultiplier = GetScaleMultiplier();
 
         if (!isCritical)
@@ -81,7 +83,22 @@ public sealed class WormDamagePopupPresenter : MonoBehaviour
         if (view != null && !view.IsCritical)
             UnregisterNonCriticalPopup(view);
 
+        UnregisterActivePopup(view);
         ReturnToPool(view);
+    }
+
+    public void ClearActivePopups()
+    {
+        for (int i = _activePopups.Count - 1; i >= 0; i--)
+        {
+            ReturnToPool(_activePopups[i]);
+        }
+
+        _activePopups.Clear();
+        _activeNonCriticalPopups.Clear();
+        _activeCount = 0;
+        _activeNormalCount = 0;
+        _activeDamageOverTimeCount = 0;
     }
 
     private bool CanShow(DamageViewRequest request, bool isCritical)
@@ -195,6 +212,12 @@ public sealed class WormDamagePopupPresenter : MonoBehaviour
             _activeDamageOverTimeCount = Mathf.Max(0, _activeDamageOverTimeCount - 1);
         else
             _activeNormalCount = Mathf.Max(0, _activeNormalCount - 1);
+    }
+
+    private void UnregisterActivePopup(WormDamagePopupView popup)
+    {
+        if (popup != null)
+            _activePopups.Remove(popup);
     }
 
     private bool IsNonCriticalKindAtLimit(DamageKind kind)

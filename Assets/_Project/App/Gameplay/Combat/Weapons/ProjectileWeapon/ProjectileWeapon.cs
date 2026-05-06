@@ -107,6 +107,13 @@ public sealed class ProjectileWeapon : MonoBehaviour, IWeapon
         RuntimeStatsChanged?.Invoke();
     }
 
+    public void ClearTransientState()
+    {
+        _isSalvoActive = false;
+        _salvoTimer = 0f;
+        _salvoShotsRemaining = 0;
+    }
+
     private void ResetFiringCycle()
     {
         _isSalvoActive = false;

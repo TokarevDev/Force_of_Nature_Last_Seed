@@ -80,6 +80,11 @@ public sealed class AcaciaThornProjectile : MonoBehaviour
         UpdateVisualRotation();
     }
 
+    public void ForceRelease()
+    {
+        ReleaseSelf();
+    }
+
     private void Update()
     {
         if (!_active)

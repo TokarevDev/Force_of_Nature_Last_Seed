@@ -20,7 +20,8 @@ public sealed class RewardRollService
 
     public List<RewardChoiceData> Roll3(
         RewardRuntimeContext context,
-        CocoonRewardProfile cocoonProfile = null)
+        CocoonRewardProfile cocoonProfile = null,
+        RewardRarity? guaranteedRarity = null)
     {
         var result = new List<RewardChoiceData>(MAX_CHOICES);
 
@@ -47,6 +48,9 @@ public sealed class RewardRollService
         var pools = BuildPools(source, context);
         IReadOnlyList<RewardRaritySlot> slots = GetSlots(cocoonProfile);
         int count = Mathf.Min(MAX_CHOICES, Mathf.Min(CountRewards(pools), slots.Count));
+        RewardRarity[] slotRarities = guaranteedRarity.HasValue
+            ? BuildGuaranteedSlotRarities(slots, count, guaranteedRarity.Value, pools)
+            : BuildSlotRarities(slots, count);
         List<RewardWeaponGroup> requiredWeaponGroups = GetRequiredWeaponGroups(pools, context);
         var usedCategories = new HashSet<RewardModifierCategory>();
         var usedCategoryRarities = new HashSet<int>();
@@ -54,9 +58,7 @@ public sealed class RewardRollService
 
         for (int i = 0; i < count; i++)
         {
-            RewardRarity rarity = slots[i] != null
-                ? slots[i].RollRarity()
-                : RewardRarity.Common;
+            RewardRarity rarity = slotRarities[i];
             RewardWeaponGroup forcedWeaponGroup = GetForcedWeaponGroup(
                 requiredWeaponGroups,
                 usedWeaponGroups,
@@ -98,6 +100,64 @@ public sealed class RewardRollService
         }
 
         return result;
+    }
+
+    public RewardRarity RollGuaranteeRarity(
+        RewardRuntimeContext context,
+        CocoonRewardProfile cocoonProfile = null)
+    {
+        if (_database == null || context == null)
+            return RewardRarity.Common;
+
+        var source = _database.Rewards;
+
+        if (source == null || source.Count == 0)
+            return RewardRarity.Common;
+
+        var pools = BuildPools(source, context);
+        IReadOnlyList<RewardRaritySlot> slots = GetSlots(cocoonProfile);
+
+        float commonWeight = 0f;
+        float rareWeight = 0f;
+        float legendaryWeight = 0f;
+
+        for (int i = 0; i < slots.Count; i++)
+        {
+            RewardRaritySlot slot = slots[i];
+
+            if (slot == null)
+                continue;
+
+            AddGuaranteeWeight(
+                slot.Rarity,
+                1f - slot.AlternateChance,
+                pools,
+                ref commonWeight,
+                ref rareWeight,
+                ref legendaryWeight);
+
+            AddGuaranteeWeight(
+                slot.AlternateRarity,
+                slot.AlternateChance,
+                pools,
+                ref commonWeight,
+                ref rareWeight,
+                ref legendaryWeight);
+        }
+
+        float premiumWeight = rareWeight + legendaryWeight;
+
+        if (premiumWeight > 0f)
+        {
+            float premiumRoll = Random.value * premiumWeight;
+            return premiumRoll < rareWeight
+                ? RewardRarity.Rare
+                : RewardRarity.Legendary;
+        }
+
+        return commonWeight > 0f
+            ? RewardRarity.Common
+            : GetHighestAvailableRarity(pools);
     }
 
     private bool TryRollRewardForWeaponGroup(
@@ -407,6 +467,167 @@ public sealed class RewardRollService
             return cocoonProfile.RaritySlots;
 
         return _defaultSlots;
+    }
+
+    private static RewardRarity[] BuildSlotRarities(
+        IReadOnlyList<RewardRaritySlot> slots,
+        int count)
+    {
+        var result = new RewardRarity[count];
+
+        for (int i = 0; i < count; i++)
+        {
+            result[i] = slots[i] != null
+                ? slots[i].RollRarity()
+                : RewardRarity.Common;
+        }
+
+        return result;
+    }
+
+    private static RewardRarity[] BuildGuaranteedSlotRarities(
+        IReadOnlyList<RewardRaritySlot> slots,
+        int count,
+        RewardRarity guaranteedRarity,
+        Dictionary<RewardRarity, List<RewardModifierEntry>> pools)
+    {
+        var result = new RewardRarity[count];
+
+        if (count == 0)
+            return result;
+
+        result[0] = guaranteedRarity;
+
+        float commonWeight = 0f;
+        float rareWeight = 0f;
+        float legendaryWeight = 0f;
+
+        CollectAvailableRarityWeights(
+            slots,
+            pools,
+            ref commonWeight,
+            ref rareWeight,
+            ref legendaryWeight);
+
+        for (int i = 1; i < count; i++)
+        {
+            result[i] = RollRarityFromWeights(
+                commonWeight,
+                rareWeight,
+                legendaryWeight);
+        }
+
+        return result;
+    }
+
+    private static void AddGuaranteeWeight(
+        RewardRarity rarity,
+        float weight,
+        Dictionary<RewardRarity, List<RewardModifierEntry>> pools,
+        ref float commonWeight,
+        ref float rareWeight,
+        ref float legendaryWeight)
+    {
+        if (weight <= 0f)
+            return;
+
+        if (!HasRewardsForRarity(pools, rarity))
+            return;
+
+        switch (rarity)
+        {
+            case RewardRarity.Rare:
+                rareWeight += weight;
+                break;
+
+            case RewardRarity.Legendary:
+                legendaryWeight += weight;
+                break;
+
+            default:
+                commonWeight += weight;
+                break;
+        }
+    }
+
+    private static void CollectAvailableRarityWeights(
+        IReadOnlyList<RewardRaritySlot> slots,
+        Dictionary<RewardRarity, List<RewardModifierEntry>> pools,
+        ref float commonWeight,
+        ref float rareWeight,
+        ref float legendaryWeight)
+    {
+        if (slots == null)
+            return;
+
+        for (int i = 0; i < slots.Count; i++)
+        {
+            RewardRaritySlot slot = slots[i];
+
+            if (slot == null)
+                continue;
+
+            AddGuaranteeWeight(
+                slot.Rarity,
+                1f - slot.AlternateChance,
+                pools,
+                ref commonWeight,
+                ref rareWeight,
+                ref legendaryWeight);
+
+            AddGuaranteeWeight(
+                slot.AlternateRarity,
+                slot.AlternateChance,
+                pools,
+                ref commonWeight,
+                ref rareWeight,
+                ref legendaryWeight);
+        }
+    }
+
+    private static RewardRarity RollRarityFromWeights(
+        float commonWeight,
+        float rareWeight,
+        float legendaryWeight)
+    {
+        float totalWeight = commonWeight + rareWeight + legendaryWeight;
+
+        if (totalWeight <= 0f)
+            return RewardRarity.Common;
+
+        float roll = Random.value * totalWeight;
+
+        if (roll < commonWeight)
+            return RewardRarity.Common;
+
+        roll -= commonWeight;
+
+        if (roll < rareWeight)
+            return RewardRarity.Rare;
+
+        return RewardRarity.Legendary;
+    }
+
+    private static bool HasRewardsForRarity(
+        Dictionary<RewardRarity, List<RewardModifierEntry>> pools,
+        RewardRarity rarity)
+    {
+        return pools != null
+            && pools.TryGetValue(rarity, out var pool)
+            && pool != null
+            && pool.Count > 0;
+    }
+
+    private static RewardRarity GetHighestAvailableRarity(
+        Dictionary<RewardRarity, List<RewardModifierEntry>> pools)
+    {
+        if (HasRewardsForRarity(pools, RewardRarity.Legendary))
+            return RewardRarity.Legendary;
+
+        if (HasRewardsForRarity(pools, RewardRarity.Rare))
+            return RewardRarity.Rare;
+
+        return RewardRarity.Common;
     }
 
     private static bool HasRaritySlots(IReadOnlyList<RewardRaritySlot> slots)

@@ -50,6 +50,15 @@ public sealed class PoolRegistry : MonoBehaviour
         return CreatePool(projectilePrefab, key);
     }
 
+    public void ReleaseAllActiveProjectiles()
+    {
+        foreach (KeyValuePair<int, ProjectilePool> entry in _pools)
+        {
+            if (entry.Value != null)
+                entry.Value.ReleaseAllActive();
+        }
+    }
+
     /// <summary>
     /// Instantiates a new pool instance for the specified projectile prefab.
     /// The pool will handle spawning and recycling projectile instances.

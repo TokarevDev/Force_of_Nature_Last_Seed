@@ -158,6 +158,14 @@ public sealed class AcaciaThornWeapon : MonoBehaviour
         RuntimeStatsChanged?.Invoke();
     }
 
+    public void ClearTransientState()
+    {
+        _pool.ReleaseAllActive();
+        _isSalvoActive = false;
+        _salvoTimer = 0f;
+        _salvoShotsRemaining = 0;
+    }
+
     private void StartSalvo()
     {
         _salvoShotsRemaining = 1 + Mathf.Max(0, _runtimeState.SalvoExtraShots);

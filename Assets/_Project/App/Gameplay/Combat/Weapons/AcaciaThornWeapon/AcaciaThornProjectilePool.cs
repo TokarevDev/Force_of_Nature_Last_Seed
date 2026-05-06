@@ -4,6 +4,7 @@ using UnityEngine;
 public sealed class AcaciaThornProjectilePool
 {
     private readonly Queue<AcaciaThornProjectile> _pool = new();
+    private readonly List<AcaciaThornProjectile> _active = new();
 
     private AcaciaThornProjectile _prefab;
     private Transform _parent;
@@ -36,10 +37,12 @@ public sealed class AcaciaThornProjectilePool
 
     public AcaciaThornProjectile Get()
     {
-        if (_pool.Count == 0)
-            return CreateNew();
+        AcaciaThornProjectile projectile = _pool.Count == 0
+            ? CreateNew()
+            : _pool.Dequeue();
 
-        return _pool.Dequeue();
+        _active.Add(projectile);
+        return projectile;
     }
 
     public void Release(AcaciaThornProjectile projectile)
@@ -47,8 +50,22 @@ public sealed class AcaciaThornProjectilePool
         if (projectile == null)
             return;
 
+        _active.Remove(projectile);
         projectile.gameObject.SetActive(false);
         _pool.Enqueue(projectile);
+    }
+
+    public void ReleaseAllActive()
+    {
+        for (int i = _active.Count - 1; i >= 0; i--)
+        {
+            AcaciaThornProjectile projectile = _active[i];
+
+            if (projectile != null)
+                projectile.ForceRelease();
+        }
+
+        _active.Clear();
     }
 
     private AcaciaThornProjectile CreateNew()

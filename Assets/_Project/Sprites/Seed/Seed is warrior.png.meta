@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: c6ac9cf0bb6cacd47b6f294a3331f451
+guid: b8fa3322a2aeb754a9da39376c910a87
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 3378765867798554041
-    second: Last Seed Icone_0
+      213: 3277613392669702520
+    second: Seed is warrior_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -139,13 +139,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Last Seed Icone_0
+      name: Seed is warrior_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 1254
-        height: 1254
+        x: 2
+        y: 8
+        width: 1022
+        height: 1517
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -154,8 +154,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 9b5e851c7a9c3ee20800000000000000
-      internalID: 3378765867798554041
+      spriteID: 879f32dd30c6c7d20800000000000000
+      internalID: 3277613392669702520
       vertices: []
       indices: 
       edges: []
@@ -174,7 +174,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Last Seed Icone_0: 3378765867798554041
+      Seed is warrior_0: 3277613392669702520
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

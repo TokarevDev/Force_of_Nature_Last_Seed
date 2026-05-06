@@ -28,6 +28,12 @@ public sealed class WormCombatController : MonoBehaviour
 
     public int TotalProgressSegments => _totalProgressSegments;
     public int DestroyedProgressSegments => _destroyedProgressSegments;
+    public float DestructionProgressNormalized =>
+        _totalProgressSegments > 0
+            ? Mathf.Clamp01(_destroyedProgressSegments / (float)_totalProgressSegments)
+            : 0f;
+
+    public float RemainingProgressNormalized => 1f - DestructionProgressNormalized;
 
     public void Init(WormSegment head, WormSegment tail, List<WormSection> sections)
     {

@@ -10,6 +10,11 @@ public sealed class RewardInstaller : MonoBehaviour
     [SerializeField] private RewardPopupView _popup;
     [SerializeField] private ProjectileWeapon _weapon;
     [SerializeField] private AcaciaThornWeapon _acaciaThornWeapon;
+    [SerializeField] private RewardedAdService _takeAllRewardedAdService;
+
+    [Header("Popup Attempts")]
+    [SerializeField][Min(0)] private int _freeRerollAttemptsPerPopup = 2;
+    [SerializeField][Min(0)] private int _takeAllAttemptsPerPopup = 2;
 
     private RewardFlowController _rewardFlow;
 
@@ -23,7 +28,13 @@ public sealed class RewardInstaller : MonoBehaviour
         var roll = new RewardRollService(_database);
         var apply = new RewardApplyService(_weapon, _acaciaThornWeapon);
 
-        _rewardFlow = new RewardFlowController(roll, apply, _popup);
+        _rewardFlow = new RewardFlowController(
+            roll,
+            apply,
+            _popup,
+            _takeAllRewardedAdService,
+            _freeRerollAttemptsPerPopup,
+            _takeAllAttemptsPerPopup);
     }
 
     private void OnDestroy()
