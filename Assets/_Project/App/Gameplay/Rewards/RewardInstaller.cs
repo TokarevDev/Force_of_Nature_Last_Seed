@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [DisallowMultipleComponent]
 public sealed class RewardInstaller : MonoBehaviour
@@ -10,11 +11,16 @@ public sealed class RewardInstaller : MonoBehaviour
     [SerializeField] private RewardPopupView _popup;
     [SerializeField] private ProjectileWeapon _weapon;
     [SerializeField] private AcaciaThornWeapon _acaciaThornWeapon;
-    [SerializeField] private RewardedAdService _takeAllRewardedAdService;
+    [FormerlySerializedAs("_takeAllRewardedAdService")]
+    [SerializeField] private RewardedAdService _rewardedAdService;
 
-    [Header("Popup Attempts")]
-    [SerializeField][Min(0)] private int _freeRerollAttemptsPerPopup = 2;
-    [SerializeField][Min(0)] private int _takeAllAttemptsPerPopup = 2;
+    [Header("Session Attempts")]
+    [FormerlySerializedAs("_freeRerollAttemptsPerPopup")]
+    [SerializeField][Min(0)] private int _freeRerollAttemptsPerSession = 2;
+    [FormerlySerializedAs("_adRerollAttemptsPerPopup")]
+    [SerializeField][Min(0)] private int _adRerollAttemptsPerSession = 2;
+    [FormerlySerializedAs("_takeAllAttemptsPerPopup")]
+    [SerializeField][Min(0)] private int _takeAllAttemptsPerSession = 2;
 
     private RewardFlowController _rewardFlow;
 
@@ -32,9 +38,10 @@ public sealed class RewardInstaller : MonoBehaviour
             roll,
             apply,
             _popup,
-            _takeAllRewardedAdService,
-            _freeRerollAttemptsPerPopup,
-            _takeAllAttemptsPerPopup);
+            _rewardedAdService,
+            _freeRerollAttemptsPerSession,
+            _adRerollAttemptsPerSession,
+            _takeAllAttemptsPerSession);
     }
 
     private void OnDestroy()

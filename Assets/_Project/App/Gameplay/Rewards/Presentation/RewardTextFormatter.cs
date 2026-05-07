@@ -34,6 +34,24 @@ public static class RewardTextFormatter
         return string.Format(format, $"<color=#{color}>{rarityText}</color>");
     }
 
+    public static string FormatRarityLine(
+        string format,
+        RewardRarity rarity,
+        Color32 commonColor,
+        Color32 rareColor,
+        Color32 legendaryColor,
+        Color32 numberColor)
+    {
+        const string rarityToken = "__RARITY__";
+
+        string rarityText = GetRarityText(rarity);
+        string rarityColor = ToHex(GetRarityColor(rarity, commonColor, rareColor, legendaryColor));
+        string highlightedFormat = HighlightNumbers(format.Replace("{0}", rarityToken), numberColor);
+        return highlightedFormat.Replace(
+            rarityToken,
+            $"<color=#{rarityColor}>{rarityText}</color>");
+    }
+
     private static void AddNumberRanges(string text, string colorHex)
     {
         int i = 0;

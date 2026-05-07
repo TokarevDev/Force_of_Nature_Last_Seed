@@ -56,6 +56,7 @@ public sealed class WormController : MonoBehaviour
     [SerializeField][Min(0f)] private float _reviveRollbackSpeed = 35f;
 
     private readonly List<WormSegment> _segments = new();
+    private readonly Dictionary<WormSegment, float> _rollbackAnchoredDistances = new();
 
     private float _headDistance;
     private Coroutine _rollbackRoutine;
@@ -65,9 +66,6 @@ public sealed class WormController : MonoBehaviour
 
     private bool _isSectionRollback;
     private bool _isReviveRollback;
-    private int _rollbackSplitIndex = -1;
-    private int _rollbackRemovedCount;
-    private float _rollbackStartHeadDistance;
     private float _sectionRollbackTargetDistance;
     private bool _hasReachedCombatStart;
     private bool _hasReachedPathEnd;
@@ -107,9 +105,7 @@ public sealed class WormController : MonoBehaviour
 
         _isSectionRollback = false;
         _isReviveRollback = false;
-        _rollbackSplitIndex = -1;
-        _rollbackRemovedCount = 0;
-        _rollbackStartHeadDistance = 0f;
+        _rollbackAnchoredDistances.Clear();
         _sectionRollbackTargetDistance = 0f;
         _hasReachedCombatStart = false;
         _hasReachedPathEnd = false;
@@ -240,7 +236,7 @@ public sealed class WormController : MonoBehaviour
             if (segment == null)
                 continue;
 
-            Vector3 position = CalculateSegmentPosition(i, waveTime);
+            Vector3 position = CalculateSegmentPosition(i, segment, waveTime);
 
             UpdateSegmentPosition(segment, position);
 
@@ -266,7 +262,7 @@ public sealed class WormController : MonoBehaviour
             if (segment == null)
                 continue;
 
-            float distance = GetSegmentDistance(i);
+            float distance = GetSegmentDistance(i, segment);
 
             if (distance < 0f || distance > maxDistance)
             {
@@ -274,7 +270,7 @@ public sealed class WormController : MonoBehaviour
                 continue;
             }
 
-            Vector3 position = CalculateSegmentPosition(i, waveTime);
+            Vector3 position = CalculateSegmentPosition(i, segment, waveTime);
             UpdateSegmentPosition(segment, position);
 
             if (i > 0)
@@ -328,9 +324,12 @@ public sealed class WormController : MonoBehaviour
     /// Calculates world position for a segment along the rail
     /// including the procedural wave offset.
     /// </summary>
-    private Vector3 CalculateSegmentPosition(int index, float waveTime)
+    private Vector3 CalculateSegmentPosition(
+        int index,
+        WormSegment segment,
+        float waveTime)
     {
-        float distance = GetSegmentDistance(index);
+        float distance = GetSegmentDistance(index, segment);
 
         Vector3 pos = _rail.GetPoint(distance);
 
@@ -385,18 +384,19 @@ public sealed class WormController : MonoBehaviour
 
     /// <summary>
     /// Calculates rail distance for the specified segment index.
-    /// During rollback a split logic is used to keep front and rear
-    /// segments visually separated until rollback finishes.
+    /// During rollback, detached rear segments keep their anchor distance
+    /// until the moving front chain reaches and reconnects with them.
     /// </summary>
-    private float GetSegmentDistance(int index)
+    private float GetSegmentDistance(int index, WormSegment segment)
     {
-        if (!_isSectionRollback)
-            return _headDistance - (index * _segmentSpacing);
+        float distance = _headDistance - (index * _segmentSpacing);
 
-        if (index < _rollbackSplitIndex)
-            return _headDistance - (index * _segmentSpacing);
+        if (!_isSectionRollback || segment == null)
+            return distance;
 
-        return _rollbackStartHeadDistance - ((index + _rollbackRemovedCount) * _segmentSpacing);
+        return _rollbackAnchoredDistances.TryGetValue(segment, out float anchoredDistance)
+            ? Mathf.Min(distance, anchoredDistance)
+            : distance;
     }
 
     /// <summary>
@@ -423,6 +423,14 @@ public sealed class WormController : MonoBehaviour
 
         int removed = _segments.RemoveAll(seg => seg != null && destroyedSet.Contains(seg));
 
+        for (int i = 0; i < destroyed.Count; i++)
+        {
+            WormSegment segment = destroyed[i];
+
+            if (segment != null)
+                _rollbackAnchoredDistances.Remove(segment);
+        }
+
         return removed;
     }
 
@@ -442,22 +450,18 @@ public sealed class WormController : MonoBehaviour
             return;
 
         float rollbackDistance = destroyedCount * Mathf.Max(0.01f, _segmentSpacing);
+        bool rollbackInProgress = _isSectionRollback || _rollbackRoutine != null;
 
-        if (_isSectionRollback || _rollbackRoutine != null)
-        {
-            _sectionRollbackTargetDistance = Mathf.Max(
-                0f,
-                _sectionRollbackTargetDistance - rollbackDistance);
-            CollapseSectionRollbackSplitToCurrentChain();
-            return;
-        }
+        AnchorRollbackTail(splitIndex, destroyedCount);
 
-        _rollbackSplitIndex = splitIndex;
-        _rollbackRemovedCount = destroyedCount;
-        _rollbackStartHeadDistance = _headDistance;
         _sectionRollbackTargetDistance = Mathf.Max(
             0f,
-            _headDistance - rollbackDistance);
+            (rollbackInProgress
+                ? _sectionRollbackTargetDistance
+                : _headDistance) - rollbackDistance);
+
+        if (rollbackInProgress)
+            return;
 
         _rollbackRoutine = StartCoroutine(SectionRollbackRoutine());
     }
@@ -524,9 +528,7 @@ public sealed class WormController : MonoBehaviour
         UpdateSegments();
 
         _isSectionRollback = false;
-        _rollbackSplitIndex = -1;
-        _rollbackRemovedCount = 0;
-        _rollbackStartHeadDistance = 0f;
+        _rollbackAnchoredDistances.Clear();
         _sectionRollbackTargetDistance = 0f;
         _rollbackRoutine = null;
     }
@@ -579,17 +581,26 @@ public sealed class WormController : MonoBehaviour
         _isSectionRollback = false;
         _activeStartIndex = -1;
         _activeEndIndex = -1;
-        _rollbackSplitIndex = -1;
-        _rollbackRemovedCount = 0;
-        _rollbackStartHeadDistance = 0f;
+        _rollbackAnchoredDistances.Clear();
         _sectionRollbackTargetDistance = 0f;
     }
 
-    private void CollapseSectionRollbackSplitToCurrentChain()
+    private void AnchorRollbackTail(int splitIndex, int destroyedCount)
     {
-        _rollbackSplitIndex = _segments.Count;
-        _rollbackRemovedCount = 0;
-        _rollbackStartHeadDistance = _headDistance;
+        float spacing = Mathf.Max(0.01f, _segmentSpacing);
+        int startIndex = Mathf.Clamp(splitIndex, 0, _segments.Count);
+
+        for (int i = startIndex; i < _segments.Count; i++)
+        {
+            WormSegment segment = _segments[i];
+
+            if (segment == null || _rollbackAnchoredDistances.ContainsKey(segment))
+                continue;
+
+            float anchoredDistance = _headDistance - ((i + destroyedCount) * spacing);
+            _rollbackAnchoredDistances.Add(segment, anchoredDistance);
+        }
+
         _activeStartIndex = -1;
         _activeEndIndex = -1;
     }

@@ -1,22 +1,29 @@
 public readonly struct RewardPopupState
 {
     public RewardPopupState(
-        int rerollAttemptsLeft,
+        int freeRerollAttemptsLeft,
+        int adRerollAttemptsLeft,
         int takeAllAttemptsLeft,
         RewardRarity guaranteeRarity,
-        bool canReroll,
+        bool canFreeReroll,
+        bool canAdReroll,
         bool canTakeAll)
     {
-        RerollAttemptsLeft = rerollAttemptsLeft;
+        FreeRerollAttemptsLeft = freeRerollAttemptsLeft;
+        AdRerollAttemptsLeft = adRerollAttemptsLeft;
         TakeAllAttemptsLeft = takeAllAttemptsLeft;
         GuaranteeRarity = guaranteeRarity;
-        CanReroll = canReroll;
+        CanFreeReroll = canFreeReroll;
+        CanAdReroll = canAdReroll;
         CanTakeAll = canTakeAll;
     }
 
-    public int RerollAttemptsLeft { get; }
+    public int FreeRerollAttemptsLeft { get; }
+    public int AdRerollAttemptsLeft { get; }
     public int TakeAllAttemptsLeft { get; }
     public RewardRarity GuaranteeRarity { get; }
-    public bool CanReroll { get; }
+    public bool CanFreeReroll { get; }
+    public bool CanAdReroll { get; }
     public bool CanTakeAll { get; }
+    public bool UseFreeRerollButton => FreeRerollAttemptsLeft > 0;
 }

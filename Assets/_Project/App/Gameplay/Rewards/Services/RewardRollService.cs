@@ -21,7 +21,8 @@ public sealed class RewardRollService
     public List<RewardChoiceData> Roll3(
         RewardRuntimeContext context,
         CocoonRewardProfile cocoonProfile = null,
-        RewardRarity? guaranteedRarity = null)
+        RewardRarity? guaranteedRarity = null,
+        int guaranteedRaritySlotCount = 1)
     {
         var result = new List<RewardChoiceData>(MAX_CHOICES);
 
@@ -48,8 +49,16 @@ public sealed class RewardRollService
         var pools = BuildPools(source, context);
         IReadOnlyList<RewardRaritySlot> slots = GetSlots(cocoonProfile);
         int count = Mathf.Min(MAX_CHOICES, Mathf.Min(CountRewards(pools), slots.Count));
+        int guaranteedSlotCount = guaranteedRarity.HasValue && count > 0
+            ? Mathf.Clamp(guaranteedRaritySlotCount, 1, count)
+            : 0;
         RewardRarity[] slotRarities = guaranteedRarity.HasValue
-            ? BuildGuaranteedSlotRarities(slots, count, guaranteedRarity.Value, pools)
+            ? BuildGuaranteedSlotRarities(
+                slots,
+                count,
+                guaranteedRarity.Value,
+                guaranteedSlotCount,
+                pools)
             : BuildSlotRarities(slots, count);
         List<RewardWeaponGroup> requiredWeaponGroups = GetRequiredWeaponGroups(pools, context);
         var usedCategories = new HashSet<RewardModifierCategory>();
@@ -59,10 +68,12 @@ public sealed class RewardRollService
         for (int i = 0; i < count; i++)
         {
             RewardRarity rarity = slotRarities[i];
-            RewardWeaponGroup forcedWeaponGroup = GetForcedWeaponGroup(
-                requiredWeaponGroups,
-                usedWeaponGroups,
-                count - i);
+            RewardWeaponGroup forcedWeaponGroup = i < guaranteedSlotCount
+                ? RewardWeaponGroup.None
+                : GetForcedWeaponGroup(
+                    requiredWeaponGroups,
+                    usedWeaponGroups,
+                    count - i);
 
             bool isSelected = forcedWeaponGroup != RewardWeaponGroup.None
                 ? TryRollRewardForWeaponGroup(
@@ -489,6 +500,7 @@ public sealed class RewardRollService
         IReadOnlyList<RewardRaritySlot> slots,
         int count,
         RewardRarity guaranteedRarity,
+        int guaranteedSlotCount,
         Dictionary<RewardRarity, List<RewardModifierEntry>> pools)
     {
         var result = new RewardRarity[count];
@@ -496,7 +508,12 @@ public sealed class RewardRollService
         if (count == 0)
             return result;
 
-        result[0] = guaranteedRarity;
+        guaranteedSlotCount = Mathf.Clamp(guaranteedSlotCount, 1, count);
+
+        for (int i = 0; i < guaranteedSlotCount; i++)
+        {
+            result[i] = guaranteedRarity;
+        }
 
         float commonWeight = 0f;
         float rareWeight = 0f;
@@ -509,7 +526,7 @@ public sealed class RewardRollService
             ref rareWeight,
             ref legendaryWeight);
 
-        for (int i = 1; i < count; i++)
+        for (int i = guaranteedSlotCount; i < count; i++)
         {
             result[i] = RollRarityFromWeights(
                 commonWeight,

@@ -15,7 +15,7 @@ public static class WormSectionBuilder
     private const float LateWhiteWeightMultiplier = 0.25f;
     private const float LateGreenWeightMultiplier = 1.25f;
     private const float LateBlueWeightMultiplier = 1.6f;
-    private const float LateLegendaryWeightMultiplier = 2.3f;
+    private const float LateLegendaryWeightMultiplier = 0.45f;
 
     public static List<WormSection> BuildSections(
         List<WormSegment> segments,

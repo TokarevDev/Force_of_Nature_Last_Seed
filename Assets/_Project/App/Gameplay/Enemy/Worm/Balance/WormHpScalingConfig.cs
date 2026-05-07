@@ -8,12 +8,12 @@ public sealed class WormHpScalingConfig : ScriptableObject
     [Header("Independent HP")]
     [SerializeField][Min(1)] private int _baseSectionHp = 8;
     [SerializeField][Min(0.1f)] private float _baseHpStartMultiplier = 1f;
-    [SerializeField][Min(0.1f)] private float _baseHpEndMultiplier = 3.2f;
+    [SerializeField][Min(0.1f)] private float _baseHpEndMultiplier = 4f;
 
     [Header("Adaptive HP")]
-    [SerializeField][Min(0.1f)] private float _targetSectionLifetime = 8.5f;
-    [SerializeField][Range(0f, 1f)] private float _dynamicHpWeight = 0.82f;
-    [SerializeField][Min(1f)] private float _maxDynamicHpMultiplier = 8f;
+    [SerializeField][Min(0.1f)] private float _targetSectionLifetime = 9.5f;
+    [SerializeField][Range(0f, 1f)] private float _dynamicHpWeight = 0.9f;
+    [SerializeField][Min(1f)] private float _maxDynamicHpMultiplier = 35f;
     [SerializeField] private bool _useBaseHpAsFloor = true;
 
     [Header("Level")]
@@ -21,7 +21,7 @@ public sealed class WormHpScalingConfig : ScriptableObject
 
     [Header("Pressure")]
     [SerializeField][Min(0.1f)] private float _startPressureMultiplier = 1f;
-    [SerializeField][Min(0.1f)] private float _endPressureMultiplier = 4.2f;
+    [SerializeField][Min(0.1f)] private float _endPressureMultiplier = 6.5f;
 
     [Header("Limits")]
     [SerializeField][Min(1)] private int _minHp = 3;
