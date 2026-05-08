@@ -9,6 +9,7 @@ public sealed class RewardInstaller : MonoBehaviour
     [SerializeField] private RewardDatabase _database;
 
     [SerializeField] private RewardPopupView _popup;
+    [SerializeField] private PopupRoot _popupRoot;
     [SerializeField] private ProjectileWeapon _weapon;
     [SerializeField] private AcaciaThornWeapon _acaciaThornWeapon;
     [FormerlySerializedAs("_takeAllRewardedAdService")]
@@ -38,6 +39,7 @@ public sealed class RewardInstaller : MonoBehaviour
             roll,
             apply,
             _popup,
+            _popupRoot,
             _rewardedAdService,
             _freeRerollAttemptsPerSession,
             _adRerollAttemptsPerSession,

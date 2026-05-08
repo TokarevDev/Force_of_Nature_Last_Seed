@@ -222,10 +222,7 @@ public sealed class AcaciaThornWeapon : MonoBehaviour
             _config.LifeTime,
             _config.BounceCount,
             GetSplitCount(),
-            true,
-            _config.Sprite,
-            _config.RotateSprite,
-            _config.SpriteScale);
+            true);
     }
 
     private int BuildDamage(out DamageKind damageKind, out bool isCritical)

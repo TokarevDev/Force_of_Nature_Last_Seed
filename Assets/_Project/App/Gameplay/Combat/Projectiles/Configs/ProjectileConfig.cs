@@ -6,11 +6,6 @@ public sealed class ProjectileConfig : ScriptableObject
     [Header("Prefab")]
     [SerializeField] private Projectile _prefab;
 
-    [Header("Visual")]
-    [SerializeField] private Sprite _sprite;
-
-    [SerializeField] private float _rotateSprite = 0f;
-
     [Header("Weapon")]
     [SerializeField] private int _damage = 5;
 
@@ -28,9 +23,6 @@ public sealed class ProjectileConfig : ScriptableObject
     [SerializeField] private bool _bounceY = false;
 
     public Projectile Prefab => _prefab;
-
-    public Sprite Sprite => _sprite;
-    public float RotateSprite => _rotateSprite;
 
     public int Damage => _damage;
     public int Penetration => _penetration;

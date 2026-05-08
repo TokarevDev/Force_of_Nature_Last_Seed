@@ -1,13 +1,16 @@
+using System;
 using UnityEngine;
 
 [DisallowMultipleComponent]
-public abstract class PopupView : MonoBehaviour
+public class PopupView : MonoBehaviour
 {
     [SerializeField] private string _popupId;
     [SerializeField] private GameObject _root;
 
     public string PopupId => string.IsNullOrEmpty(_popupId) ? GetType().Name : _popupId;
     public bool IsVisible => ResolveRoot().activeSelf;
+
+    public event Action<PopupView> CloseRequested;
 
     public void Show()
     {
@@ -17,6 +20,11 @@ public abstract class PopupView : MonoBehaviour
     public void Hide()
     {
         SetVisible(false);
+    }
+
+    public void RequestClose()
+    {
+        CloseRequested?.Invoke(this);
     }
 
     protected virtual void Reset()

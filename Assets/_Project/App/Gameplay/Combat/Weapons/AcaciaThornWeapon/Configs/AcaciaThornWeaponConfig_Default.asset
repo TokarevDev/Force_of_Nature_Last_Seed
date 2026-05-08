@@ -13,7 +13,6 @@ MonoBehaviour:
   m_Name: AcaciaThornWeaponConfig_Default
   m_EditorClassIdentifier: Assembly-CSharp::AcaciaThornWeaponConfig
   ProjectilePrefab: {fileID: 2859308452093847102, guid: 91a8b7c6d5e44f3a9b0c1d2e3f4a5b6c, type: 3}
-  Sprite: {fileID: -7451194681563383075, guid: 3fa1538327f1b7c40a7c6931e14bf590, type: 3}
   Damage: 6
   Cooldown: 3
   SalvoInterval: 0.2
@@ -25,8 +24,6 @@ MonoBehaviour:
   MaxCriticalDamageMultiplier: 100
   Speed: 10
   LifeTime: 4
-  RotateSprite: -27
-  SpriteScale: 0.4
   SpawnOffset: 0.3
   BaseSplitCount: 2
   BounceCount: 2

@@ -68,6 +68,7 @@ public sealed class RewardRollService
         for (int i = 0; i < count; i++)
         {
             RewardRarity rarity = slotRarities[i];
+            bool allowLegendaryFallback = rarity == RewardRarity.Legendary;
             RewardWeaponGroup forcedWeaponGroup = i < guaranteedSlotCount
                 ? RewardWeaponGroup.None
                 : GetForcedWeaponGroup(
@@ -82,7 +83,8 @@ public sealed class RewardRollService
                     forcedWeaponGroup,
                     usedCategories,
                     usedCategoryRarities,
-                    out RewardModifierEntry selected)
+                    out RewardModifierEntry selected,
+                    allowLegendaryFallback)
                 : TryRollRewardForRarity(
                     pools,
                     rarity,
@@ -95,7 +97,8 @@ public sealed class RewardRollService
                     pools,
                     usedCategories,
                     usedCategoryRarities,
-                    out selected))
+                    out selected,
+                    allowLegendaryFallback))
             {
                 break;
             }
@@ -177,7 +180,8 @@ public sealed class RewardRollService
         RewardWeaponGroup weaponGroup,
         HashSet<RewardModifierCategory> usedCategories,
         HashSet<int> usedCategoryRarities,
-        out RewardModifierEntry selected)
+        out RewardModifierEntry selected,
+        bool allowLegendaryFallback)
     {
         selected = null;
 
@@ -222,7 +226,8 @@ public sealed class RewardRollService
             usedCategories,
             usedCategoryRarities,
             weaponGroup,
-            out selected);
+            out selected,
+            allowLegendaryFallback);
     }
 
     private bool TryRollRewardForRarity(
@@ -321,7 +326,8 @@ public sealed class RewardRollService
         Dictionary<RewardRarity, List<RewardModifierEntry>> pools,
         HashSet<RewardModifierCategory> usedCategories,
         HashSet<int> usedCategoryRarities,
-        out RewardModifierEntry selected)
+        out RewardModifierEntry selected,
+        bool allowLegendary = true)
     {
         selected = null;
 
@@ -331,7 +337,8 @@ public sealed class RewardRollService
                 usedCategoryRarities,
                 RewardPickMode.UniqueCategory,
                 RewardWeaponGroup.None,
-                out selected))
+                out selected,
+                allowLegendary))
         {
             return true;
         }
@@ -342,7 +349,8 @@ public sealed class RewardRollService
                 usedCategoryRarities,
                 RewardPickMode.UniqueCategoryRarity,
                 RewardWeaponGroup.None,
-                out selected))
+                out selected,
+                allowLegendary))
         {
             return true;
         }
@@ -353,7 +361,8 @@ public sealed class RewardRollService
             usedCategoryRarities,
             RewardPickMode.Any,
             RewardWeaponGroup.None,
-            out selected);
+            out selected,
+            allowLegendary);
     }
 
     private static bool TryRollReward(
@@ -361,7 +370,8 @@ public sealed class RewardRollService
         HashSet<RewardModifierCategory> usedCategories,
         HashSet<int> usedCategoryRarities,
         RewardWeaponGroup requiredWeaponGroup,
-        out RewardModifierEntry selected)
+        out RewardModifierEntry selected,
+        bool allowLegendary = true)
     {
         selected = null;
 
@@ -371,7 +381,8 @@ public sealed class RewardRollService
                 usedCategoryRarities,
                 RewardPickMode.UniqueCategory,
                 requiredWeaponGroup,
-                out selected))
+                out selected,
+                allowLegendary))
         {
             return true;
         }
@@ -382,7 +393,8 @@ public sealed class RewardRollService
                 usedCategoryRarities,
                 RewardPickMode.UniqueCategoryRarity,
                 requiredWeaponGroup,
-                out selected))
+                out selected,
+                allowLegendary))
         {
             return true;
         }
@@ -393,7 +405,8 @@ public sealed class RewardRollService
             usedCategoryRarities,
             RewardPickMode.Any,
             requiredWeaponGroup,
-            out selected);
+            out selected,
+            allowLegendary);
     }
 
     private static bool TryRollReward(
@@ -402,7 +415,8 @@ public sealed class RewardRollService
         HashSet<int> usedCategoryRarities,
         RewardPickMode mode,
         RewardWeaponGroup requiredWeaponGroup,
-        out RewardModifierEntry selected)
+        out RewardModifierEntry selected,
+        bool allowLegendary = true)
     {
         selected = null;
 
@@ -411,8 +425,13 @@ public sealed class RewardRollService
 
         float totalWeight = 0f;
 
-        foreach (var pool in pools.Values)
+        foreach (var rarityPool in pools)
         {
+            if (!allowLegendary && rarityPool.Key == RewardRarity.Legendary)
+                continue;
+
+            List<RewardModifierEntry> pool = rarityPool.Value;
+
             if (pool == null)
                 continue;
 
@@ -438,8 +457,13 @@ public sealed class RewardRollService
         float roll = Random.value * totalWeight;
         float currentWeight = 0f;
 
-        foreach (var pool in pools.Values)
+        foreach (var rarityPool in pools)
         {
+            if (!allowLegendary && rarityPool.Key == RewardRarity.Legendary)
+                continue;
+
+            List<RewardModifierEntry> pool = rarityPool.Value;
+
             if (pool == null)
                 continue;
 

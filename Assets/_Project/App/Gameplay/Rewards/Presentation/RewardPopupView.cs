@@ -8,7 +8,7 @@ using UnityEngine.UI;
 /// Displays reward choices and handles selection.
 /// </summary>
 [DisallowMultipleComponent]
-public sealed class RewardPopupView : MonoBehaviour
+public sealed class RewardPopupView : PopupView
 {
     private const string RerollButtonName = "ButtonUpdate";
     private const string AdRerollButtonName = "ADSRerollButton";
@@ -16,7 +16,6 @@ public sealed class RewardPopupView : MonoBehaviour
     private const string AttemptsTextName = "AttemptsText (TMP)";
     private const string GuaranteeTextName = "GuaranteeText (TMP)";
 
-    [SerializeField] private GameObject _root;
     [SerializeField] private List<RewardButtonView> _buttons;
     [SerializeField] private Button _rerollButton;
     [SerializeField] private Button _adRerollButton;
@@ -38,12 +37,10 @@ public sealed class RewardPopupView : MonoBehaviour
     [SerializeField] private Color32 _rareRarityColor = new(80, 180, 255, 255);
     [SerializeField] private Color32 _legendaryRarityColor = new(255, 155, 70, 255);
 
-    public Action<RewardChoiceData> OnSelected;
-    public Action OnRerollRequested;
-    public Action OnAdRerollRequested;
-    public Action OnTakeAllRequested;
-
-    private bool _inputLocked;
+    public event Action<RewardChoiceData> Selected;
+    public event Action RerollRequested;
+    public event Action AdRerollRequested;
+    public event Action TakeAllRequested;
 
     private void Awake()
     {
@@ -59,32 +56,32 @@ public sealed class RewardPopupView : MonoBehaviour
     private void OnDisable()
     {
         UnsubscribeActionButtons();
-        UnlockGameplayInput();
     }
 
-    public bool Show(List<RewardChoiceData> choices, RewardPopupState state)
+    public bool Bind(List<RewardChoiceData> choices, RewardPopupState state)
     {
-        if (choices == null || choices.Count == 0)
+        if (choices == null || choices.Count == 0 || _buttons == null || _buttons.Count == 0)
         {
-            Hide();
+            Debug.LogWarning("RewardPopupView: reward choices or buttons are not assigned.", this);
+            RequestClose();
             return false;
         }
 
-        Time.timeScale = 0f;
-        LockGameplayInput();
-
-        _root.SetActive(true);
-
         for (int i = 0; i < _buttons.Count; i++)
         {
+            RewardButtonView button = _buttons[i];
+
+            if (button == null)
+                continue;
+
             if (i >= choices.Count)
             {
-                _buttons[i].gameObject.SetActive(false);
+                button.gameObject.SetActive(false);
                 continue;
             }
 
-            _buttons[i].gameObject.SetActive(true);
-            _buttons[i].Bind(choices[i], OnClicked);
+            button.gameObject.SetActive(true);
+            button.Bind(choices[i], OnClicked);
         }
 
         ApplyState(state);
@@ -93,29 +90,28 @@ public sealed class RewardPopupView : MonoBehaviour
 
     private void OnClicked(RewardChoiceData data)
     {
-        OnSelected?.Invoke(data);
-        Close();
+        Selected?.Invoke(data);
+        RequestClose();
     }
 
     public void Close()
     {
-        Time.timeScale = 1f;
-        Hide();
+        RequestClose();
     }
 
     private void OnRerollClicked()
     {
-        OnRerollRequested?.Invoke();
+        RerollRequested?.Invoke();
     }
 
     private void OnTakeAllClicked()
     {
-        OnTakeAllRequested?.Invoke();
+        TakeAllRequested?.Invoke();
     }
 
     private void OnAdRerollClicked()
     {
-        OnAdRerollRequested?.Invoke();
+        AdRerollRequested?.Invoke();
     }
 
     public void SetAllButtonsInteractable(bool interactable)
@@ -134,14 +130,6 @@ public sealed class RewardPopupView : MonoBehaviour
 
         if (_takeAllButton != null)
             _takeAllButton.interactable = interactable;
-    }
-
-    private void Hide()
-    {
-        if (_root != null)
-            _root.SetActive(false);
-
-        UnlockGameplayInput();
     }
 
     private void SubscribeActionButtons()
@@ -166,24 +154,6 @@ public sealed class RewardPopupView : MonoBehaviour
 
         if (_takeAllButton != null)
             _takeAllButton.onClick.RemoveListener(OnTakeAllClicked);
-    }
-
-    private void LockGameplayInput()
-    {
-        if (_inputLocked)
-            return;
-
-        GameplayInputBlocker.PushLock();
-        _inputLocked = true;
-    }
-
-    private void UnlockGameplayInput()
-    {
-        if (!_inputLocked)
-            return;
-
-        GameplayInputBlocker.PopLock();
-        _inputLocked = false;
     }
 
     private void ResolveActionButtons()

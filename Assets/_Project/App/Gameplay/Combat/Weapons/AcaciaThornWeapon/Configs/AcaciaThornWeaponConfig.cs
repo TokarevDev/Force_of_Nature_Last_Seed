@@ -5,7 +5,6 @@ public sealed class AcaciaThornWeaponConfig : ScriptableObject
 {
     [Header("Base")]
     public AcaciaThornProjectile ProjectilePrefab;
-    public Sprite Sprite;
     [Min(1)] public int Damage = 6;
     [Min(0.05f)] public float Cooldown = 3f;
     [Min(0.01f)] public float SalvoInterval = 0.2f;
@@ -25,8 +24,6 @@ public sealed class AcaciaThornWeaponConfig : ScriptableObject
     [Header("Projectile")]
     [Min(0.1f)] public float Speed = 10f;
     [Min(0.05f)] public float LifeTime = 4f;
-    public float RotateSprite;
-    [Min(0.01f)] public float SpriteScale = 1f;
     [Min(0f)] public float SpawnOffset = 0.3f;
     [Min(1)] public int BaseSplitCount = 2;
     [Min(0)] public int BounceCount = 2;

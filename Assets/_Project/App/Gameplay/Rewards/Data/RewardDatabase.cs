@@ -87,16 +87,16 @@ public sealed class CocoonRewardProfile
             0f,
             new RewardRaritySlot(RewardRarity.Rare),
             new RewardRaritySlot(RewardRarity.Rare),
-            new RewardRaritySlot(RewardRarity.Common, RewardRarity.Legendary, 0.05f)),
+            new RewardRaritySlot(RewardRarity.Common)),
 
         new(
             "Orange",
             new Color32(255, 150, 60, 255),
             0.3f,
-            0.4f,
-            new RewardRaritySlot(RewardRarity.Legendary),
-            new RewardRaritySlot(RewardRarity.Legendary),
-            new RewardRaritySlot(RewardRarity.Rare, RewardRarity.Legendary, 0.3f))
+            0.5f,
+            new RewardRaritySlot(RewardRarity.Rare),
+            new RewardRaritySlot(RewardRarity.Rare),
+            new RewardRaritySlot(RewardRarity.Rare, RewardRarity.Legendary, 0.03f))
     };
 
     [SerializeField] private string _displayName = "White";

@@ -38,6 +38,7 @@ public sealed class WormController : MonoBehaviour
 
     [Header("Segments")]
     [SerializeField] private float _segmentSpacing = 0.5f;
+    [SerializeField][Min(0.01f)] private float _tailVisualSpacingMultiplier = 1f;
 
     [Header("Optimization")]
     [SerializeField][Min(0f)] private float _activeDistancePadding = 0.5f;
@@ -236,13 +237,15 @@ public sealed class WormController : MonoBehaviour
             if (segment == null)
                 continue;
 
-            Vector3 position = CalculateSegmentPosition(i, segment, waveTime);
+            float distance = GetSegmentDistance(i, segment);
+            Vector3 position = CalculatePositionAtDistance(distance, waveTime);
 
             UpdateSegmentPosition(segment, position);
 
-            if (i > startIndex)
+            if (i > startIndex && !segment.HasTailVisualChain)
                 UpdateSegmentRotation(i, segment, position);
 
+            UpdateTailVisualChain(i, segment, distance, waveTime);
             segment.SetRuntimeVisible(true);
         }
 
@@ -270,12 +273,13 @@ public sealed class WormController : MonoBehaviour
                 continue;
             }
 
-            Vector3 position = CalculateSegmentPosition(i, segment, waveTime);
+            Vector3 position = CalculatePositionAtDistance(distance, waveTime);
             UpdateSegmentPosition(segment, position);
 
-            if (i > 0)
+            if (i > 0 && !segment.HasTailVisualChain)
                 UpdateSegmentRotation(i, segment, position);
 
+            UpdateTailVisualChain(i, segment, distance, waveTime);
             segment.SetRuntimeVisible(true);
         }
 
@@ -320,23 +324,65 @@ public sealed class WormController : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Calculates world position for a segment along the rail
-    /// including the procedural wave offset.
-    /// </summary>
-    private Vector3 CalculateSegmentPosition(
-        int index,
-        WormSegment segment,
-        float waveTime)
+    private Vector3 CalculatePositionAtDistance(float distance, float waveTime)
     {
-        float distance = GetSegmentDistance(index, segment);
-
         Vector3 pos = _rail.GetPoint(distance);
 
         float wave = Mathf.Sin(distance * _waveFrequency + waveTime);
         pos.y += wave * _waveAmplitude;
 
         return pos;
+    }
+
+    private void UpdateTailVisualChain(
+        int index,
+        WormSegment segment,
+        float tailDistance,
+        float waveTime)
+    {
+        if (segment == null || !segment.HasTailVisualChain)
+            return;
+
+        segment.ResetTailVisualRootRotation();
+
+        float spacing = Mathf.Max(0.01f, _segmentSpacing * _tailVisualSpacingMultiplier);
+        Vector3 leaderPosition = ResolveTailLeaderPosition(index, segment);
+        Vector3 previousPosition = leaderPosition;
+
+        for (int i = 0; i < segment.TailVisualPartCount; i++)
+        {
+            float visualDistance = Mathf.Max(0f, tailDistance - (i * spacing));
+            Vector3 visualPosition = CalculatePositionAtDistance(visualDistance, waveTime);
+            float angle = CalculateLookAngle(visualPosition, previousPosition);
+
+            segment.SetTailVisualPartPose(i, visualPosition, angle);
+            previousPosition = visualPosition;
+        }
+    }
+
+    private Vector3 ResolveTailLeaderPosition(int index, WormSegment tail)
+    {
+        int previousIndex = index - 1;
+
+        if (previousIndex >= 0 && previousIndex < _segments.Count)
+        {
+            WormSegment previous = _segments[previousIndex];
+
+            if (previous != null)
+                return previous.CachedTransform.position;
+        }
+
+        return tail.CachedTransform.position;
+    }
+
+    private static float CalculateLookAngle(Vector3 from, Vector3 to)
+    {
+        Vector3 dir = to - from;
+
+        if (dir.sqrMagnitude <= 0.0001f)
+            return 0f;
+
+        return Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
     }
 
     /// <summary>

@@ -8,6 +8,7 @@ public sealed class RewardFlowController : IDisposable
     private readonly RewardRollService _rollService;
     private readonly RewardApplyService _applyService;
     private readonly RewardPopupView _popup;
+    private readonly PopupRoot _popupRoot;
     private readonly RewardedAdService _rewardedAdService;
     private readonly int _maxFreeRerollAttempts;
     private readonly int _maxAdRerollAttempts;
@@ -27,6 +28,7 @@ public sealed class RewardFlowController : IDisposable
         RewardRollService rollService,
         RewardApplyService applyService,
         RewardPopupView popup,
+        PopupRoot popupRoot,
         RewardedAdService rewardedAdService,
         int maxFreeRerollAttempts,
         int maxAdRerollAttempts,
@@ -35,6 +37,7 @@ public sealed class RewardFlowController : IDisposable
         _rollService = rollService;
         _applyService = applyService;
         _popup = popup;
+        _popupRoot = popupRoot;
         _rewardedAdService = rewardedAdService;
         _maxFreeRerollAttempts = UnityEngine.Mathf.Max(0, maxFreeRerollAttempts);
         _maxAdRerollAttempts = UnityEngine.Mathf.Max(0, maxAdRerollAttempts);
@@ -43,10 +46,16 @@ public sealed class RewardFlowController : IDisposable
         _adRerollAttemptsLeft = _maxAdRerollAttempts;
         _takeAllAttemptsLeft = _maxTakeAllAttempts;
 
-        _popup.OnSelected += OnSelected;
-        _popup.OnRerollRequested += OnRerollRequested;
-        _popup.OnAdRerollRequested += OnAdRerollRequested;
-        _popup.OnTakeAllRequested += OnTakeAllRequested;
+        if (_popup == null)
+        {
+            UnityEngine.Debug.LogWarning("RewardFlowController: reward popup is not assigned.");
+            return;
+        }
+
+        _popup.Selected += HandleSelected;
+        _popup.RerollRequested += HandleRerollRequested;
+        _popup.AdRerollRequested += HandleAdRerollRequested;
+        _popup.TakeAllRequested += HandleTakeAllRequested;
     }
 
     public void Dispose()
@@ -54,10 +63,14 @@ public sealed class RewardFlowController : IDisposable
         if (_isDisposed)
             return;
 
-        _popup.OnSelected -= OnSelected;
-        _popup.OnRerollRequested -= OnRerollRequested;
-        _popup.OnAdRerollRequested -= OnAdRerollRequested;
-        _popup.OnTakeAllRequested -= OnTakeAllRequested;
+        if (_popup != null)
+        {
+            _popup.Selected -= HandleSelected;
+            _popup.RerollRequested -= HandleRerollRequested;
+            _popup.AdRerollRequested -= HandleAdRerollRequested;
+            _popup.TakeAllRequested -= HandleTakeAllRequested;
+        }
+
         _isDisposed = true;
     }
 
@@ -72,7 +85,7 @@ public sealed class RewardFlowController : IDisposable
         return ShowCurrentChoices();
     }
 
-    public void OnSelected(RewardChoiceData choice)
+    private void HandleSelected(RewardChoiceData choice)
     {
         if (_isRewardedAdPending)
             return;
@@ -80,7 +93,7 @@ public sealed class RewardFlowController : IDisposable
         _applyService.Apply(choice);
     }
 
-    private void OnRerollRequested()
+    private void HandleRerollRequested()
     {
         if (_freeRerollAttemptsLeft <= 0 || _isRewardedAdPending)
             return;
@@ -92,7 +105,7 @@ public sealed class RewardFlowController : IDisposable
         ShowCurrentChoices();
     }
 
-    private void OnAdRerollRequested()
+    private void HandleAdRerollRequested()
     {
         if (_freeRerollAttemptsLeft > 0 || _adRerollAttemptsLeft <= 0)
             return;
@@ -101,7 +114,7 @@ public sealed class RewardFlowController : IDisposable
             return;
 
         _isRewardedAdPending = true;
-        _popup.SetAllButtonsInteractable(false);
+        _popup?.SetAllButtonsInteractable(false);
 
         if (_rewardedAdService == null)
         {
@@ -112,7 +125,7 @@ public sealed class RewardFlowController : IDisposable
         _rewardedAdService.ShowRewardedAd(CompleteAdRerollReward);
     }
 
-    private void OnTakeAllRequested()
+    private void HandleTakeAllRequested()
     {
         if (_currentChoices == null || _currentChoices.Count == 0)
             return;
@@ -121,7 +134,7 @@ public sealed class RewardFlowController : IDisposable
             return;
 
         _isRewardedAdPending = true;
-        _popup.SetAllButtonsInteractable(false);
+        _popup?.SetAllButtonsInteractable(false);
 
         if (_rewardedAdService == null)
         {
@@ -177,7 +190,7 @@ public sealed class RewardFlowController : IDisposable
             _applyService.Apply(_currentChoices[i]);
         }
 
-        _popup.Close();
+        _popup?.Close();
     }
 
     private bool RollCurrentChoices(
@@ -200,7 +213,13 @@ public sealed class RewardFlowController : IDisposable
 
     private bool ShowCurrentChoices()
     {
-        return _popup.Show(
+        if (_popup == null || _popupRoot == null)
+        {
+            UnityEngine.Debug.LogWarning("RewardFlowController: reward popup or popup root is not assigned.");
+            return false;
+        }
+
+        bool isBound = _popup.Bind(
             _currentChoices,
             new RewardPopupState(
                 _freeRerollAttemptsLeft,
@@ -212,5 +231,11 @@ public sealed class RewardFlowController : IDisposable
                     && _adRerollAttemptsLeft > 0
                     && !_isRewardedAdPending,
                 _takeAllAttemptsLeft > 0 && !_isRewardedAdPending));
+
+        if (!isBound)
+            return false;
+
+        _popupRoot.Show(_popup);
+        return true;
     }
 }

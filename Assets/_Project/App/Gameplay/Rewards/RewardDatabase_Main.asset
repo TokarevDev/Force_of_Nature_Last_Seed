@@ -54,21 +54,21 @@ MonoBehaviour:
       _alternateChance: 0
     - _rarity: 0
       _alternateRarity: 2
-      _alternateChance: 0.05
+      _alternateChance: 0
   - _displayName: Orange
     _visualColor: {r: 1, g: 0.5882353, b: 0.23529412, a: 1}
     _spawnWeight: 0.3
-    _minDestroyedProgressToSpawn: 0.4
+    _minDestroyedProgressToSpawn: 0.5
     _raritySlots:
-    - _rarity: 2
-      _alternateRarity: 2
-      _alternateChance: 0
-    - _rarity: 2
+    - _rarity: 1
       _alternateRarity: 2
       _alternateChance: 0
     - _rarity: 1
       _alternateRarity: 2
-      _alternateChance: 0.3
+      _alternateChance: 0
+    - _rarity: 1
+      _alternateRarity: 2
+      _alternateChance: 0.03
   _rewards:
   - _effect: {fileID: 11400000, guid: cfce53d6ccd34bb7b9782fdffe4bfc84, type: 2}
     _category: 1

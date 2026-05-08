@@ -45,7 +45,7 @@ public sealed class Projectile : MonoBehaviour
     private ProjectilePool _pool;
     private IScreenBounds _screenBounds;
     private bool _active;
-    private float _baseVisualRotation;
+    private Quaternion _visualRotationOffset = Quaternion.identity;
 
     private ProjectileMovement _movement;
     private ProjectileBounce _bounce;
@@ -57,6 +57,8 @@ public sealed class Projectile : MonoBehaviour
 
         if (_renderer == null)
             Debug.LogError("Projectile: SpriteRenderer reference is not set.", this);
+        else
+            _visualRotationOffset = _renderer.transform.localRotation;
     }
 
     /// <summary>
@@ -104,9 +106,6 @@ public sealed class Projectile : MonoBehaviour
     /// </summary>
     public void ApplyConfig(ProjectileConfig config, ProjectileRuntimeStats stats)
     {
-        _renderer.sprite = config.Sprite;
-        _baseVisualRotation = config.RotateSprite;
-
         _lifeTime = Mathf.Max(0.05f, config.LifeTime);
         _damage = stats.Damage;
         _hitsLeft = Mathf.Max(1, 1 + config.Penetration + stats.ExtraPenetration);
@@ -159,14 +158,14 @@ public sealed class Projectile : MonoBehaviour
 
     private void UpdateVisualRotation()
     {
-        if (_movement == null) return;
+        if (_movement == null || _renderer == null) return;
 
         Vector2 dir = _movement.Direction;
         if (dir.sqrMagnitude < 0.001f) return;
 
         float angle = -Mathf.Atan2(dir.x, dir.y) * Mathf.Rad2Deg;
         _renderer.transform.localRotation =
-            Quaternion.Euler(0f, 0f, angle + _baseVisualRotation);
+            Quaternion.Euler(0f, 0f, angle) * _visualRotationOffset;
     }
 
     /// <summary>

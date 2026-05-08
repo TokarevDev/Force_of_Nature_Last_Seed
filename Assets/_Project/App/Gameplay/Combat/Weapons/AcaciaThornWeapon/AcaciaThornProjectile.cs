@@ -19,7 +19,7 @@ public sealed class AcaciaThornProjectile : MonoBehaviour
     private float _timer;
     private float _hitDelayTimer;
     private float _hitCooldownTimer;
-    private float _baseVisualRotation;
+    private Quaternion _visualRotationOffset = Quaternion.identity;
     private int _damage;
     private DamageKind _damageKind;
     private int _bouncesLeft;
@@ -28,6 +28,17 @@ public sealed class AcaciaThornProjectile : MonoBehaviour
     private bool _isCritical;
     private bool _hasHitWorm;
     private bool _active;
+
+    private void Awake()
+    {
+        if (_renderer == null)
+        {
+            Debug.LogError("AcaciaThornProjectile: SpriteRenderer reference is not set.", this);
+            return;
+        }
+
+        _visualRotationOffset = _renderer.transform.localRotation;
+    }
 
     public void Init(AcaciaThornProjectilePool pool, IScreenBounds screenBounds)
     {
@@ -45,10 +56,7 @@ public sealed class AcaciaThornProjectile : MonoBehaviour
         float lifeTime,
         int bounces,
         int splitCount,
-        bool canSplit,
-        Sprite sprite,
-        float baseVisualRotation,
-        float spriteScale)
+        bool canSplit)
     {
         _spawnPosition = position;
         _direction = NormalizeDirection(direction);
@@ -64,16 +72,9 @@ public sealed class AcaciaThornProjectile : MonoBehaviour
         _hasHitWorm = false;
         _hitDelayTimer = _spawnHitDelay;
         _hitCooldownTimer = 0f;
-        _baseVisualRotation = baseVisualRotation;
 
         transform.position = position;
         transform.rotation = Quaternion.identity;
-
-        if (_renderer != null && sprite != null)
-            _renderer.sprite = sprite;
-
-        if (_renderer != null)
-            _renderer.transform.localScale = Vector3.one * Mathf.Max(0.01f, spriteScale);
 
         _active = true;
         gameObject.SetActive(true);
@@ -192,10 +193,7 @@ public sealed class AcaciaThornProjectile : MonoBehaviour
                 _lifeTime,
                 _bouncesLeft,
                 0,
-                false,
-                _renderer != null ? _renderer.sprite : null,
-                _baseVisualRotation,
-                _renderer != null ? _renderer.transform.localScale.x : 1f);
+                false);
             projectile._hasHitWorm = true;
         }
     }
@@ -281,7 +279,7 @@ public sealed class AcaciaThornProjectile : MonoBehaviour
 
         float angle = -Mathf.Atan2(_direction.x, _direction.y) * Mathf.Rad2Deg;
         _renderer.transform.localRotation =
-            Quaternion.Euler(0f, 0f, angle + _baseVisualRotation);
+            Quaternion.Euler(0f, 0f, angle) * _visualRotationOffset;
     }
 
     private void ReleaseSelf()
