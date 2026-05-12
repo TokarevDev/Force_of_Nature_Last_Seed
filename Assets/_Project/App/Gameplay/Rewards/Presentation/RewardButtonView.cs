@@ -11,44 +11,48 @@ using UnityEngine.UI;
 public sealed class RewardButtonView : MonoBehaviour
 {
     [SerializeField] private Button _button;
+    [SerializeField] private Image _targetIcon;
     [SerializeField] private TMP_Text _title;
     [SerializeField] private TMP_Text _description;
+    [SerializeField] private TMP_Text _value;
 
     [Header("Rarity Popup Visuals")]
     [SerializeField] private Image _commonVisual;
     [SerializeField] private Image _rareVisual;
     [SerializeField] private Image _legendaryVisual;
-
-    [Header("Rarity Button Sprites")]
-    [SerializeField] private Image _buttonImage;
-    [SerializeField] private Sprite _commonButtonSprite;
-    [SerializeField] private Sprite _rareButtonSprite;
-    [SerializeField] private Sprite _legendaryButtonSprite;
+    [SerializeField] private Image _weaponUnlockVisual;
 
     [Header("Text Highlighting")]
     [SerializeField] private Color32 _numberColor = new(105, 255, 120, 255);
+
+    [Header("Text Colors")]
+    [SerializeField] private Color32 _titleColor = new(255, 221, 75, 255);
+    [SerializeField] private Color32 _descriptionColor = new(255, 255, 255, 255);
+    [SerializeField] private Color32 _valueColor = new(255, 255, 255, 255);
+    [SerializeField] private Color32 _weaponUnlockTitleColor = new(255, 232, 120, 255);
+    [SerializeField] private Color32 _weaponUnlockDescriptionColor = new(238, 226, 255, 255);
+    [SerializeField] private Color32 _weaponUnlockValueColor = new(218, 138, 255, 255);
+    [SerializeField] private string _weaponUnlockValueFallback = "NEW";
 
     private RewardChoiceData _data;
 
     private event Action<RewardChoiceData> _onClick;
 
-    public void Bind(RewardChoiceData data, Action<RewardChoiceData> onClick)
+    public void Bind(
+        RewardChoiceData data,
+        RewardPresentationData presentation,
+        Action<RewardChoiceData> onClick)
     {
         _data = data;
         _onClick = onClick;
 
-        if (_title != null)
-            _title.text = data.Title;
+        ApplyTextColors(presentation.Kind);
+        SetText(_title, data.Title);
+        SetText(_description, data.Description);
+        SetValueText(data.ValueText, presentation.Kind);
+        ApplyTargetIcon(presentation.IconProfile);
 
-        if (_description != null)
-        {
-            _description.text = RewardTextFormatter.HighlightNumbers(
-                data.Description,
-                _numberColor);
-        }
-
-        ApplyRarityVisual(data.Rarity);
-        ApplyButtonSprite(data.Rarity);
+        ApplyCardVisual(data.Rarity, presentation.Kind);
 
         if (_button == null)
             return;
@@ -64,53 +68,73 @@ public sealed class RewardButtonView : MonoBehaviour
             _button.interactable = interactable;
     }
 
-    private void ApplyRarityVisual(RewardRarity rarity)
+    private void ApplyCardVisual(
+        RewardRarity rarity,
+        RewardPresentationKind presentationKind)
     {
-        SetVisualActive(_commonVisual, rarity == RewardRarity.Common);
-        SetVisualActive(_rareVisual, rarity == RewardRarity.Rare);
-        SetVisualActive(_legendaryVisual, rarity == RewardRarity.Legendary);
+        bool isWeaponUnlock = presentationKind == RewardPresentationKind.WeaponUnlock;
+
+        SetVisualActive(_commonVisual, !isWeaponUnlock && rarity == RewardRarity.Common);
+        SetVisualActive(_rareVisual, !isWeaponUnlock && rarity == RewardRarity.Rare);
+        SetVisualActive(_legendaryVisual, !isWeaponUnlock && rarity == RewardRarity.Legendary);
+        SetVisualActive(_weaponUnlockVisual, isWeaponUnlock);
+    }
+
+    private void ApplyTextColors(RewardPresentationKind presentationKind)
+    {
+        bool isWeaponUnlock = presentationKind == RewardPresentationKind.WeaponUnlock;
+
+        SetColor(_title, isWeaponUnlock ? _weaponUnlockTitleColor : _titleColor);
+        SetColor(_description, isWeaponUnlock ? _weaponUnlockDescriptionColor : _descriptionColor);
+        SetColor(_value, isWeaponUnlock ? _weaponUnlockValueColor : _valueColor);
+    }
+
+    private static void SetText(TMP_Text text, string value)
+    {
+        if (text != null)
+            text.text = value ?? string.Empty;
+    }
+
+    private void SetValueText(string value, RewardPresentationKind presentationKind)
+    {
+        if (_value == null)
+            return;
+
+        if (presentationKind == RewardPresentationKind.WeaponUnlock)
+        {
+            _value.text = string.IsNullOrWhiteSpace(value)
+                ? _weaponUnlockValueFallback
+                : value;
+            return;
+        }
+
+        _value.text = RewardTextFormatter.HighlightNumbers(value, _numberColor);
+    }
+
+    private void ApplyTargetIcon(RewardIconProfile iconProfile)
+    {
+        if (_targetIcon == null)
+            return;
+
+        if (iconProfile == null || iconProfile.Sprite == null)
+        {
+            _targetIcon.enabled = false;
+            return;
+        }
+
+        iconProfile.ApplyTo(_targetIcon);
+    }
+
+    private static void SetColor(TMP_Text text, Color32 color)
+    {
+        if (text != null)
+            text.color = color;
     }
 
     private static void SetVisualActive(Image image, bool active)
     {
         if (image != null)
             image.gameObject.SetActive(active);
-    }
-
-    private void ApplyButtonSprite(RewardRarity rarity)
-    {
-        Image buttonImage = GetButtonImage();
-        Sprite sprite = GetButtonSprite(rarity);
-
-        if (buttonImage == null || sprite == null)
-            return;
-
-        buttonImage.sprite = sprite;
-    }
-
-    private Image GetButtonImage()
-    {
-        if (_buttonImage != null)
-            return _buttonImage;
-
-        if (_button == null)
-            return null;
-
-        _buttonImage = _button.targetGraphic as Image;
-        return _buttonImage;
-    }
-
-    private Sprite GetButtonSprite(RewardRarity rarity)
-    {
-        switch (rarity)
-        {
-            case RewardRarity.Rare:
-                return _rareButtonSprite;
-            case RewardRarity.Legendary:
-                return _legendaryButtonSprite;
-            default:
-                return _commonButtonSprite;
-        }
     }
 
     private void OnClick()

@@ -75,238 +75,278 @@ MonoBehaviour:
     _rarity: 0
     _weight: 1
     _title: Damage
-    _description: Damage +50%.
+    _description: Damage
+    _valueText: +50%
   - _effect: {fileID: 11400000, guid: a3dce8986c9a42c68bea909fc8831053, type: 2}
     _category: 1
     _rarity: 1
     _weight: 1
     _title: Damage
-    _description: Damage +100%.
+    _description: Damage
+    _valueText: +100%
   - _effect: {fileID: 11400000, guid: 2b7e6751e6244ff2a453bad261ecf49d, type: 2}
     _category: 1
     _rarity: 2
     _weight: 1
     _title: Damage
-    _description: Damage +200%.
+    _description: Damage
+    _valueText: +200%
   - _effect: {fileID: 11400000, guid: f7c0618e65894e5eb2ec8cffa8780532, type: 2}
     _category: 2
     _rarity: 0
     _weight: 0.5
     _title: Fire Rate
-    _description: Fire rate +20%.
+    _description: Fire rate
+    _valueText: +20%
   - _effect: {fileID: 11400000, guid: 18c489197918486db7c2f5330fe9a6f3, type: 2}
     _category: 2
     _rarity: 1
     _weight: 0.5
     _title: Fire Rate
-    _description: Fire rate +30%.
+    _description: Fire rate
+    _valueText: +30%
   - _effect: {fileID: 11400000, guid: eaf5eff9970a4ad290b112d2ea017b48, type: 2}
     _category: 2
     _rarity: 2
     _weight: 0.5
     _title: Fire Rate
-    _description: Fire rate +50%.
+    _description: Fire rate
+    _valueText: +50%
   - _effect: {fileID: 11400000, guid: 5a2b3b4334504e22b3e6edac16f50f8b, type: 2}
     _category: 15
     _rarity: 0
     _weight: 0.35
     _title: Projectile Speed
-    _description: Projectile speed +20%.
+    _description: Projectile speed
+    _valueText: +20%
   - _effect: {fileID: 11400000, guid: dee330ff29124320a5766dca6713e335, type: 2}
     _category: 15
     _rarity: 1
     _weight: 0.35
     _title: Projectile Speed
-    _description: Projectile speed +30%.
+    _description: Projectile speed
+    _valueText: +30%
   - _effect: {fileID: 11400000, guid: f905895ef2c442fab53d000e11208662, type: 2}
     _category: 15
     _rarity: 2
     _weight: 0.35
     _title: Projectile Speed
-    _description: Projectile speed +50%.
+    _description: Projectile speed
+    _valueText: +50%
   - _effect: {fileID: 11400000, guid: 93a656bf6cfe4ecea7362ff68e6d77ae, type: 2}
     _category: 3
     _rarity: 0
     _weight: 0.3
     _title: Crit Chance
-    _description: Crit chance +20%.
+    _description: Critical chance
+    _valueText: +20%
   - _effect: {fileID: 11400000, guid: 28a1d5dec7af4bf09fa9e2c7810938fe, type: 2}
     _category: 3
     _rarity: 1
     _weight: 0.3
     _title: Crit Chance
-    _description: Crit chance +50%.
+    _description: Critical chance
+    _valueText: +50%
   - _effect: {fileID: 11400000, guid: af65e7d081514e1fbe1b143402a340dc, type: 2}
     _category: 3
     _rarity: 2
     _weight: 0.3
     _title: Crit Chance
-    _description: Crit chance +100%.
+    _description: Critical chance
+    _valueText: +100%
   - _effect: {fileID: 11400000, guid: 5bb4e0fe8c8d46f0b4062601d90a91b8, type: 2}
     _category: 4
     _rarity: 0
     _weight: 0.4
     _title: Crit Power
-    _description: Crit damage +50%.
+    _description: Critical damage
+    _valueText: +50%
   - _effect: {fileID: 11400000, guid: 6a8587b9cc524a03a1c7aa26889eb99a, type: 2}
     _category: 4
     _rarity: 1
     _weight: 0.4
     _title: Crit Power
-    _description: Crit damage +100%.
+    _description: Critical damage
+    _valueText: +100%
   - _effect: {fileID: 11400000, guid: f69604ad030f426ea0e0f8636447927f, type: 2}
     _category: 4
     _rarity: 2
     _weight: 0.4
     _title: Crit Power
-    _description: Crit damage +200%.
+    _description: Critical damage
+    _valueText: +200%
   - _effect: {fileID: 11400000, guid: b3081f02e8f8482db6f8d081292a82dd, type: 2}
     _category: 5
     _rarity: 1
     _weight: 0.2
     _title: Penetration
-    _description: Penetration +1.
+    _description: Penetration
+    _valueText: +1
   - _effect: {fileID: 11400000, guid: d69823c8ea6b4d7f89c8852e000b5e53, type: 2}
     _category: 5
     _rarity: 2
     _weight: 0.2
     _title: Penetration
-    _description: Penetration +2.
+    _description: Penetration
+    _valueText: +2
   - _effect: {fileID: 11400000, guid: 9fbccc6d641f1134d9bc324773a229f5, type: 2}
     _category: 6
     _rarity: 0
     _weight: 0.25
     _title: Parallel
-    _description: Parallel projectiles +1.
+    _description: Parallel projectiles
+    _valueText: +1
   - _effect: {fileID: 11400000, guid: 91d57df9f7954bacab35c78cd4e08497, type: 2}
     _category: 6
     _rarity: 1
     _weight: 0.25
     _title: Parallel
-    _description: Parallel projectiles +2.
+    _description: Parallel projectiles
+    _valueText: +2
   - _effect: {fileID: 11400000, guid: d5d4be9f2d3b4963a79e8b5afb0811c8, type: 2}
     _category: 6
     _rarity: 2
     _weight: 0.25
     _title: Parallel
-    _description: Parallel projectiles +2.
+    _description: Parallel projectiles
+    _valueText: +2
   - _effect: {fileID: 11400000, guid: c7b6f7785f6342ba80e7872fa2a5c1a1, type: 2}
     _category: 7
     _rarity: 1
     _weight: 0.12
     _title: Salvo
-    _description: Salvo +1.
+    _description: Salvo shots
+    _valueText: +1
   - _effect: {fileID: 11400000, guid: 4f2c0f9c8f2145829d6134e9736a1c7b, type: 2}
     _category: 7
     _rarity: 2
     _weight: 0.15
     _title: Salvo
-    _description: Salvo +2.
+    _description: Salvo shots
+    _valueText: +2
   - _effect: {fileID: 11400000, guid: 0c4a5b6d7e8f491a9b0c1d2e3f4a5b6d, type: 2}
     _category: 8
     _rarity: 0
     _weight: 1
     _title: Acacia Thorn
-    _description: Unlock acacia thorn.
+    _description: New weapon
+    _valueText: UNLOCK
   - _effect: {fileID: 11400000, guid: 1d5b6c7e8f904a1b9c0d1e2f3a4b5c6d, type: 2}
     _category: 9
     _rarity: 0
     _weight: 1
     _title: Acacia Damage
-    _description: Acacia damage +50%.
+    _description: Acacia damage
+    _valueText: +50%
   - _effect: {fileID: 11400000, guid: 2e6c7d8f90114b2c9d0e1f2a3b4c5d6e, type: 2}
     _category: 9
     _rarity: 1
     _weight: 1
     _title: Acacia Damage
-    _description: Acacia damage +100%.
+    _description: Acacia damage
+    _valueText: +100%
   - _effect: {fileID: 11400000, guid: 5e7d9a3d65ae4f00a157f215a7663af6, type: 2}
     _category: 9
     _rarity: 2
     _weight: 1
     _title: Acacia Damage
-    _description: Acacia damage +200%.
+    _description: Acacia damage
+    _valueText: +200%
   - _effect: {fileID: 11400000, guid: 3f7d8e9011224c3d9e0f1a2b3c4d5e6f, type: 2}
     _category: 10
     _rarity: 0
     _weight: 0.5
     _title: Acacia Fire Rate
-    _description: Acacia fire rate +20%.
+    _description: Acacia fire rate
+    _valueText: +20%
   - _effect: {fileID: 11400000, guid: 4a8e901122334d4e9f0a1b2c3d4e5f70, type: 2}
     _category: 10
     _rarity: 1
     _weight: 0.5
     _title: Acacia Fire Rate
-    _description: Acacia fire rate +30%.
+    _description: Acacia fire rate
+    _valueText: +30%
   - _effect: {fileID: 11400000, guid: a3bc05618bc8403d9db781f256f81b94, type: 2}
     _category: 10
     _rarity: 2
     _weight: 0.5
     _title: Acacia Fire Rate
-    _description: Acacia fire rate +50%.
+    _description: Acacia fire rate
+    _valueText: +50%
   - _effect: {fileID: 11400000, guid: 5b90112233444e5fa0b1c2d3e4f50617, type: 2}
     _category: 11
     _rarity: 1
     _weight: 0.12
     _title: Acacia Salvo
-    _description: Acacia thorns +1.
+    _description: Acacia thorns
+    _valueText: +1
   - _effect: {fileID: 11400000, guid: 6c01122334454f60a1b2c3d4e5f60718, type: 2}
     _category: 11
     _rarity: 2
     _weight: 0.15
     _title: Acacia Salvo
-    _description: Acacia thorns +2.
+    _description: Acacia thorns
+    _valueText: +2
   - _effect: {fileID: 11400000, guid: 7bd56e39e6254aeb9da3be3f235f4fee, type: 2}
     _category: 12
     _rarity: 0
     _weight: 0.35
     _title: Acacia Speed
-    _description: Acacia projectile speed +20%.
+    _description: Acacia projectile speed
+    _valueText: +20%
   - _effect: {fileID: 11400000, guid: 0d6ed69b2c9e49039005ef6d827f5183, type: 2}
     _category: 12
     _rarity: 1
     _weight: 0.35
     _title: Acacia Speed
-    _description: Acacia projectile speed +30%.
+    _description: Acacia projectile speed
+    _valueText: +30%
   - _effect: {fileID: 11400000, guid: 9a4f6b8c1d2e4f70a1b2c3d4e5f60791, type: 2}
     _category: 12
     _rarity: 2
     _weight: 0.35
     _title: Acacia Speed
-    _description: Acacia projectile speed +50%.
+    _description: Acacia projectile speed
+    _valueText: +50%
   - _effect: {fileID: 11400000, guid: 8651fee9cdf94b4dae1d9bb4f94f1521, type: 2}
     _category: 13
     _rarity: 0
     _weight: 0.3
     _title: Acacia Critical Chance
-    _description: Acacia critical chance +20%.
+    _description: Acacia critical chance
+    _valueText: +20%
   - _effect: {fileID: 11400000, guid: 243e1061870c4f1f970050f54559e507, type: 2}
     _category: 13
     _rarity: 1
     _weight: 0.3
     _title: Acacia Critical Chance
-    _description: Acacia critical chance +50%.
+    _description: Acacia critical chance
+    _valueText: +50%
   - _effect: {fileID: 11400000, guid: ed24853b8d714655b9c185d4a4b4bc09, type: 2}
     _category: 13
     _rarity: 2
     _weight: 0.3
     _title: Acacia Critical Chance
-    _description: Acacia critical chance +100%.
+    _description: Acacia critical chance
+    _valueText: +100%
   - _effect: {fileID: 11400000, guid: 386387e078744acea987d719993a9b96, type: 2}
     _category: 14
     _rarity: 0
     _weight: 0.4
     _title: Acacia Critical Power
-    _description: Acacia critical damage +50%.
+    _description: Acacia critical damage
+    _valueText: +50%
   - _effect: {fileID: 11400000, guid: 2bf28f8b43b4488889866161972e6b86, type: 2}
     _category: 14
     _rarity: 1
     _weight: 0.4
     _title: Acacia Critical Power
-    _description: Acacia critical damage +100%.
+    _description: Acacia critical damage
+    _valueText: +100%
   - _effect: {fileID: 11400000, guid: c5a59821b50b4d2193caf38e70d80c54, type: 2}
     _category: 14
     _rarity: 2
     _weight: 0.4
     _title: Acacia Critical Power
-    _description: Acacia critical damage +200%.
+    _description: Acacia critical damage
+    _valueText: +200%

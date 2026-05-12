@@ -1,16 +1,16 @@
 fileFormatVersion: 2
-guid: 77d482eee12c07f43a2f8583ee2be858
+guid: 5f24c70fc5504514990479068014982b
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 3080871148897400379
-    second: ProjectileStandart_0
+      213: 3299852652239940634
+    second: RewardPanel_Gold_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
     mipMapMode: 0
     enableMipMap: 0
-    sRGBTexture: 0
+    sRGBTexture: 1
     linearTexture: 0
     fadeOut: 0
     borderMipMap: 0
@@ -46,12 +46,12 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
-  spriteExtrude: 0
+  spriteMode: 2
+  spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 800
+  spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -139,13 +139,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: ProjectileStandart_0
+      name: RewardPanel_Gold_0
       rect:
         serializedVersion: 2
-        x: 11
-        y: 0
-        width: 1494
-        height: 1024
+        x: 7
+        y: 7
+        width: 261
+        height: 741
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -154,8 +154,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: b3677cc9cf371ca20800000000000000
-      internalID: 3080871148897400379
+      spriteID: a1c64ebf08e6bcd20800000000000000
+      internalID: 3299852652239940634
       vertices: []
       indices: 
       edges: []
@@ -164,7 +164,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -174,7 +174,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      ProjectileStandart_0: 3080871148897400379
+      RewardPanel_Gold_0: 3299852652239940634
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

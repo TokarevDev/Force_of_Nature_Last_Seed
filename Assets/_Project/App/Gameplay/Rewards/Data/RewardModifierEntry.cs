@@ -30,6 +30,7 @@ public sealed class RewardModifierEntry
     [SerializeField][Min(0f)] private float _weight = 1f;
     [SerializeField] private string _title;
     [SerializeField][TextArea(2, 4)] private string _description;
+    [SerializeField] private string _valueText;
 
     public RewardEffect Effect => _effect;
     public RewardModifierCategory Category => _category;
@@ -37,4 +38,5 @@ public sealed class RewardModifierEntry
     public float Weight => Mathf.Max(0f, _weight);
     public string Title => _title;
     public string Description => _description;
+    public string ValueText => _valueText;
 }

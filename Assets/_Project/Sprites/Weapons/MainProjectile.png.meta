@@ -1,19 +1,10 @@
 fileFormatVersion: 2
-guid: 685d6003cb5b7f042b920949e84db7c7
+guid: b01443978295f34488edb996ac44e67a
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -8703590166670332138
-    second: Seed_Movement_0
-  - first:
-      213: 1593717372827550032
-    second: Seed_Movement_1
-  - first:
-      213: -8572228350652401734
-    second: Seed_Movement_2
-  - first:
-      213: 8734437461892152181
-    second: Seed_Movement_3
+      213: 4424300205665475415
+    second: MainProjectile_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -148,57 +139,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Seed_Movement_0
+      name: MainProjectile_0
       rect:
         serializedVersion: 2
         x: 11
         y: 0
-        width: 745
+        width: 1516
         height: 1024
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 61f28056bd2a63780800000000000000
-      internalID: -8703590166670332138
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Seed_Movement_1
-      rect:
-        serializedVersion: 2
-        x: 771
-        y: 0
-        width: 755
-        height: 1024
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 05141c7b1850e1610800000000000000
-      internalID: 1593717372827550032
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Seed_Movement_2
-      rect:
-        serializedVersion: 2
-        x: 1064
-        y: 746
-        width: 9
-        height: 7
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -207,30 +154,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: ab7b4d19bb3590980800000000000000
-      internalID: -8572228350652401734
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Seed_Movement_3
-      rect:
-        serializedVersion: 2
-        x: 720
-        y: 472
-        width: 6
-        height: 8
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 57b32f43894f63970800000000000000
-      internalID: 8734437461892152181
+      spriteID: 75bd06a9895466d30800000000000000
+      internalID: 4424300205665475415
       vertices: []
       indices: 
       edges: []
@@ -249,10 +174,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Seed_Movement_0: -8703590166670332138
-      Seed_Movement_1: 1593717372827550032
-      Seed_Movement_2: -8572228350652401734
-      Seed_Movement_3: 8734437461892152181
+      MainProjectile_0: 4424300205665475415
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

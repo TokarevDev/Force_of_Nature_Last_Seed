@@ -1,0 +1,61 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ac4b6568c214e4a9a20bd8d729bb002, type: 3}
+  m_Name: RewardVisualCatalog_Main
+  m_EditorClassIdentifier: Assembly-CSharp::RewardVisualCatalog
+  _fallbackIconProfile: {fileID: 11400000, guid: 8bda4583e7c348d8b044b3431adb2010, type: 2}
+  _rules:
+  - _category: 1
+    _iconProfile: {fileID: 11400000, guid: 8bda4583e7c348d8b044b3431adb2010, type: 2}
+    _kind: 0
+  - _category: 2
+    _iconProfile: {fileID: 11400000, guid: 8bda4583e7c348d8b044b3431adb2010, type: 2}
+    _kind: 0
+  - _category: 3
+    _iconProfile: {fileID: 11400000, guid: 8bda4583e7c348d8b044b3431adb2010, type: 2}
+    _kind: 0
+  - _category: 4
+    _iconProfile: {fileID: 11400000, guid: 8bda4583e7c348d8b044b3431adb2010, type: 2}
+    _kind: 0
+  - _category: 5
+    _iconProfile: {fileID: 11400000, guid: 8bda4583e7c348d8b044b3431adb2010, type: 2}
+    _kind: 0
+  - _category: 6
+    _iconProfile: {fileID: 11400000, guid: 8bda4583e7c348d8b044b3431adb2010, type: 2}
+    _kind: 0
+  - _category: 7
+    _iconProfile: {fileID: 11400000, guid: 8bda4583e7c348d8b044b3431adb2010, type: 2}
+    _kind: 0
+  - _category: 15
+    _iconProfile: {fileID: 11400000, guid: 8bda4583e7c348d8b044b3431adb2010, type: 2}
+    _kind: 0
+  - _category: 8
+    _iconProfile: {fileID: 11400000, guid: d7eabfdf60474ec09920fd5a00f0e6d2, type: 2}
+    _kind: 1
+  - _category: 9
+    _iconProfile: {fileID: 11400000, guid: d7eabfdf60474ec09920fd5a00f0e6d2, type: 2}
+    _kind: 0
+  - _category: 10
+    _iconProfile: {fileID: 11400000, guid: d7eabfdf60474ec09920fd5a00f0e6d2, type: 2}
+    _kind: 0
+  - _category: 11
+    _iconProfile: {fileID: 11400000, guid: d7eabfdf60474ec09920fd5a00f0e6d2, type: 2}
+    _kind: 0
+  - _category: 12
+    _iconProfile: {fileID: 11400000, guid: d7eabfdf60474ec09920fd5a00f0e6d2, type: 2}
+    _kind: 0
+  - _category: 13
+    _iconProfile: {fileID: 11400000, guid: d7eabfdf60474ec09920fd5a00f0e6d2, type: 2}
+    _kind: 0
+  - _category: 14
+    _iconProfile: {fileID: 11400000, guid: d7eabfdf60474ec09920fd5a00f0e6d2, type: 2}
+    _kind: 0

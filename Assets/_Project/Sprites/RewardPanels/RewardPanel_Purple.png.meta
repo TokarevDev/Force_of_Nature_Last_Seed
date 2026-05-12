@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: b8fa3322a2aeb754a9da39376c910a87
+guid: 3267eaff34481d24abb6bb20fe3031bf
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 3277613392669702520
-    second: Seed is warrior_0
+      213: -8436913553866901427
+    second: RewardPanel_Purple_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -139,13 +139,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Seed is warrior_0
+      name: RewardPanel_Purple_0
       rect:
         serializedVersion: 2
-        x: 2
-        y: 8
-        width: 1022
-        height: 1517
+        x: 7
+        y: 5
+        width: 270
+        height: 769
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -154,8 +154,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 879f32dd30c6c7d20800000000000000
-      internalID: 3277613392669702520
+      spriteID: d48b51dc2df0aea80800000000000000
+      internalID: -8436913553866901427
       vertices: []
       indices: 
       edges: []
@@ -174,7 +174,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Seed is warrior_0: 3277613392669702520
+      RewardPanel_Purple_0: -8436913553866901427
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

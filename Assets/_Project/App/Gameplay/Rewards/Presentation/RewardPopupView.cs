@@ -10,13 +10,8 @@ using UnityEngine.UI;
 [DisallowMultipleComponent]
 public sealed class RewardPopupView : PopupView
 {
-    private const string RerollButtonName = "ButtonUpdate";
-    private const string AdRerollButtonName = "ADSRerollButton";
-    private const string TakeAllButtonName = "ButtonAds";
-    private const string AttemptsTextName = "AttemptsText (TMP)";
-    private const string GuaranteeTextName = "GuaranteeText (TMP)";
-
     [SerializeField] private List<RewardButtonView> _buttons;
+    [SerializeField] private RewardVisualCatalog _visualCatalog;
     [SerializeField] private Button _rerollButton;
     [SerializeField] private Button _adRerollButton;
     [SerializeField] private Button _takeAllButton;
@@ -41,12 +36,6 @@ public sealed class RewardPopupView : PopupView
     public event Action RerollRequested;
     public event Action AdRerollRequested;
     public event Action TakeAllRequested;
-
-    private void Awake()
-    {
-        ResolveActionButtons();
-        ResolveStateTexts();
-    }
 
     private void OnEnable()
     {
@@ -81,7 +70,10 @@ public sealed class RewardPopupView : PopupView
             }
 
             button.gameObject.SetActive(true);
-            button.Bind(choices[i], OnClicked);
+            button.Bind(
+                choices[i],
+                GetPresentation(choices[i]),
+                OnClicked);
         }
 
         ApplyState(state);
@@ -92,6 +84,13 @@ public sealed class RewardPopupView : PopupView
     {
         Selected?.Invoke(data);
         RequestClose();
+    }
+
+    private RewardPresentationData GetPresentation(RewardChoiceData choice)
+    {
+        return _visualCatalog != null
+            ? _visualCatalog.GetPresentation(choice.Category)
+            : new RewardPresentationData(null, RewardPresentationKind.StatUpgrade);
     }
 
     public void Close()
@@ -154,36 +153,6 @@ public sealed class RewardPopupView : PopupView
 
         if (_takeAllButton != null)
             _takeAllButton.onClick.RemoveListener(OnTakeAllClicked);
-    }
-
-    private void ResolveActionButtons()
-    {
-        if (_rerollButton == null)
-            _rerollButton = FindChildButton(RerollButtonName);
-
-        if (_adRerollButton == null)
-            _adRerollButton = FindChildButton(AdRerollButtonName);
-
-        if (_takeAllButton == null)
-            _takeAllButton = FindChildButton(TakeAllButtonName);
-    }
-
-    private void ResolveStateTexts()
-    {
-        if (_rerollAttemptsText == null)
-            _rerollAttemptsText = FindChildText(_rerollButton, AttemptsTextName);
-
-        if (_adRerollAttemptsText == null)
-            _adRerollAttemptsText = FindChildText(_adRerollButton, AttemptsTextName);
-
-        if (_takeAllAttemptsText == null)
-            _takeAllAttemptsText = FindChildText(_takeAllButton, AttemptsTextName);
-
-        if (_guaranteeText == null)
-            _guaranteeText = FindChildText(_rerollButton, GuaranteeTextName);
-
-        if (_adRerollGuaranteeText == null)
-            _adRerollGuaranteeText = FindChildText(_adRerollButton, GuaranteeTextName);
     }
 
     private void ApplyState(RewardPopupState state)
@@ -253,39 +222,4 @@ public sealed class RewardPopupView : PopupView
         text.text = RewardTextFormatter.HighlightAttempts(value, _numberColor);
     }
 
-    private Button FindChildButton(string childName)
-    {
-        Transform child = FindChildByName(transform, childName);
-        return child != null ? child.GetComponent<Button>() : null;
-    }
-
-    private TMP_Text FindChildText(Button button, string childName)
-    {
-        if (button == null)
-            return null;
-
-        Transform child = FindChildByName(button.transform, childName);
-        return child != null ? child.GetComponent<TMP_Text>() : null;
-    }
-
-    private static Transform FindChildByName(Transform root, string childName)
-    {
-        if (root == null)
-            return null;
-
-        for (int i = 0; i < root.childCount; i++)
-        {
-            Transform child = root.GetChild(i);
-
-            if (child.name == childName)
-                return child;
-
-            Transform match = FindChildByName(child, childName);
-
-            if (match != null)
-                return match;
-        }
-
-        return null;
-    }
 }
