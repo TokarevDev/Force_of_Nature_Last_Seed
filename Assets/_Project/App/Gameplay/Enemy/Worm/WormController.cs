@@ -25,7 +25,8 @@ public sealed class WormController : MonoBehaviour
     [SerializeField] private float _speed = 3f;
 
     [Header("Catch Up")]
-    [SerializeField] private Transform _catchUpTarget;
+    [Tooltip("RailPath control point index. Use RailPath Scene View point labels.")]
+    [SerializeField][Min(0)] private int _catchUpRailPointIndex;
     [SerializeField][Min(0f)] private float _catchUpSpeed = 6f;
     [SerializeField][Min(0f)] private float _catchUpStopOffset = 0f;
     [SerializeField][Min(0f)] private float _catchUpExtraDistance = 1.5f;
@@ -53,7 +54,8 @@ public sealed class WormController : MonoBehaviour
     [SerializeField] private float _rollbackSpeed = 8f;
 
     [Header("Revive")]
-    [SerializeField] private Transform _reviveRollbackTarget;
+    [Tooltip("RailPath control point index. Set -1 to use Catch Up Rail Point Index.")]
+    [SerializeField][Min(-1)] private int _reviveRollbackRailPointIndex = -1;
     [SerializeField][Min(0f)] private float _reviveRollbackSpeed = 35f;
 
     private readonly List<WormSegment> _segments = new();
@@ -74,6 +76,12 @@ public sealed class WormController : MonoBehaviour
     private float _combatBurstRemainingTime;
 
     private Vector3 _tmpEuler;
+    private RailPath _cachedCatchUpRail;
+    private int _cachedCatchUpRailPointIndex = -1;
+    private float _cachedCatchUpRailPointDistance;
+    private RailPath _cachedReviveRollbackRail;
+    private int _cachedReviveRollbackRailPointIndex = -2;
+    private float _cachedReviveRollbackRailPointDistance;
 
     public event Action PathCompleted;
 
@@ -89,6 +97,25 @@ public sealed class WormController : MonoBehaviour
 
             return Mathf.Clamp01(_headDistance / _rail.TotalLength);
         }
+    }
+
+    private void OnValidate()
+    {
+        if (_catchUpRailPointIndex < 0)
+            _catchUpRailPointIndex = 0;
+
+        if (_rail != null && _rail.PointCount > 0)
+        {
+            _catchUpRailPointIndex = Mathf.Min(_catchUpRailPointIndex, _rail.PointCount - 1);
+            if (_reviveRollbackRailPointIndex >= 0)
+            {
+                _reviveRollbackRailPointIndex = Mathf.Min(
+                    _reviveRollbackRailPointIndex,
+                    _rail.PointCount - 1);
+            }
+        }
+
+        ClearTargetDistanceCaches();
     }
 
     /// <summary>
@@ -112,7 +139,8 @@ public sealed class WormController : MonoBehaviour
         _hasReachedPathEnd = false;
         _combatBurstTimer = 0f;
         _combatBurstRemainingTime = 0f;
-        IsCatchingUpToCombatStart = _catchUpTarget != null;
+        ClearTargetDistanceCaches();
+        IsCatchingUpToCombatStart = TryGetCatchUpTargetDistance(out _);
 
         UpdateSegments();
     }
@@ -167,15 +195,79 @@ public sealed class WormController : MonoBehaviour
 
     private bool ShouldCatchUp()
     {
-        if (_catchUpTarget == null || _rail == null)
+        if (_rail == null)
             return false;
 
-        float targetDistance = _rail.GetClosestDistance(_catchUpTarget.position);
+        if (!TryGetCatchUpTargetDistance(out float targetDistance))
+            return false;
+
         targetDistance = Mathf.Max(
             0f,
             targetDistance - _catchUpStopOffset + _catchUpExtraDistance);
 
         return _headDistance < targetDistance;
+    }
+
+    private bool TryGetCatchUpTargetDistance(out float targetDistance)
+    {
+        targetDistance = 0f;
+
+        if (_rail == null)
+            return false;
+
+        if (_cachedCatchUpRail == _rail &&
+            _cachedCatchUpRailPointIndex == _catchUpRailPointIndex)
+        {
+            targetDistance = _cachedCatchUpRailPointDistance;
+            return true;
+        }
+
+        if (!_rail.TryGetControlPointDistance(_catchUpRailPointIndex, out targetDistance))
+            return false;
+
+        _cachedCatchUpRail = _rail;
+        _cachedCatchUpRailPointIndex = _catchUpRailPointIndex;
+        _cachedCatchUpRailPointDistance = targetDistance;
+
+        return true;
+    }
+
+    private bool TryGetReviveRollbackTargetDistance(out float targetDistance)
+    {
+        targetDistance = 0f;
+
+        if (_rail == null)
+            return false;
+
+        int targetIndex = _reviveRollbackRailPointIndex >= 0
+            ? _reviveRollbackRailPointIndex
+            : _catchUpRailPointIndex;
+
+        if (_cachedReviveRollbackRail == _rail &&
+            _cachedReviveRollbackRailPointIndex == targetIndex)
+        {
+            targetDistance = _cachedReviveRollbackRailPointDistance;
+            return true;
+        }
+
+        if (!_rail.TryGetControlPointDistance(targetIndex, out targetDistance))
+            return false;
+
+        _cachedReviveRollbackRail = _rail;
+        _cachedReviveRollbackRailPointIndex = targetIndex;
+        _cachedReviveRollbackRailPointDistance = targetDistance;
+
+        return true;
+    }
+
+    private void ClearTargetDistanceCaches()
+    {
+        _cachedCatchUpRail = null;
+        _cachedCatchUpRailPointIndex = -1;
+        _cachedCatchUpRailPointDistance = 0f;
+        _cachedReviveRollbackRail = null;
+        _cachedReviveRollbackRailPointIndex = -2;
+        _cachedReviveRollbackRailPointDistance = 0f;
     }
 
     private void UpdateCombatBurst(float deltaTime)
@@ -609,17 +701,9 @@ public sealed class WormController : MonoBehaviour
         if (_rail == null)
             return 0f;
 
-        Transform target = _reviveRollbackTarget != null
-            ? _reviveRollbackTarget
-            : _catchUpTarget;
-
-        if (target == null)
-            return 0f;
-
-        return Mathf.Clamp(
-            _rail.GetClosestDistance(target.position),
-            0f,
-            _rail.TotalLength);
+        return TryGetReviveRollbackTargetDistance(out float targetDistance)
+            ? Mathf.Clamp(targetDistance, 0f, _rail.TotalLength)
+            : 0f;
     }
 
     private void ClearSectionRollbackState()

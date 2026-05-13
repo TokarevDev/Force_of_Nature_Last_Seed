@@ -48,7 +48,7 @@ public sealed class RewardButtonView : MonoBehaviour
 
         ApplyTextColors(presentation.Kind);
         SetText(_title, data.Title);
-        SetText(_description, data.Description);
+        SetOptionalText(_description, data.Description);
         SetValueText(data.ValueText, presentation.Kind);
         ApplyTargetIcon(presentation.IconProfile);
 
@@ -93,6 +93,16 @@ public sealed class RewardButtonView : MonoBehaviour
     {
         if (text != null)
             text.text = value ?? string.Empty;
+    }
+
+    private static void SetOptionalText(TMP_Text text, string value)
+    {
+        if (text == null)
+            return;
+
+        bool hasValue = !string.IsNullOrWhiteSpace(value);
+        text.gameObject.SetActive(hasValue);
+        text.text = hasValue ? value : string.Empty;
     }
 
     private void SetValueText(string value, RewardPresentationKind presentationKind)

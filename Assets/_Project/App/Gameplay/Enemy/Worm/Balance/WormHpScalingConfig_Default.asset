@@ -16,9 +16,9 @@ MonoBehaviour:
   _baseSectionHp: 8
   _baseHpStartMultiplier: 1
   _baseHpEndMultiplier: 2
-  _targetSectionLifetime: 9.5
-  _dynamicHpWeight: 0.9
-  _maxDynamicHpMultiplier: 25
+  _targetSectionLifetime: 8
+  _dynamicHpWeight: 0.8
+  _maxDynamicHpMultiplier: 20
   _useBaseHpAsFloor: 1
   _levelMultiplier: 1.12
   _startPressureMultiplier: 1
