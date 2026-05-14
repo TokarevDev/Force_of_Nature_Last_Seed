@@ -16,8 +16,8 @@ MonoBehaviour:
   _targetHeadProgress: 0.55
   _targetReachTime: 75
   _startDelay: 1.5
-  _progressDeadZone: 0.02
+  _progressDeadZone: 0.04
   _sampleInterval: 1
-  _increasePerSample: 0.11
-  _recoveryPerSample: 0.01
-  _maxMultiplier: 5.5
+  _increasePerSample: 0.04
+  _recoveryPerSample: 0.12
+  _maxMultiplier: 1.8

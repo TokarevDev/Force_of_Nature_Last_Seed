@@ -99,6 +99,17 @@ public sealed class WormController : MonoBehaviour
         }
     }
 
+    public float HeadControlPointProgressNormalized
+    {
+        get
+        {
+            if (_rail == null || _rail.PointCount <= 1)
+                return HeadPathProgressNormalized;
+
+            return _rail.GetControlPointProgressNormalized(_headDistance);
+        }
+    }
+
     private void OnValidate()
     {
         if (_catchUpRailPointIndex < 0)

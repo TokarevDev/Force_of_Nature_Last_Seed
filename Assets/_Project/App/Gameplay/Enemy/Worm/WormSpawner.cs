@@ -150,13 +150,19 @@ public sealed class WormSpawner : MonoBehaviour
         WeaponPowerSnapshot power = GetWeaponPowerForHp();
         int totalSections = sections.Count;
         int previousHp = 0;
+        float headPathPressureMultiplier = 1f;
 
         for (int i = 0; i < sections.Count; i++)
         {
             sections[i].Index = i;
 
             int baseHp = WormSectionHPGenerator.GetHP(i, _levelNumber);
-            int hp = ResolveSectionHp(baseHp, i, totalSections, power);
+            int hp = ResolveSectionHp(
+                baseHp,
+                i,
+                totalSections,
+                power,
+                headPathPressureMultiplier);
             hp = EnsureHpAbovePrevious(hp, previousHp);
 
             sections[i].Init(hp);
@@ -200,13 +206,19 @@ public sealed class WormSpawner : MonoBehaviour
 
         int totalSections = _sections.Count;
         int previousHp = 0;
+        float headPathPressureMultiplier = GetHeadPathPressureMultiplierForHp();
 
         for (int i = 0; i < _sections.Count; i++)
         {
             WormSection section = _sections[i];
             int sectionIndex = section != null ? section.Index : i;
             int baseHp = WormSectionHPGenerator.GetHP(sectionIndex, _levelNumber);
-            int hp = ResolveSectionHp(baseHp, sectionIndex, totalSections, power);
+            int hp = ResolveSectionHp(
+                baseHp,
+                sectionIndex,
+                totalSections,
+                power,
+                headPathPressureMultiplier);
             hp = EnsureHpAbovePrevious(hp, previousHp);
 
             if (CanRebalanceSection(section))
@@ -216,10 +228,7 @@ public sealed class WormSpawner : MonoBehaviour
                 continue;
             }
 
-            if (section != null)
-                previousHp = Mathf.Max(Mathf.Max(previousHp, section.MaxHP), hp);
-            else
-                previousHp = Mathf.Max(previousHp, hp);
+            previousHp = Mathf.Max(previousHp, hp);
         }
     }
 
@@ -227,7 +236,8 @@ public sealed class WormSpawner : MonoBehaviour
         int baseHp,
         int sectionIndex,
         int totalSections,
-        WeaponPowerSnapshot power)
+        WeaponPowerSnapshot power,
+        float headPathPressureMultiplier)
     {
         if (_hpResolver == null)
             return baseHp;
@@ -238,7 +248,17 @@ public sealed class WormSpawner : MonoBehaviour
             totalSections,
             _levelNumber,
             power,
-            _runtimePressureMultiplier);
+            _runtimePressureMultiplier,
+            headPathPressureMultiplier);
+    }
+
+    private float GetHeadPathPressureMultiplierForHp()
+    {
+        if (_hpScalingConfig == null || _wormController == null)
+            return 1f;
+
+        return _hpScalingConfig.GetHeadPathPressureMultiplier(
+            _wormController.HeadControlPointProgressNormalized);
     }
 
     private WeaponPowerSnapshot GetWeaponPowerForHp()

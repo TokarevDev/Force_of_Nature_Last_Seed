@@ -5,26 +5,37 @@ using UnityEngine;
 public sealed class ImmediateRewardedAdService : RewardedAdService
 {
     [SerializeField] private bool _grantReward = true;
+    [SerializeField] private bool _allowInPlayerBuilds = true;
 
-    public override bool IsReady
+    public override bool IsReady => _grantReward && IsAllowedInCurrentBuild();
+
+    private void Awake()
     {
-        get
+        if (!IsEditorOrDevelopmentBuild() && _allowInPlayerBuilds)
         {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-            return true;
-#else
-            return false;
-#endif
+            Debug.LogWarning(
+                "ImmediateRewardedAdService is granting rewards in a player build. " +
+                "Replace it with a production rewarded ad service before release.",
+                this);
         }
     }
 
     public override void ShowRewardedAd(Action<bool> onCompleted)
     {
+        onCompleted?.Invoke(IsReady);
+    }
+
+    private bool IsAllowedInCurrentBuild()
+    {
+        return IsEditorOrDevelopmentBuild() || _allowInPlayerBuilds;
+    }
+
+    private static bool IsEditorOrDevelopmentBuild()
+    {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-        onCompleted?.Invoke(_grantReward);
+        return true;
 #else
-        Debug.LogError("ImmediateRewardedAdService is for editor/development testing only. Assign a production rewarded ad service.");
-        onCompleted?.Invoke(false);
+        return false;
 #endif
     }
 }

@@ -15,7 +15,8 @@ public sealed class WormSectionHpResolver
         int totalSections,
         int levelNumber,
         WeaponPowerSnapshot power,
-        float runtimePressureMultiplier)
+        float runtimePressureMultiplier,
+        float headPathPressureMultiplier)
     {
         if (_config == null || !_config.Enabled)
             return baseHp;
@@ -34,7 +35,8 @@ public sealed class WormSectionHpResolver
             _config.TargetSectionLifetime *
             _config.GetLevelMultiplier(levelNumber) *
             _config.GetPressureMultiplier(sectionIndex, totalSections) *
-            Mathf.Max(1f, runtimePressureMultiplier);
+            Mathf.Max(1f, runtimePressureMultiplier) *
+            Mathf.Max(0.1f, headPathPressureMultiplier);
 
         if (_config.UseBaseHpAsFloor)
             dynamicHp = Mathf.Max(independentHp, dynamicHp);
@@ -46,7 +48,7 @@ public sealed class WormSectionHpResolver
             dynamicHp,
             _config.DynamicHpWeight);
 
-        return ClampHp(blendedHp);
+        return ClampHp(blendedHp * _config.HpMultiplier);
     }
 
     private float ResolveIndependentHp(

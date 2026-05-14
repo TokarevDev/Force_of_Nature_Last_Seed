@@ -15,13 +15,19 @@ MonoBehaviour:
   _enabled: 1
   _baseSectionHp: 8
   _baseHpStartMultiplier: 1
-  _baseHpEndMultiplier: 2
-  _targetSectionLifetime: 8
-  _dynamicHpWeight: 0.8
-  _maxDynamicHpMultiplier: 20
+  _baseHpEndMultiplier: 1.6
+  _targetSectionLifetime: 5.5
+  _dynamicHpWeight: 0.55
+  _maxDynamicHpMultiplier: 8
   _useBaseHpAsFloor: 1
   _levelMultiplier: 1.12
+  _hpMultiplier: 2
   _startPressureMultiplier: 1
-  _endPressureMultiplier: 5
+  _endPressureMultiplier: 2.6
+  _useHeadPathPressure: 1
+  _strongHeadPressureUntilProgress: 0.3
+  _minimumHeadPressureFromProgress: 0.85
+  _earlyHeadPressureMultiplier: 1.35
+  _lateHeadPressureMultiplier: 0.45
   _minHp: 3
   _maxHp: 9999999

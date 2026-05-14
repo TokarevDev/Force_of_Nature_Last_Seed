@@ -123,6 +123,28 @@ public sealed class RailPath : MonoBehaviour
         return true;
     }
 
+    public float GetControlPointProgressNormalized(float distance)
+    {
+        if (!EnsureBuilt() || PointCount <= 1)
+            return 0f;
+
+        float clampedDistance = Mathf.Clamp(distance, 0f, _totalLength);
+        int passedPointIndex = 0;
+
+        for (int i = 1; i < PointCount; i++)
+        {
+            if (!TryGetControlPointDistance(i, out float pointDistance))
+                break;
+
+            if (clampedDistance + MinSegmentLength < pointDistance)
+                break;
+
+            passedPointIndex = i;
+        }
+
+        return Mathf.Clamp01(passedPointIndex / (float)(PointCount - 1));
+    }
+
     public bool TryGetControlPointWorldPosition(int pointIndex, out Vector3 worldPosition)
     {
         worldPosition = default;
