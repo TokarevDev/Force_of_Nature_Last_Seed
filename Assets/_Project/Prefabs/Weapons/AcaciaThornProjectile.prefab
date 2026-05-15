@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2859308452093847101}
   - component: {fileID: 2859308452093847102}
   - component: {fileID: 2859308452093847103}
-  - component: {fileID: 2859308452093847104}
+  - component: {fileID: 4053261372843354423}
   m_Layer: 6
   m_Name: AcaciaThornProjectile
   m_TagString: Untagged
@@ -82,8 +82,8 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!58 &2859308452093847104
-CircleCollider2D:
+--- !u!70 &4053261372843354423
+CapsuleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -112,12 +112,13 @@ CircleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Radius: 0.35
+  m_Offset: {x: -0.05, y: 0}
+  m_Size: {x: 0.2, y: 2.5}
+  m_Direction: 0
 --- !u!1 &2859308452093847105
 GameObject:
   m_ObjectHideFlags: 0
@@ -145,7 +146,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: -0.23344536, w: 0.9723699}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.35, y: 0.35, z: 0.35}
+  m_LocalScale: {x: 0.25, y: 0.25, z: 0.25}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 2859308452093847101}

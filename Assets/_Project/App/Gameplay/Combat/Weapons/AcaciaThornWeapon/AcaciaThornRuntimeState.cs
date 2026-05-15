@@ -241,4 +241,25 @@ public sealed class AcaciaThornRuntimeState
 
         return Mathf.Max(1, (int)Math.Round(rawDamage));
     }
+
+    public AcaciaThornRuntimeState Clone()
+    {
+        return new AcaciaThornRuntimeState
+        {
+            _maxDamageMultiplier = _maxDamageMultiplier,
+            _maxSalvoExtraShots = _maxSalvoExtraShots,
+            _maxCriticalChance = _maxCriticalChance,
+            _maxCriticalDamageMultiplier = _maxCriticalDamageMultiplier,
+            IsUnlocked = IsUnlocked,
+            BaseDamage = BaseDamage,
+            DamageMultiplier = DamageMultiplier,
+            FireRateBonus = FireRateBonus,
+            SalvoExtraShots = SalvoExtraShots,
+            ProjectileSpeedBonus = ProjectileSpeedBonus,
+            CriticalChance = CriticalChance,
+            CriticalDamageMultiplier = CriticalDamageMultiplier,
+            MaxFireRateBonus = MaxFireRateBonus,
+            MaxProjectileSpeedBonus = MaxProjectileSpeedBonus
+        };
+    }
 }

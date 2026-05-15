@@ -17,19 +17,19 @@ public static class WeaponPowerEstimator
         WeaponPowerSnapshot mainPower = Estimate(mainWeapon);
         WeaponPowerSnapshot acaciaPower = Estimate(acaciaThornWeapon);
 
-        if (!mainPower.IsValid)
-            return acaciaPower;
+        return Combine(mainPower, acaciaPower);
+    }
 
-        if (!acaciaPower.IsValid)
-            return mainPower;
+    public static WeaponPowerSnapshot Estimate(
+        WeaponConfig mainWeaponConfig,
+        WeaponRuntimeState mainWeaponState,
+        AcaciaThornWeaponConfig acaciaThornConfig,
+        AcaciaThornRuntimeState acaciaThornState)
+    {
+        WeaponPowerSnapshot mainPower = Estimate(mainWeaponConfig, mainWeaponState);
+        WeaponPowerSnapshot acaciaPower = Estimate(acaciaThornConfig, acaciaThornState);
 
-        return new WeaponPowerSnapshot(
-            true,
-            mainPower.EstimatedDps + acaciaPower.EstimatedDps,
-            Mathf.Max(mainPower.DamagePerProjectile, acaciaPower.DamagePerProjectile),
-            mainPower.ProjectilesPerShot + acaciaPower.ProjectilesPerShot,
-            Mathf.Max(mainPower.SalvoShots, acaciaPower.SalvoShots),
-            Mathf.Min(mainPower.ShotCycleTime, acaciaPower.ShotCycleTime));
+        return Combine(mainPower, acaciaPower);
     }
 
     public static WeaponPowerSnapshot Estimate(AcaciaThornWeapon weapon)
@@ -91,7 +91,7 @@ public static class WeaponPowerEstimator
             runtimeState.ParallelProjectileCount);
     }
 
-    private static WeaponPowerSnapshot Estimate(
+    public static WeaponPowerSnapshot Estimate(
         AcaciaThornWeaponConfig config,
         AcaciaThornRuntimeState runtimeState)
     {
@@ -123,6 +123,25 @@ public static class WeaponPowerEstimator
             1 + splitCount,
             salvoShots,
             shotCycleTime);
+    }
+
+    private static WeaponPowerSnapshot Combine(
+        WeaponPowerSnapshot mainPower,
+        WeaponPowerSnapshot acaciaPower)
+    {
+        if (!mainPower.IsValid)
+            return acaciaPower;
+
+        if (!acaciaPower.IsValid)
+            return mainPower;
+
+        return new WeaponPowerSnapshot(
+            true,
+            mainPower.EstimatedDps + acaciaPower.EstimatedDps,
+            Mathf.Max(mainPower.DamagePerProjectile, acaciaPower.DamagePerProjectile),
+            mainPower.ProjectilesPerShot + acaciaPower.ProjectilesPerShot,
+            Mathf.Max(mainPower.SalvoShots, acaciaPower.SalvoShots),
+            Mathf.Min(mainPower.ShotCycleTime, acaciaPower.ShotCycleTime));
     }
 
     private static int EstimateDamagePerProjectile(

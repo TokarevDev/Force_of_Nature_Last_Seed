@@ -67,6 +67,10 @@ public sealed class CocoonRewardProfile
             Color.white,
             1f,
             0f,
+            false,
+            0f,
+            false,
+            0f,
             new RewardRaritySlot(RewardRarity.Common),
             new RewardRaritySlot(RewardRarity.Common),
             new RewardRaritySlot(RewardRarity.Common)),
@@ -75,6 +79,10 @@ public sealed class CocoonRewardProfile
             "Green",
             new Color32(95, 220, 130, 255),
             0.8f,
+            0f,
+            false,
+            0f,
+            false,
             0f,
             new RewardRaritySlot(RewardRarity.Common),
             new RewardRaritySlot(RewardRarity.Common),
@@ -85,6 +93,10 @@ public sealed class CocoonRewardProfile
             new Color32(125, 220, 255, 255),
             0.6f,
             0f,
+            false,
+            0f,
+            false,
+            0f,
             new RewardRaritySlot(RewardRarity.Rare),
             new RewardRaritySlot(RewardRarity.Rare),
             new RewardRaritySlot(RewardRarity.Common)),
@@ -94,15 +106,23 @@ public sealed class CocoonRewardProfile
             new Color32(255, 150, 60, 255),
             0.3f,
             0.5f,
+            true,
+            0.03f,
+            true,
+            0.05f,
+            new RewardRaritySlot(RewardRarity.Legendary),
             new RewardRaritySlot(RewardRarity.Rare),
-            new RewardRaritySlot(RewardRarity.Rare),
-            new RewardRaritySlot(RewardRarity.Rare, RewardRarity.Legendary, 0.03f))
+            new RewardRaritySlot(RewardRarity.Rare))
     };
 
     [SerializeField] private string _displayName = "White";
     [SerializeField] private Color _visualColor = Color.white;
     [SerializeField][Min(0f)] private float _spawnWeight = 1f;
     [SerializeField][Range(0f, 1f)] private float _minDestroyedProgressToSpawn;
+    [SerializeField] private bool _useFixedSpawnChance;
+    [SerializeField][Range(0f, 1f)] private float _fixedSpawnChance;
+    [SerializeField] private bool _guaranteesLegendaryReward;
+    [SerializeField][Range(0f, 1f)] private float _secondaryLegendaryChance;
     [SerializeField] private List<RewardRaritySlot> _raritySlots = new();
 
     public static IReadOnlyList<CocoonRewardProfile> Defaults => DefaultProfileSet;
@@ -112,6 +132,10 @@ public sealed class CocoonRewardProfile
     public Color VisualColor => _visualColor;
     public float SpawnWeight => Mathf.Max(0f, _spawnWeight);
     public float MinDestroyedProgressToSpawn => Mathf.Clamp01(_minDestroyedProgressToSpawn);
+    public bool UseFixedSpawnChance => _useFixedSpawnChance;
+    public float FixedSpawnChance => Mathf.Clamp01(_fixedSpawnChance);
+    public bool GuaranteesLegendaryReward => _guaranteesLegendaryReward;
+    public float SecondaryLegendaryChance => Mathf.Clamp01(_secondaryLegendaryChance);
     public IReadOnlyList<RewardRaritySlot> RaritySlots => _raritySlots;
 
     public CocoonRewardProfile()
@@ -123,12 +147,20 @@ public sealed class CocoonRewardProfile
         Color visualColor,
         float spawnWeight,
         float minDestroyedProgressToSpawn,
+        bool useFixedSpawnChance,
+        float fixedSpawnChance,
+        bool guaranteesLegendaryReward,
+        float secondaryLegendaryChance,
         params RewardRaritySlot[] raritySlots)
     {
         _displayName = displayName;
         _visualColor = visualColor;
         _spawnWeight = Mathf.Max(0f, spawnWeight);
         _minDestroyedProgressToSpawn = Mathf.Clamp01(minDestroyedProgressToSpawn);
+        _useFixedSpawnChance = useFixedSpawnChance;
+        _fixedSpawnChance = Mathf.Clamp01(fixedSpawnChance);
+        _guaranteesLegendaryReward = guaranteesLegendaryReward;
+        _secondaryLegendaryChance = Mathf.Clamp01(secondaryLegendaryChance);
         _raritySlots = new List<RewardRaritySlot>();
 
         if (raritySlots == null)
@@ -174,6 +206,10 @@ public sealed class CocoonRewardProfile
             _visualColor,
             _spawnWeight,
             _minDestroyedProgressToSpawn,
+            _useFixedSpawnChance,
+            _fixedSpawnChance,
+            _guaranteesLegendaryReward,
+            _secondaryLegendaryChance,
             slots);
     }
 }

@@ -32,7 +32,7 @@ public sealed class WormSectionHpResolver
 
         float dynamicHp =
             power.EstimatedDps *
-            _config.TargetSectionLifetime *
+            _config.GetTargetSectionLifetime(sectionIndex, totalSections) *
             _config.GetLevelMultiplier(levelNumber) *
             _config.GetPressureMultiplier(sectionIndex, totalSections) *
             Mathf.Max(1f, runtimePressureMultiplier) *

@@ -17,6 +17,10 @@ MonoBehaviour:
     _visualColor: {r: 1, g: 1, b: 1, a: 1}
     _spawnWeight: 1
     _minDestroyedProgressToSpawn: 0
+    _useFixedSpawnChance: 0
+    _fixedSpawnChance: 0
+    _guaranteesLegendaryReward: 0
+    _secondaryLegendaryChance: 0
     _raritySlots:
     - _rarity: 0
       _alternateRarity: 2
@@ -31,6 +35,10 @@ MonoBehaviour:
     _visualColor: {r: 0.37254903, g: 0.8627451, b: 0.50980395, a: 1}
     _spawnWeight: 0.8
     _minDestroyedProgressToSpawn: 0
+    _useFixedSpawnChance: 0
+    _fixedSpawnChance: 0
+    _guaranteesLegendaryReward: 0
+    _secondaryLegendaryChance: 0
     _raritySlots:
     - _rarity: 0
       _alternateRarity: 2
@@ -45,6 +53,10 @@ MonoBehaviour:
     _visualColor: {r: 0.49019608, g: 0.8627451, b: 1, a: 1}
     _spawnWeight: 0.6
     _minDestroyedProgressToSpawn: 0
+    _useFixedSpawnChance: 0
+    _fixedSpawnChance: 0
+    _guaranteesLegendaryReward: 0
+    _secondaryLegendaryChance: 0
     _raritySlots:
     - _rarity: 1
       _alternateRarity: 2
@@ -59,8 +71,12 @@ MonoBehaviour:
     _visualColor: {r: 1, g: 0.5882353, b: 0.23529412, a: 1}
     _spawnWeight: 0.3
     _minDestroyedProgressToSpawn: 0.5
+    _useFixedSpawnChance: 1
+    _fixedSpawnChance: 0.03
+    _guaranteesLegendaryReward: 1
+    _secondaryLegendaryChance: 0.05
     _raritySlots:
-    - _rarity: 1
+    - _rarity: 2
       _alternateRarity: 2
       _alternateChance: 0
     - _rarity: 1
@@ -68,7 +84,7 @@ MonoBehaviour:
       _alternateChance: 0
     - _rarity: 1
       _alternateRarity: 2
-      _alternateChance: 0.03
+      _alternateChance: 0
   _rewards:
   - _effect: {fileID: 11400000, guid: cfce53d6ccd34bb7b9782fdffe4bfc84, type: 2}
     _category: 1

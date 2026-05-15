@@ -12,6 +12,8 @@ public sealed class WormHpScalingConfig : ScriptableObject
 
     [Header("Adaptive HP")]
     [SerializeField][Min(0.1f)] private float _targetSectionLifetime = 5.5f;
+    [SerializeField] private bool _useTargetLifetimeCurve = true;
+    [SerializeField] private AnimationCurve _targetSectionLifetimeByProgress = CreateDefaultTargetLifetimeCurve();
     [SerializeField][Range(0f, 1f)] private float _dynamicHpWeight = 0.55f;
     [SerializeField][Min(1f)] private float _maxDynamicHpMultiplier = 8f;
     [SerializeField] private bool _useBaseHpAsFloor = true;
@@ -25,13 +27,15 @@ public sealed class WormHpScalingConfig : ScriptableObject
     [Header("Pressure")]
     [SerializeField][Min(0.1f)] private float _startPressureMultiplier = 1f;
     [SerializeField][Min(0.1f)] private float _endPressureMultiplier = 2.6f;
+    [SerializeField] private bool _usePressureCurve = true;
+    [SerializeField] private AnimationCurve _pressureByProgress = CreateDefaultPressureCurve();
 
     [Header("Head Path Pressure")]
     [SerializeField] private bool _useHeadPathPressure = true;
     [SerializeField][Range(0f, 1f)] private float _strongHeadPressureUntilProgress = 0.3f;
     [SerializeField][Range(0f, 1f)] private float _minimumHeadPressureFromProgress = 0.85f;
-    [SerializeField][Min(0.1f)] private float _earlyHeadPressureMultiplier = 1.35f;
-    [SerializeField][Min(0.1f)] private float _lateHeadPressureMultiplier = 0.45f;
+    [SerializeField][Min(0.1f)] private float _earlyHeadPressureMultiplier = 1f;
+    [SerializeField][Min(0.1f)] private float _lateHeadPressureMultiplier = 1.15f;
 
     [Header("Limits")]
     [SerializeField][Min(1)] private int _minHp = 3;
@@ -47,6 +51,11 @@ public sealed class WormHpScalingConfig : ScriptableObject
     public int MinHp => _minHp;
     public int MaxHp => _maxHp;
     public float HpMultiplier => _hpMultiplier;
+
+    private void OnEnable()
+    {
+        EnsureCurves();
+    }
 
     public float GetLevelMultiplier(int levelNumber)
     {
@@ -68,12 +77,29 @@ public sealed class WormHpScalingConfig : ScriptableObject
             normalized);
     }
 
+    public float GetTargetSectionLifetime(int sectionIndex, int totalSections)
+    {
+        if (!_useTargetLifetimeCurve || !HasCurve(_targetSectionLifetimeByProgress))
+            return _targetSectionLifetime;
+
+        return Mathf.Max(
+            0.1f,
+            _targetSectionLifetimeByProgress.Evaluate(GetSectionProgress(sectionIndex, totalSections)));
+    }
+
     public float GetPressureMultiplier(int sectionIndex, int totalSections)
     {
+        if (_usePressureCurve && HasCurve(_pressureByProgress))
+        {
+            return Mathf.Max(
+                0.1f,
+                _pressureByProgress.Evaluate(GetSectionProgress(sectionIndex, totalSections)));
+        }
+
         if (totalSections <= 1)
             return _startPressureMultiplier;
 
-        float normalized = Mathf.Clamp01(sectionIndex / (float)(totalSections - 1));
+        float normalized = GetSectionProgress(sectionIndex, totalSections);
 
         return Mathf.Lerp(
             _startPressureMultiplier,
@@ -130,5 +156,51 @@ public sealed class WormHpScalingConfig : ScriptableObject
         _lateHeadPressureMultiplier = Mathf.Max(0.1f, _lateHeadPressureMultiplier);
         _minHp = Mathf.Max(1, _minHp);
         _maxHp = Mathf.Max(_minHp, _maxHp);
+        EnsureCurves();
+    }
+
+    private void EnsureCurves()
+    {
+        if (!HasCurve(_targetSectionLifetimeByProgress))
+        {
+            _targetSectionLifetimeByProgress = CreateDefaultTargetLifetimeCurve();
+        }
+
+        if (!HasCurve(_pressureByProgress))
+        {
+            _pressureByProgress = CreateDefaultPressureCurve();
+        }
+    }
+
+    private static AnimationCurve CreateDefaultTargetLifetimeCurve()
+    {
+        return new AnimationCurve(
+            new Keyframe(0f, 2f),
+            new Keyframe(0.12f, 2.5f),
+            new Keyframe(0.4f, 5.5f),
+            new Keyframe(0.75f, 7.5f),
+            new Keyframe(1f, 9f));
+    }
+
+    private static AnimationCurve CreateDefaultPressureCurve()
+    {
+        return new AnimationCurve(
+            new Keyframe(0f, 0.55f),
+            new Keyframe(0.18f, 0.75f),
+            new Keyframe(0.5f, 1.2f),
+            new Keyframe(1f, 1.8f));
+    }
+
+    private static float GetSectionProgress(int sectionIndex, int totalSections)
+    {
+        if (totalSections <= 1)
+            return 0f;
+
+        return Mathf.Clamp01(sectionIndex / (float)(totalSections - 1));
+    }
+
+    private static bool HasCurve(AnimationCurve curve)
+    {
+        return curve != null && curve.length > 0;
     }
 }

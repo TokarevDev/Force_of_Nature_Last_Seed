@@ -26,8 +26,7 @@ public sealed class AcaciaThornRewardEffect : RewardEffect
 
     public override bool CanApply(RewardRuntimeContext context)
     {
-        AcaciaThornWeapon weapon = context?.AcaciaThornWeapon;
-        AcaciaThornRuntimeState state = weapon != null ? weapon.RuntimeState : null;
+        AcaciaThornRuntimeState state = context?.AcaciaThornState;
 
         if (state == null)
             return false;
@@ -71,6 +70,23 @@ public sealed class AcaciaThornRewardEffect : RewardEffect
     {
         AcaciaThornWeapon weapon = context?.AcaciaThornWeapon;
 
+        if (weapon != null)
+        {
+            ApplyToWeapon(context, weapon);
+            return;
+        }
+
+        ApplyToState(context, context?.AcaciaThornState);
+    }
+
+    public override void Apply(WeaponRuntimeState state)
+    {
+    }
+
+    private void ApplyToWeapon(
+        RewardRuntimeContext context,
+        AcaciaThornWeapon weapon)
+    {
         if (weapon == null)
             return;
 
@@ -109,14 +125,58 @@ public sealed class AcaciaThornRewardEffect : RewardEffect
         }
     }
 
-    public override void Apply(WeaponRuntimeState state)
+    private void ApplyToState(
+        RewardRuntimeContext context,
+        AcaciaThornRuntimeState state)
     {
+        if (state == null)
+            return;
+
+        switch (_upgradeType)
+        {
+            case AcaciaThornUpgradeType.Unlock:
+                if (state.CanUnlock)
+                    state.Unlock(GetMainWeaponDamageSnapshot(context));
+                break;
+
+            case AcaciaThornUpgradeType.DamageMultiplier:
+                if (state.CanApplyDamageMultiplier(_damageMultiplier))
+                    state.ApplyDamageMultiplier(_damageMultiplier);
+                break;
+
+            case AcaciaThornUpgradeType.FireRateBonus:
+                if (state.CanApplyFireRateBonus(_fireRateBonus))
+                    state.AddFireRateBonus(_fireRateBonus);
+                break;
+
+            case AcaciaThornUpgradeType.ExtraSalvoShots:
+                if (_extendsSalvoLimit)
+                    state.ExpandSalvoExtraShotLimit(GetMaxSalvoExtraShotsAfterApply());
+
+                if (state.CanApplySalvoShots(_extraSalvoShots))
+                    state.AddSalvoShots(_extraSalvoShots);
+                break;
+
+            case AcaciaThornUpgradeType.ProjectileSpeedBonus:
+                if (state.CanApplyProjectileSpeedBonus(_projectileSpeedBonus))
+                    state.AddProjectileSpeedBonus(_projectileSpeedBonus);
+                break;
+
+            case AcaciaThornUpgradeType.CriticalChance:
+                if (state.CanApplyCriticalChance(_criticalChanceBonus))
+                    state.AddCriticalChance(_criticalChanceBonus);
+                break;
+
+            case AcaciaThornUpgradeType.CriticalPower:
+                if (state.CanApplyCriticalDamageBonus(_criticalDamageBonus))
+                    state.AddCriticalDamageBonus(_criticalDamageBonus);
+                break;
+        }
     }
 
     private static int GetMainWeaponDamageSnapshot(RewardRuntimeContext context)
     {
-        ProjectileWeapon mainWeapon = context?.MainWeapon;
-        return mainWeapon != null ? mainWeapon.CurrentProjectileDamage : 0;
+        return context != null ? context.MainWeaponDamageSnapshot : 0;
     }
 
     private int GetMaxSalvoExtraShotsAfterApply()

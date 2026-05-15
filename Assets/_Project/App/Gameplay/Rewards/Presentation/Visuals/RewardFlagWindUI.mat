@@ -34,10 +34,10 @@ Material:
     - _ColorMask: 15
     - _FalloffPower: 3
     - _PhaseOffset: 0
-    - _RectHeight: 800
-    - _SecondaryFrequency: 15
+    - _RectHeight: 850
+    - _SecondaryFrequency: 4
     - _SecondaryStrength: 0.3
-    - _ShadingStrength: 0.15
+    - _ShadingStrength: 0.2
     - _Stencil: 0
     - _StencilComp: 8
     - _StencilOp: 0
@@ -47,7 +47,7 @@ Material:
     - _VerticalRippleStrength: 0.0001
     - _WaveFrequency: 4
     - _WindSpeed: 4
-    - _WindStrength: 0.005
+    - _WindStrength: 0.009
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []

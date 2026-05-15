@@ -60,15 +60,33 @@ public sealed class RewardRollService
                 guaranteedSlotCount,
                 pools)
             : BuildSlotRarities(slots, count);
+        bool useLegendaryProfileRules = cocoonProfile != null
+            && cocoonProfile.GuaranteesLegendaryReward;
+
+        if (useLegendaryProfileRules)
+        {
+            ApplySecondaryLegendaryRolls(
+                slotRarities,
+                guaranteedSlotCount,
+                cocoonProfile.SecondaryLegendaryChance,
+                pools);
+        }
+
         List<RewardWeaponGroup> requiredWeaponGroups = GetRequiredWeaponGroups(pools, context);
         var usedCategories = new HashSet<RewardModifierCategory>();
         var usedCategoryRarities = new HashSet<int>();
         var usedWeaponGroups = new HashSet<RewardWeaponGroup>();
+        int weaponUnlockSlotIndex = useLegendaryProfileRules
+            && guaranteedSlotCount < count
+            && HasAvailableWeaponUnlockReward(pools)
+                ? guaranteedSlotCount
+                : -1;
 
         for (int i = 0; i < count; i++)
         {
             RewardRarity rarity = slotRarities[i];
-            bool allowLegendaryFallback = rarity == RewardRarity.Legendary;
+            bool allowLegendaryFallback = useLegendaryProfileRules
+                || rarity == RewardRarity.Legendary;
             RewardWeaponGroup forcedWeaponGroup = i < guaranteedSlotCount
                 ? RewardWeaponGroup.None
                 : GetForcedWeaponGroup(
@@ -76,21 +94,46 @@ public sealed class RewardRollService
                     usedWeaponGroups,
                     count - i);
 
-            bool isSelected = forcedWeaponGroup != RewardWeaponGroup.None
-                ? TryRollRewardForWeaponGroup(
+            RewardModifierEntry selected = null;
+            bool isSelected = false;
+
+            if (i == weaponUnlockSlotIndex && rarity != RewardRarity.Legendary)
+            {
+                isSelected = TryRollWeaponUnlockReward(
                     pools,
-                    rarity,
-                    forcedWeaponGroup,
                     usedCategories,
                     usedCategoryRarities,
-                    out RewardModifierEntry selected,
-                    allowLegendaryFallback)
-                : TryRollRewardForRarity(
+                    out selected);
+            }
+
+            if (!isSelected)
+            {
+                isSelected = forcedWeaponGroup != RewardWeaponGroup.None
+                    ? TryRollRewardForWeaponGroup(
+                        pools,
+                        rarity,
+                        forcedWeaponGroup,
+                        usedCategories,
+                        usedCategoryRarities,
+                        out selected,
+                        allowLegendaryFallback)
+                    : TryRollRewardForRarity(
+                        pools,
+                        rarity,
+                        usedCategories,
+                        usedCategoryRarities,
+                        out selected);
+            }
+
+            if (!isSelected && useLegendaryProfileRules)
+            {
+                isSelected = TryRollPremiumReward(
                     pools,
                     rarity,
                     usedCategories,
                     usedCategoryRarities,
                     out selected);
+            }
 
             if (!isSelected
                 && !TryRollReward(
@@ -129,6 +172,12 @@ public sealed class RewardRollService
             return RewardRarity.Common;
 
         var pools = BuildPools(source, context);
+
+        if (cocoonProfile != null && cocoonProfile.GuaranteesLegendaryReward)
+            return HasRewardsForRarity(pools, RewardRarity.Legendary)
+                ? RewardRarity.Legendary
+                : GetHighestAvailableRarity(pools);
+
         IReadOnlyList<RewardRaritySlot> slots = GetSlots(cocoonProfile);
 
         float commonWeight = 0f;
@@ -271,6 +320,161 @@ public sealed class RewardRollService
             RewardPickMode.Any,
             RewardWeaponGroup.None,
             out selected);
+    }
+
+    private bool TryRollPremiumReward(
+        Dictionary<RewardRarity, List<RewardModifierEntry>> pools,
+        RewardRarity preferredRarity,
+        HashSet<RewardModifierCategory> usedCategories,
+        HashSet<int> usedCategoryRarities,
+        out RewardModifierEntry selected)
+    {
+        selected = null;
+
+        if (preferredRarity == RewardRarity.Legendary)
+        {
+            return TryRollRewardForRarity(
+                    pools,
+                    RewardRarity.Legendary,
+                    usedCategories,
+                    usedCategoryRarities,
+                    out selected)
+                || TryRollRewardForRarity(
+                    pools,
+                    RewardRarity.Rare,
+                    usedCategories,
+                    usedCategoryRarities,
+                    out selected);
+        }
+
+        return TryRollRewardForRarity(
+                pools,
+                RewardRarity.Rare,
+                usedCategories,
+                usedCategoryRarities,
+                out selected)
+            || TryRollRewardForRarity(
+                pools,
+                RewardRarity.Legendary,
+                usedCategories,
+                usedCategoryRarities,
+                out selected);
+    }
+
+    private static bool TryRollWeaponUnlockReward(
+        Dictionary<RewardRarity, List<RewardModifierEntry>> pools,
+        HashSet<RewardModifierCategory> usedCategories,
+        HashSet<int> usedCategoryRarities,
+        out RewardModifierEntry selected)
+    {
+        selected = null;
+
+        if (TryRollWeaponUnlockReward(
+                pools,
+                usedCategories,
+                usedCategoryRarities,
+                RewardPickMode.UniqueCategory,
+                out selected))
+        {
+            return true;
+        }
+
+        if (TryRollWeaponUnlockReward(
+                pools,
+                usedCategories,
+                usedCategoryRarities,
+                RewardPickMode.UniqueCategoryRarity,
+                out selected))
+        {
+            return true;
+        }
+
+        return TryRollWeaponUnlockReward(
+            pools,
+            usedCategories,
+            usedCategoryRarities,
+            RewardPickMode.Any,
+            out selected);
+    }
+
+    private static bool TryRollWeaponUnlockReward(
+        Dictionary<RewardRarity, List<RewardModifierEntry>> pools,
+        HashSet<RewardModifierCategory> usedCategories,
+        HashSet<int> usedCategoryRarities,
+        RewardPickMode mode,
+        out RewardModifierEntry selected)
+    {
+        selected = null;
+
+        if (pools == null || pools.Count == 0)
+            return false;
+
+        float totalWeight = 0f;
+
+        foreach (var rarityPool in pools)
+        {
+            List<RewardModifierEntry> pool = rarityPool.Value;
+
+            if (pool == null)
+                continue;
+
+            for (int i = 0; i < pool.Count; i++)
+            {
+                RewardModifierEntry entry = pool[i];
+
+                if (IsWeaponUnlockReward(entry)
+                    && IsEligible(
+                        entry,
+                        usedCategories,
+                        usedCategoryRarities,
+                        mode,
+                        RewardWeaponGroup.None))
+                {
+                    totalWeight += entry.Weight;
+                }
+            }
+        }
+
+        if (totalWeight <= 0f)
+            return false;
+
+        float roll = Random.value * totalWeight;
+        float currentWeight = 0f;
+
+        foreach (var rarityPool in pools)
+        {
+            List<RewardModifierEntry> pool = rarityPool.Value;
+
+            if (pool == null)
+                continue;
+
+            for (int i = 0; i < pool.Count; i++)
+            {
+                RewardModifierEntry entry = pool[i];
+
+                if (!IsWeaponUnlockReward(entry)
+                    || !IsEligible(
+                        entry,
+                        usedCategories,
+                        usedCategoryRarities,
+                        mode,
+                        RewardWeaponGroup.None))
+                {
+                    continue;
+                }
+
+                currentWeight += entry.Weight;
+
+                if (roll > currentWeight)
+                    continue;
+
+                selected = entry;
+                pool.RemoveAt(i);
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static bool TryRollRewardForRarity(
@@ -545,6 +749,7 @@ public sealed class RewardRollService
 
         CollectAvailableRarityWeights(
             slots,
+            guaranteedSlotCount,
             pools,
             ref commonWeight,
             ref rareWeight,
@@ -559,6 +764,36 @@ public sealed class RewardRollService
         }
 
         return result;
+    }
+
+    private static void ApplySecondaryLegendaryRolls(
+        RewardRarity[] slotRarities,
+        int guaranteedSlotCount,
+        float secondaryLegendaryChance,
+        Dictionary<RewardRarity, List<RewardModifierEntry>> pools)
+    {
+        if (slotRarities == null || slotRarities.Length == 0)
+            return;
+
+        if (secondaryLegendaryChance <= 0f)
+            return;
+
+        if (!HasRewardsForRarity(pools, RewardRarity.Legendary))
+            return;
+
+        int startIndex = Mathf.Clamp(
+            guaranteedSlotCount,
+            0,
+            slotRarities.Length);
+
+        for (int i = startIndex; i < slotRarities.Length; i++)
+        {
+            if (slotRarities[i] == RewardRarity.Legendary)
+                continue;
+
+            if (Random.value < secondaryLegendaryChance)
+                slotRarities[i] = RewardRarity.Legendary;
+        }
     }
 
     private static void AddGuaranteeWeight(
@@ -593,6 +828,7 @@ public sealed class RewardRollService
 
     private static void CollectAvailableRarityWeights(
         IReadOnlyList<RewardRaritySlot> slots,
+        int startIndex,
         Dictionary<RewardRarity, List<RewardModifierEntry>> pools,
         ref float commonWeight,
         ref float rareWeight,
@@ -601,7 +837,9 @@ public sealed class RewardRollService
         if (slots == null)
             return;
 
-        for (int i = 0; i < slots.Count; i++)
+        startIndex = Mathf.Clamp(startIndex, 0, slots.Count);
+
+        for (int i = startIndex; i < slots.Count; i++)
         {
             RewardRaritySlot slot = slots[i];
 
@@ -657,6 +895,27 @@ public sealed class RewardRollService
             && pools.TryGetValue(rarity, out var pool)
             && pool != null
             && pool.Count > 0;
+    }
+
+    private static bool HasAvailableWeaponUnlockReward(
+        Dictionary<RewardRarity, List<RewardModifierEntry>> pools)
+    {
+        if (pools == null)
+            return false;
+
+        foreach (var pool in pools.Values)
+        {
+            if (pool == null)
+                continue;
+
+            for (int i = 0; i < pool.Count; i++)
+            {
+                if (IsWeaponUnlockReward(pool[i]))
+                    return true;
+            }
+        }
+
+        return false;
     }
 
     private static RewardRarity GetHighestAvailableRarity(
@@ -771,6 +1030,12 @@ public sealed class RewardRollService
         return ((int)entry.Category * 10) + (int)entry.Rarity;
     }
 
+    private static bool IsWeaponUnlockReward(RewardModifierEntry entry)
+    {
+        return entry != null
+            && entry.Category == RewardModifierCategory.AcaciaThornUnlock;
+    }
+
     private static List<RewardWeaponGroup> GetRequiredWeaponGroups(
         Dictionary<RewardRarity, List<RewardModifierEntry>> pools,
         RewardRuntimeContext context)
@@ -795,7 +1060,7 @@ public sealed class RewardRollService
 
     private static bool HasAdditionalWeaponUnlocked(RewardRuntimeContext context)
     {
-        AcaciaThornRuntimeState acaciaState = context?.AcaciaThornWeapon?.RuntimeState;
+        AcaciaThornRuntimeState acaciaState = context?.AcaciaThornState;
         return acaciaState != null && acaciaState.IsUnlocked;
     }
 

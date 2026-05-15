@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: RewardIconProfile_AcaciaThorn
   m_EditorClassIdentifier: Assembly-CSharp::RewardIconProfile
   _sprite: {fileID: -7451194681563383075, guid: 3fa1538327f1b7c40a7c6931e14bf590, type: 3}
-  _anchoredPosition: {x: 0, y: -180}
-  _sizeDelta: {x: 78, y: 125}
-  _scale: {x: 1, y: 1}
-  _rotationZ: 0
+  _anchoredPosition: {x: -10, y: -195}
+  _sizeDelta: {x: 78, y: 110}
+  _scale: {x: 2, y: 1}
+  _rotationZ: -10
   _color: {r: 1, g: 1, b: 1, a: 1}
   _preserveAspect: 1

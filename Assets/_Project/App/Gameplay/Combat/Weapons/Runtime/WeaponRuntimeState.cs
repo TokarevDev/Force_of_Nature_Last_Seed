@@ -363,4 +363,34 @@ public sealed class WeaponRuntimeState
 
         return UnityEngine.Mathf.Max(1, (int)Math.Round(rawDamage));
     }
+
+    public WeaponRuntimeState Clone()
+    {
+        WeaponRuntimeState clone = new()
+        {
+            _maxDamageMultiplier = _maxDamageMultiplier,
+            _maxCriticalDamageMultiplier = _maxCriticalDamageMultiplier,
+            _maxPenetrationBonus = _maxPenetrationBonus,
+            _maxCriticalChance = _maxCriticalChance,
+            _maxParallelProjectiles = _maxParallelProjectiles,
+            _maxSalvoExtraShots = _maxSalvoExtraShots,
+            DamageMultiplier = DamageMultiplier,
+            FireRateBonus = FireRateBonus,
+            CriticalChance = CriticalChance,
+            CriticalDamageMultiplier = CriticalDamageMultiplier,
+            PenetrationBonus = PenetrationBonus,
+            ParallelProjectileCount = ParallelProjectileCount,
+            ParallelSpacing = ParallelSpacing,
+            SalvoExtraShots = SalvoExtraShots,
+            SalvoInterval = SalvoInterval,
+            ProjectileSpeedBonus = ProjectileSpeedBonus,
+            MaxFireRateBonus = MaxFireRateBonus,
+            MaxProjectileSpeedBonus = MaxProjectileSpeedBonus
+        };
+
+        for (int i = 0; i < _shotModifiers.Count; i++)
+            clone._shotModifiers.Add(_shotModifiers[i]);
+
+        return clone;
+    }
 }

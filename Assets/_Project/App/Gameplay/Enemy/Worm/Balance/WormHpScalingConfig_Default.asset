@@ -27,7 +27,7 @@ MonoBehaviour:
   _useHeadPathPressure: 1
   _strongHeadPressureUntilProgress: 0.3
   _minimumHeadPressureFromProgress: 0.85
-  _earlyHeadPressureMultiplier: 1.35
-  _lateHeadPressureMultiplier: 0.45
+  _earlyHeadPressureMultiplier: 1
+  _lateHeadPressureMultiplier: 1.15
   _minHp: 3
   _maxHp: 9999999

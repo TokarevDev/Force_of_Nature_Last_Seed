@@ -82,7 +82,7 @@ public sealed class RewardFlowController : IDisposable
         if (!RollCurrentChoices())
             return false;
 
-        return ShowCurrentChoices();
+        return ShowCurrentChoices(false);
     }
 
     private void HandleSelected(RewardChoiceData choice)
@@ -99,10 +99,13 @@ public sealed class RewardFlowController : IDisposable
             return;
 
         if (!RollCurrentChoices())
+        {
+            _popup?.SetAllButtonsInteractable(true);
             return;
+        }
 
         _freeRerollAttemptsLeft--;
-        ShowCurrentChoices();
+        ShowCurrentChoices(true);
     }
 
     private void HandleAdRerollRequested()
@@ -154,7 +157,7 @@ public sealed class RewardFlowController : IDisposable
 
         if (!rewardGranted)
         {
-            ShowCurrentChoices();
+            ShowCurrentChoices(false);
             return;
         }
 
@@ -164,10 +167,11 @@ public sealed class RewardFlowController : IDisposable
                 RewardRarity.Legendary,
                 AdRerollGuaranteedLegendarySlots))
         {
+            _popup?.SetAllButtonsInteractable(true);
             return;
         }
 
-        ShowCurrentChoices();
+        ShowCurrentChoices(true);
     }
 
     private void CompleteTakeAllReward(bool rewardGranted)
@@ -179,7 +183,7 @@ public sealed class RewardFlowController : IDisposable
 
         if (!rewardGranted)
         {
-            ShowCurrentChoices();
+            ShowCurrentChoices(false);
             return;
         }
 
@@ -211,7 +215,7 @@ public sealed class RewardFlowController : IDisposable
         return _currentChoices != null && _currentChoices.Count > 0;
     }
 
-    private bool ShowCurrentChoices()
+    private bool ShowCurrentChoices(bool animateChoiceChanges)
     {
         if (_popup == null || _popupRoot == null)
         {
@@ -230,7 +234,8 @@ public sealed class RewardFlowController : IDisposable
                 _freeRerollAttemptsLeft <= 0
                     && _adRerollAttemptsLeft > 0
                     && !_isRewardedAdPending,
-                _takeAllAttemptsLeft > 0 && !_isRewardedAdPending));
+                _takeAllAttemptsLeft > 0 && !_isRewardedAdPending),
+            animateChoiceChanges);
 
         if (!isBound)
             return false;

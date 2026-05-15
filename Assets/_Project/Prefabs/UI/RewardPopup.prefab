@@ -109,7 +109,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 40, y: -200}
+  m_AnchoredPosition: {x: 50, y: -210}
   m_SizeDelta: {x: 130, y: 130}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &910000000000000003
@@ -387,6 +387,7 @@ GameObject:
   - component: {fileID: 3262257900068433367}
   - component: {fileID: 6992852974379539252}
   - component: {fileID: 241297247517385720}
+  - component: {fileID: 910000000000020002}
   - component: {fileID: 5651508940151863090}
   m_Layer: 5
   m_Name: RewardButtonLeft
@@ -417,7 +418,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -310, y: -100}
-  m_SizeDelta: {x: 300, y: 800}
+  m_SizeDelta: {x: 300, y: 850}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3262257900068433367
 CanvasRenderer:
@@ -501,6 +502,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!225 &910000000000020002
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1318821234502096798}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!114 &5651508940151863090
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -514,6 +527,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RewardButtonView
   _button: {fileID: 241297247517385720}
+  _canvasGroup: {fileID: 910000000000020002}
   _targetIcon: {fileID: 910000000000000004}
   _title: {fileID: 3520831426544612069}
   _description: {fileID: 8946023569931875088}
@@ -542,7 +556,7 @@ MonoBehaviour:
     rgba: 4294959854
   _weaponUnlockValueColor:
     serializedVersion: 2
-    rgba: 4294937306
+    rgba: 4286119785
   _weaponUnlockValueFallback: NEW
 --- !u!1 &1815948686939813285
 GameObject:
@@ -602,7 +616,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 2100000, guid: d81a5d889b5c49fb8e6a73c94e50b216, type: 2}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.49803922, g: 1, b: 0.83137256, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -768,6 +782,7 @@ GameObject:
   - component: {fileID: 7756070805608411667}
   - component: {fileID: 1005398803538331577}
   - component: {fileID: 9050914005550791263}
+  - component: {fileID: 910000000000020003}
   - component: {fileID: 229763190480206647}
   m_Layer: 5
   m_Name: RewardButtonMid
@@ -798,7 +813,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: -100}
-  m_SizeDelta: {x: 300, y: 800}
+  m_SizeDelta: {x: 300, y: 850}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7756070805608411667
 CanvasRenderer:
@@ -882,6 +897,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!225 &910000000000020003
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2229886825628801584}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!114 &229763190480206647
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -895,6 +922,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RewardButtonView
   _button: {fileID: 9050914005550791263}
+  _canvasGroup: {fileID: 910000000000020003}
   _targetIcon: {fileID: 626418460445576790}
   _title: {fileID: 2089146014358568777}
   _description: {fileID: 2162223127155560892}
@@ -923,7 +951,7 @@ MonoBehaviour:
     rgba: 4294959854
   _weaponUnlockValueColor:
     serializedVersion: 2
-    rgba: 4294937306
+    rgba: 4286119785
   _weaponUnlockValueFallback: NEW
 --- !u!1 &2361685441742132896
 GameObject:
@@ -1919,7 +1947,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 2100000, guid: d81a5d889b5c49fb8e6a73c94e50b216, type: 2}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.49803922, g: 1, b: 0.83137256, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2144,6 +2172,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3613252822379611327}
   - component: {fileID: 7155641529964691378}
+  - component: {fileID: 910000000000020001}
   - component: {fileID: 6082257624195040143}
   m_Layer: 5
   m_Name: RewardPopup
@@ -2194,6 +2223,32 @@ MonoBehaviour:
   _rerollButton: {fileID: 8625724650196425709}
   _adRerollButton: {fileID: 7054651639019621592}
   _takeAllButton: {fileID: 4205505644712959356}
+  _canvasGroup: {fileID: 910000000000020001}
+  _topSlideGroups:
+  - {fileID: 3151983787947487102}
+  - {fileID: 137146527760410433}
+  _rootFadeDuration: 0.12
+  _topEnterOffset: 160
+  _topEnterDuration: 0.28
+  _rewardEnterOffset: -230
+  _rewardEnterDuration: 0.32
+  _rewardEnterStagger: 0.045
+  _actionEnterOffset: -90
+  _actionEnterDuration: 0.16
+  _topEnterEase: 9
+  _rewardEnterEase: 9
+  _rewardScaleEase: 27
+  _refreshCardStagger: 0.055
+  _refreshOutDuration: 0.12
+  _refreshInDuration: 0.22
+  _refreshOutEase: 8
+  _refreshInEase: 27
+  _animationAudioSource: {fileID: 0}
+  _showWhooshClip: {fileID: 0}
+  _showSettleClip: {fileID: 0}
+  _refreshClip: {fileID: 0}
+  _cardRevealClip: {fileID: 0}
+  _animationVolume: 1
   _rerollAttemptsText: {fileID: 5378540395277344856}
   _adRerollAttemptsText: {fileID: 2367212019702910363}
   _takeAllAttemptsText: {fileID: 672232384537545834}
@@ -2214,6 +2269,18 @@ MonoBehaviour:
   _legendaryRarityColor:
     serializedVersion: 2
     rgba: 4282817535
+--- !u!225 &910000000000020001
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3733543865146059221}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!114 &6082257624195040143
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2968,7 +3035,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 40, y: -200}
+  m_AnchoredPosition: {x: 50, y: -210}
   m_SizeDelta: {x: 130, y: 130}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6858936141223484060
@@ -3067,7 +3134,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 2100000, guid: d81a5d889b5c49fb8e6a73c94e50b216, type: 2}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.49803922, g: 1, b: 0.83137256, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3197,7 +3264,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 40, y: -200}
+  m_AnchoredPosition: {x: 50, y: -210}
   m_SizeDelta: {x: 130, y: 130}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7325618559363462291
@@ -3811,6 +3878,7 @@ GameObject:
   - component: {fileID: 1779509757326563455}
   - component: {fileID: 7536100497779411712}
   - component: {fileID: 128030492513837610}
+  - component: {fileID: 910000000000020004}
   - component: {fileID: 4485198574386970074}
   m_Layer: 5
   m_Name: RewardButtonRight
@@ -3841,7 +3909,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 310, y: -100}
-  m_SizeDelta: {x: 300, y: 800}
+  m_SizeDelta: {x: 300, y: 850}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1779509757326563455
 CanvasRenderer:
@@ -3925,6 +3993,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!225 &910000000000020004
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6510305957352512137}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!114 &4485198574386970074
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3938,6 +4018,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RewardButtonView
   _button: {fileID: 128030492513837610}
+  _canvasGroup: {fileID: 910000000000020004}
   _targetIcon: {fileID: 3749175231226524252}
   _title: {fileID: 1365733767947414215}
   _description: {fileID: 1770860838533483298}
@@ -3966,7 +4047,7 @@ MonoBehaviour:
     rgba: 4294959854
   _weaponUnlockValueColor:
     serializedVersion: 2
-    rgba: 4294937306
+    rgba: 4286119785
   _weaponUnlockValueFallback: NEW
 --- !u!1 &6689793223453845833
 GameObject:
