@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 [DisallowMultipleComponent]
 public sealed class WinPopupView : PopupView
@@ -11,6 +12,7 @@ public sealed class WinPopupView : PopupView
     [SerializeField] private bool _closeOnDoubleReward = true;
 
     public event Action AcceptRequested;
+
     public event Action DoubleRewardRequested;
 
     private void OnEnable()
@@ -35,6 +37,11 @@ public sealed class WinPopupView : PopupView
     {
         AcceptRequested?.Invoke();
 
+        Time.timeScale = 1f;
+
+        Scene activeScene = SceneManager.GetActiveScene();
+        SceneManager.LoadScene(activeScene.buildIndex);
+
         if (_closeOnAccept)
             RequestClose();
     }
@@ -42,6 +49,11 @@ public sealed class WinPopupView : PopupView
     private void HandleDoubleRewardClicked()
     {
         DoubleRewardRequested?.Invoke();
+
+        Time.timeScale = 1f;
+
+        Scene activeScene = SceneManager.GetActiveScene();
+        SceneManager.LoadScene(activeScene.buildIndex);
 
         if (_closeOnDoubleReward)
             RequestClose();
