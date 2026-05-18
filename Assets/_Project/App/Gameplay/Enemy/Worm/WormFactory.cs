@@ -67,12 +67,24 @@ public sealed class WormFactory
         {
             WormSegment seg = segments[i];
 
-            var receiver = seg.GetComponent<WormSegmentDamageReceiver>();
+            InitializeDamageReceivers(seg, combat);
+        }
+    }
 
-            if (receiver == null)
-                receiver = seg.gameObject.AddComponent<WormSegmentDamageReceiver>();
+    private static void InitializeDamageReceivers(WormSegment segment, WormCombatController combat)
+    {
+        if (!segment.TryGetComponent<WormSegmentDamageReceiver>(out _))
+            segment.gameObject.AddComponent<WormSegmentDamageReceiver>();
 
-            receiver.Initialize(combat, seg);
+        WormSegmentDamageReceiver[] receivers =
+            segment.GetComponentsInChildren<WormSegmentDamageReceiver>(true);
+
+        for (int i = 0; i < receivers.Length; i++)
+        {
+            WormSegmentDamageReceiver receiver = receivers[i];
+
+            if (receiver != null)
+                receiver.Initialize(combat, segment);
         }
     }
 }

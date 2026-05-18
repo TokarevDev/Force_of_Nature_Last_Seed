@@ -39,10 +39,14 @@ public sealed class WormSegment : MonoBehaviour
     private Collider2D _cachedCollider;
     private SpriteRenderer _renderer;
     private SpriteRenderer _cocoonRenderer;
+    private SpriteRenderer[] _visualRenderers = Array.Empty<SpriteRenderer>();
+    private int[] _visualSortingOrderOffsets = Array.Empty<int>();
     private SpriteRenderer[] _tailRenderers = Array.Empty<SpriteRenderer>();
     private Transform[] _tailVisualParts = Array.Empty<Transform>();
     private int[] _tailSortingOrderOffsets = Array.Empty<int>();
     private Vector3[] _tailRotationOffsets = Array.Empty<Vector3>();
+    private Transform[] _headFollowParts = Array.Empty<Transform>();
+    private Vector3[] _headFollowRotationOffsets = Array.Empty<Vector3>();
 
     private Transform _cocoonTransform;
     private bool _usesSyncedCocoonShake;
@@ -55,6 +59,8 @@ public sealed class WormSegment : MonoBehaviour
     public bool IsAlive { get; private set; } = true;
     public bool HasTailVisualChain => _tailVisualParts.Length > 1;
     public int TailVisualPartCount => _tailVisualParts.Length;
+    public bool HasHeadFollowChain => _headFollowParts.Length > 0;
+    public int HeadFollowPartCount => _headFollowParts.Length;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void ResetSyncedCocoonShakeState()
@@ -78,7 +84,16 @@ public sealed class WormSegment : MonoBehaviour
         }
 
         if (Type == WormSegmentType.Tail)
+        {
             CacheTailVisualChain();
+        }
+        else
+        {
+            CacheVisualRenderers();
+
+            if (Type == WormSegmentType.Head)
+                CacheHeadFollowChain();
+        }
     }
 
     private void OnEnable()
@@ -122,6 +137,14 @@ public sealed class WormSegment : MonoBehaviour
                     _tailRenderers[i].sortingOrder = order + _tailSortingOrderOffsets[i];
             }
         }
+        else if (_visualRenderers.Length > 0)
+        {
+            for (int i = 0; i < _visualRenderers.Length; i++)
+            {
+                if (_visualRenderers[i] != null)
+                    _visualRenderers[i].sortingOrder = order + _visualSortingOrderOffsets[i];
+            }
+        }
         else if (_renderer != null)
         {
             _renderer.sortingOrder = order;
@@ -157,6 +180,53 @@ public sealed class WormSegment : MonoBehaviour
             rotationOffset.x,
             rotationOffset.y,
             angle + rotationOffset.z);
+    }
+
+    public void SetHeadFollowPartPose(int index, Vector3 position, float angle)
+    {
+        if (index < 0 || index >= _headFollowParts.Length)
+            return;
+
+        Transform part = _headFollowParts[index];
+
+        if (part == null)
+            return;
+
+        part.position = position;
+
+        Vector3 rotationOffset = _headFollowRotationOffsets[index];
+        part.rotation = Quaternion.Euler(
+            rotationOffset.x,
+            rotationOffset.y,
+            angle + rotationOffset.z);
+    }
+
+    public void SetHeadFollowChainVisible(bool visible)
+    {
+        for (int i = 0; i < _headFollowParts.Length; i++)
+        {
+            Transform part = _headFollowParts[i];
+
+            if (part != null && part.gameObject.activeSelf != visible)
+                part.gameObject.SetActive(visible);
+        }
+    }
+
+    public bool TryGetLastHeadFollowPartPosition(out Vector3 position)
+    {
+        for (int i = _headFollowParts.Length - 1; i >= 0; i--)
+        {
+            Transform part = _headFollowParts[i];
+
+            if (part == null)
+                continue;
+
+            position = part.position;
+            return true;
+        }
+
+        position = default;
+        return false;
     }
 
     public void EnableCocoon()
@@ -257,6 +327,121 @@ public sealed class WormSegment : MonoBehaviour
 
         if (gameObject.activeSelf)
             gameObject.SetActive(false);
+    }
+
+    private void CacheVisualRenderers()
+    {
+        if (VisualRoot == null)
+        {
+            ClearVisualRenderers();
+            return;
+        }
+
+        SpriteRenderer[] allRenderers = VisualRoot.GetComponentsInChildren<SpriteRenderer>(true);
+
+        if (allRenderers.Length == 0)
+        {
+            ClearVisualRenderers();
+            return;
+        }
+
+        SpriteRenderer anchorRenderer = ResolveSortingAnchor(allRenderers);
+
+        if (anchorRenderer == null)
+        {
+            ClearVisualRenderers();
+            return;
+        }
+
+        int anchorSortingOrder = anchorRenderer.sortingOrder;
+        int rendererCount = CountSortingTrackedRenderers(allRenderers, anchorSortingOrder);
+
+        if (rendererCount == 0)
+        {
+            ClearVisualRenderers();
+            return;
+        }
+
+        _visualRenderers = new SpriteRenderer[rendererCount];
+        _visualSortingOrderOffsets = new int[rendererCount];
+
+        int writeIndex = 0;
+
+        for (int i = 0; i < allRenderers.Length; i++)
+        {
+            SpriteRenderer renderer = allRenderers[i];
+
+            if (!ShouldTrackSortingRenderer(renderer, anchorSortingOrder))
+                continue;
+
+            _visualRenderers[writeIndex] = renderer;
+            _visualSortingOrderOffsets[writeIndex] = renderer.sortingOrder - anchorSortingOrder;
+            writeIndex++;
+        }
+    }
+
+    private void ClearVisualRenderers()
+    {
+        _visualRenderers = Array.Empty<SpriteRenderer>();
+        _visualSortingOrderOffsets = Array.Empty<int>();
+    }
+
+    private void CacheHeadFollowChain()
+    {
+        WormSegmentDamageReceiver[] receivers =
+            GetComponentsInChildren<WormSegmentDamageReceiver>(true);
+
+        int receiverCount = CountChildDamageReceivers(receivers);
+
+        if (receiverCount == 0)
+        {
+            ClearHeadFollowChain();
+            return;
+        }
+
+        _headFollowParts = new Transform[receiverCount];
+        _headFollowRotationOffsets = new Vector3[receiverCount];
+
+        int writeIndex = 0;
+
+        for (int i = 0; i < receivers.Length; i++)
+        {
+            WormSegmentDamageReceiver receiver = receivers[i];
+
+            if (!IsHeadFollowReceiver(receiver))
+                continue;
+
+            _headFollowParts[writeIndex++] = receiver.transform;
+        }
+
+        Array.Sort(_headFollowParts, CompareTransformSiblingIndex);
+
+        for (int i = 0; i < _headFollowParts.Length; i++)
+            _headFollowRotationOffsets[i] = _headFollowParts[i].localEulerAngles;
+    }
+
+    private void ClearHeadFollowChain()
+    {
+        _headFollowParts = Array.Empty<Transform>();
+        _headFollowRotationOffsets = Array.Empty<Vector3>();
+    }
+
+    private int CountChildDamageReceivers(WormSegmentDamageReceiver[] receivers)
+    {
+        int count = 0;
+
+        for (int i = 0; i < receivers.Length; i++)
+        {
+            if (IsHeadFollowReceiver(receivers[i]))
+                count++;
+        }
+
+        return count;
+    }
+
+    private bool IsHeadFollowReceiver(WormSegmentDamageReceiver receiver)
+    {
+        return receiver != null && receiver.transform != CachedTransform;
     }
 
     private void RegisterSyncedCocoonShake()
@@ -361,6 +546,41 @@ public sealed class WormSegment : MonoBehaviour
         return !renderer.transform.IsChildOf(_cocoonTransform);
     }
 
+    private int CountSortingTrackedRenderers(SpriteRenderer[] renderers, int anchorSortingOrder)
+    {
+        int count = 0;
+
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            if (ShouldTrackSortingRenderer(renderers[i], anchorSortingOrder))
+                count++;
+        }
+
+        return count;
+    }
+
+    private bool ShouldTrackSortingRenderer(SpriteRenderer renderer, int anchorSortingOrder)
+    {
+        if (!IsVisualRenderer(renderer))
+            return false;
+
+        return renderer.sortingOrder <= anchorSortingOrder;
+    }
+
+    private SpriteRenderer ResolveSortingAnchor(SpriteRenderer[] renderers)
+    {
+        if (IsVisualRenderer(_renderer))
+            return _renderer;
+
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            if (IsVisualRenderer(renderers[i]))
+                return renderers[i];
+        }
+
+        return null;
+    }
+
     private static int CompareTailRenderers(SpriteRenderer left, SpriteRenderer right)
     {
         int sortingComparison = right.sortingOrder.CompareTo(left.sortingOrder);
@@ -369,6 +589,11 @@ public sealed class WormSegment : MonoBehaviour
             return sortingComparison;
 
         return left.transform.GetSiblingIndex().CompareTo(right.transform.GetSiblingIndex());
+    }
+
+    private static int CompareTransformSiblingIndex(Transform left, Transform right)
+    {
+        return left.GetSiblingIndex().CompareTo(right.GetSiblingIndex());
     }
 
     private void UnregisterSyncedCocoonShake()

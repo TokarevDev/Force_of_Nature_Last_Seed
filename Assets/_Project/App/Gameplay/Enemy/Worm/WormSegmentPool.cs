@@ -80,6 +80,15 @@ public sealed class WormSegmentPool
         return created;
     }
 
+    public void Release(WormSegment segment)
+    {
+        if (segment == null)
+            return;
+
+        segment.PrepareForWorm();
+        GetPool(segment.Type).Enqueue(segment);
+    }
+
     private void Prewarm(WormSegment prefab, int count, Queue<WormSegment> pool)
     {
         if (prefab == null)

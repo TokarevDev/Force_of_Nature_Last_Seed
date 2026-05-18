@@ -15,7 +15,7 @@ public sealed class WormHpScalingConfig : ScriptableObject
     [SerializeField] private bool _useTargetLifetimeCurve = true;
     [SerializeField] private AnimationCurve _targetSectionLifetimeByProgress = CreateDefaultTargetLifetimeCurve();
     [SerializeField][Range(0f, 1f)] private float _dynamicHpWeight = 0.55f;
-    [SerializeField][Min(1f)] private float _maxDynamicHpMultiplier = 8f;
+    [SerializeField][Min(1f)] private float _maxDynamicHpMultiplier = 900f;
     [SerializeField] private bool _useBaseHpAsFloor = true;
 
     [Header("Level")]
@@ -175,20 +175,24 @@ public sealed class WormHpScalingConfig : ScriptableObject
     private static AnimationCurve CreateDefaultTargetLifetimeCurve()
     {
         return new AnimationCurve(
-            new Keyframe(0f, 2f),
-            new Keyframe(0.12f, 2.5f),
-            new Keyframe(0.4f, 5.5f),
-            new Keyframe(0.75f, 7.5f),
-            new Keyframe(1f, 9f));
+            new Keyframe(0f, 0.9f),
+            new Keyframe(0.08f, 1.1f),
+            new Keyframe(0.18f, 2.1f),
+            new Keyframe(0.32f, 4.5f),
+            new Keyframe(0.55f, 10f),
+            new Keyframe(0.78f, 18f),
+            new Keyframe(1f, 32f));
     }
 
     private static AnimationCurve CreateDefaultPressureCurve()
     {
         return new AnimationCurve(
-            new Keyframe(0f, 0.55f),
-            new Keyframe(0.18f, 0.75f),
-            new Keyframe(0.5f, 1.2f),
-            new Keyframe(1f, 1.8f));
+            new Keyframe(0f, 0.35f),
+            new Keyframe(0.12f, 0.5f),
+            new Keyframe(0.25f, 1f),
+            new Keyframe(0.45f, 2.4f),
+            new Keyframe(0.72f, 5f),
+            new Keyframe(1f, 8f));
     }
 
     private static float GetSectionProgress(int sectionIndex, int totalSections)

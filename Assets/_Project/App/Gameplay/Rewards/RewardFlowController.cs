@@ -16,6 +16,7 @@ public sealed class RewardFlowController : IDisposable
 
     private List<RewardChoiceData> _currentChoices;
     private CocoonRewardProfile _currentCocoonProfile;
+    private RewardRollContext _currentRollContext;
     private RewardRarity _currentGuaranteeRarity;
     private int _freeRerollAttemptsLeft;
     private int _adRerollAttemptsLeft;
@@ -74,15 +75,30 @@ public sealed class RewardFlowController : IDisposable
         _isDisposed = true;
     }
 
-    public bool Open(CocoonRewardProfile cocoonProfile = null)
+    public bool Open(
+        CocoonRewardProfile cocoonProfile = null,
+        RewardRollContext rollContext = default)
     {
         _currentCocoonProfile = cocoonProfile;
+        _currentRollContext = rollContext;
         _isRewardedAdPending = false;
 
         if (!RollCurrentChoices())
             return false;
 
         return ShowCurrentChoices(false);
+    }
+
+    public void ResetSession()
+    {
+        _currentChoices = null;
+        _currentCocoonProfile = null;
+        _currentRollContext = default;
+        _currentGuaranteeRarity = default;
+        _freeRerollAttemptsLeft = _maxFreeRerollAttempts;
+        _adRerollAttemptsLeft = _maxAdRerollAttempts;
+        _takeAllAttemptsLeft = _maxTakeAllAttempts;
+        _isRewardedAdPending = false;
     }
 
     private void HandleSelected(RewardChoiceData choice)
@@ -113,6 +129,9 @@ public sealed class RewardFlowController : IDisposable
         if (_freeRerollAttemptsLeft > 0 || _adRerollAttemptsLeft <= 0)
             return;
 
+        if (!RewardAdAssistRules.CanUsePaidReroll(_currentRollContext))
+            return;
+
         if (_isRewardedAdPending)
             return;
 
@@ -134,6 +153,9 @@ public sealed class RewardFlowController : IDisposable
             return;
 
         if (_takeAllAttemptsLeft <= 0 || _isRewardedAdPending)
+            return;
+
+        if (!RewardAdAssistRules.CanUseTakeAll(_currentRollContext))
             return;
 
         _isRewardedAdPending = true;
@@ -204,13 +226,15 @@ public sealed class RewardFlowController : IDisposable
         _currentGuaranteeRarity = forcedGuaranteeRarity
             ?? _rollService.RollGuaranteeRarity(
                 _applyService.RuntimeContext,
-                _currentCocoonProfile);
+                _currentCocoonProfile,
+                _currentRollContext);
 
         _currentChoices = _rollService.Roll3(
             _applyService.RuntimeContext,
             _currentCocoonProfile,
             _currentGuaranteeRarity,
-            forcedGuaranteeSlotCount);
+            forcedGuaranteeSlotCount,
+            _currentRollContext);
 
         return _currentChoices != null && _currentChoices.Count > 0;
     }
@@ -233,8 +257,11 @@ public sealed class RewardFlowController : IDisposable
                 _freeRerollAttemptsLeft > 0 && !_isRewardedAdPending,
                 _freeRerollAttemptsLeft <= 0
                     && _adRerollAttemptsLeft > 0
+                    && RewardAdAssistRules.CanUsePaidReroll(_currentRollContext)
                     && !_isRewardedAdPending,
-                _takeAllAttemptsLeft > 0 && !_isRewardedAdPending),
+                _takeAllAttemptsLeft > 0
+                    && RewardAdAssistRules.CanUseTakeAll(_currentRollContext)
+                    && !_isRewardedAdPending),
             animateChoiceChanges);
 
         if (!isBound)

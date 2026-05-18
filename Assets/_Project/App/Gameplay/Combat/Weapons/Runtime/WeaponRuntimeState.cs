@@ -56,6 +56,21 @@ public sealed class WeaponRuntimeState
     public bool CanAddSalvoShots => SalvoExtraShots < _maxSalvoExtraShots;
     public bool CanAddProjectileSpeedBonus => ProjectileSpeedBonus < MaxProjectileSpeedBonus;
 
+    public void ResetProgression()
+    {
+        _shotModifiers.Clear();
+        DamageMultiplier = 1f;
+        FireRateBonus = 0f;
+        CriticalChance = 0f;
+        CriticalDamageMultiplier = 2f;
+        PenetrationBonus = 0;
+        ParallelProjectileCount = 1;
+        ParallelSpacing = 0.5f;
+        SalvoExtraShots = 0;
+        SalvoInterval = 0.2f;
+        ProjectileSpeedBonus = 0f;
+    }
+
     public bool CanApplyDamageMultiplier(float multiplier)
     {
         if (multiplier <= 1f)

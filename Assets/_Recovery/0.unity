@@ -155,8 +155,8 @@ MonoBehaviour:
   _acaciaThornWeapon: {fileID: 501089296}
   _rewardedAdService: {fileID: 91581460}
   _freeRerollAttemptsPerSession: 2
-  _adRerollAttemptsPerSession: 2
-  _takeAllAttemptsPerSession: 2
+  _adRerollAttemptsPerSession: 1
+  _takeAllAttemptsPerSession: 1
 --- !u!4 &57053536
 Transform:
   m_ObjectHideFlags: 0
@@ -319,7 +319,7 @@ MonoBehaviour:
   _popupRoot: {fileID: 1474514291}
   _revivalPopup: {fileID: 271019425}
   _rewardedAdService: {fileID: 91581460}
-  _maxReviveAttempts: 3
+  _maxReviveAttempts: 1
   _fallbackRemainingLevelNormalized: 0.5
   _reloadCurrentSceneOnGiveUp: 1
 --- !u!114 &91581460

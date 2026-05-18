@@ -13,6 +13,10 @@ public sealed class WormPressureDirector : MonoBehaviour
     private bool _isTracking;
     private bool _hasStartedForCurrentWorm;
 
+#if UNITY_EDITOR
+    public WormPressureConfig EditorConfig => _config;
+#endif
+
     private void OnEnable()
     {
         CombatState.OnShootStateChanged += HandleShootStateChanged;
@@ -60,6 +64,11 @@ public sealed class WormPressureDirector : MonoBehaviour
     }
 
     private void HandleWormDied()
+    {
+        StopTracking(resetPressure: true);
+    }
+
+    public void ResetForNewRun()
     {
         StopTracking(resetPressure: true);
     }

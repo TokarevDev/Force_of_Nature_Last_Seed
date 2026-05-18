@@ -51,6 +51,16 @@ public sealed class WormCombatController : MonoBehaviour
         NotifyDestructionProgressChanged();
     }
 
+    public void Clear()
+    {
+        _head = null;
+        _tail = null;
+        _sections.Clear();
+        _totalProgressSegments = 0;
+        _destroyedProgressSegments = 0;
+        NotifyDestructionProgressChanged();
+    }
+
     public void RegisterHit(WormSegment segment, in DamageInfo damageInfo)
     {
         WormSection section = ResolveDamageSection(segment);
@@ -106,7 +116,14 @@ public sealed class WormCombatController : MonoBehaviour
 
         if (rewardTriggered && _rewardInstaller != null)
         {
-            _rewardInstaller.OpenReward(rewardProfile);
+            float headProgress = _wormController != null
+                ? _wormController.HeadPathProgressNormalized
+                : 0f;
+
+            _rewardInstaller.OpenReward(
+                rewardProfile,
+                headProgress,
+                DestructionProgressNormalized);
         }
 
         if (_sections.Count == 0)

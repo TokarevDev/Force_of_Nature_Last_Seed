@@ -19,6 +19,25 @@ public sealed class WormSectionHpPresenter : MonoBehaviour
         }
     }
 
+    public void Clear()
+    {
+        foreach (KeyValuePair<WormSection, WormSectionHpView> entry in _views)
+        {
+            WormSection section = entry.Key;
+
+            if (section != null)
+            {
+                section.HPChanged -= OnHpChanged;
+                section.Destroyed -= OnSectionDestroyed;
+            }
+
+            if (entry.Value != null)
+                Destroy(entry.Value.gameObject);
+        }
+
+        _views.Clear();
+    }
+
     private void BindSection(WormSection section)
     {
         if (section == null) return;

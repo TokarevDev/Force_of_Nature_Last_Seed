@@ -49,14 +49,7 @@ public sealed class AcaciaThornWeapon : MonoBehaviour
         }
 
         _firePoint = firePoint;
-        _runtimeState.SetProgressionLimits(
-            _config.MaxDamageMultiplier,
-            _config.MaxFireRateBonus,
-            _config.MaxSalvoExtraShots,
-            _config.MaxProjectileSpeedBonus,
-            _config.MaxCriticalChance,
-            _config.CriticalDamageMultiplier,
-            _config.MaxCriticalDamageMultiplier);
+        ApplyRuntimeLimits();
         _runtimeState.SetBaseDamage(_config.Damage);
 
         _pool.Init(
@@ -164,6 +157,32 @@ public sealed class AcaciaThornWeapon : MonoBehaviour
         _isSalvoActive = false;
         _salvoTimer = 0f;
         _salvoShotsRemaining = 0;
+    }
+
+    public void ResetRuntimeState()
+    {
+        ClearTransientState();
+
+        int baseDamage = _config != null ? _config.Damage : 1;
+        _runtimeState.ResetProgression(baseDamage);
+        ApplyRuntimeLimits();
+        RebuildCooldown(resetTimer: true);
+        RuntimeStatsChanged?.Invoke();
+    }
+
+    private void ApplyRuntimeLimits()
+    {
+        if (_config == null)
+            return;
+
+        _runtimeState.SetProgressionLimits(
+            _config.MaxDamageMultiplier,
+            _config.MaxFireRateBonus,
+            _config.MaxSalvoExtraShots,
+            _config.MaxProjectileSpeedBonus,
+            _config.MaxCriticalChance,
+            _config.CriticalDamageMultiplier,
+            _config.MaxCriticalDamageMultiplier);
     }
 
     private void StartSalvo()

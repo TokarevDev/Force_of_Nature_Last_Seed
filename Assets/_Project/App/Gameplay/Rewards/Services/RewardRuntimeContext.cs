@@ -1,4 +1,22 @@
 using System;
+using UnityEngine;
+
+public readonly struct RewardRollContext
+{
+    public readonly float HeadPathProgressNormalized;
+    public readonly float WormDestructionProgressNormalized;
+    public readonly bool HasRevivedThisRun;
+
+    public RewardRollContext(
+        float headPathProgressNormalized,
+        float wormDestructionProgressNormalized,
+        bool hasRevivedThisRun)
+    {
+        HeadPathProgressNormalized = Mathf.Clamp01(headPathProgressNormalized);
+        WormDestructionProgressNormalized = Mathf.Clamp01(wormDestructionProgressNormalized);
+        HasRevivedThisRun = hasRevivedThisRun;
+    }
+}
 
 public sealed class RewardRuntimeContext
 {
@@ -41,5 +59,26 @@ public sealed class RewardRuntimeContext
 
             return MainWeapon != null ? MainWeapon.CurrentProjectileDamage : 0;
         }
+    }
+}
+
+public static class RewardAdAssistRules
+{
+    public const float PaidRerollHeadProgressThreshold = 0.8f;
+    public const float TakeAllHeadProgressThreshold = 0.95f;
+    public const float PostReviveTakeAllHeadProgressThreshold = 0.8f;
+
+    public static bool CanUsePaidReroll(RewardRollContext rollContext)
+    {
+        return rollContext.HasRevivedThisRun ||
+            rollContext.HeadPathProgressNormalized >= PaidRerollHeadProgressThreshold;
+    }
+
+    public static bool CanUseTakeAll(RewardRollContext rollContext)
+    {
+        if (rollContext.HasRevivedThisRun)
+            return rollContext.HeadPathProgressNormalized >= PostReviveTakeAllHeadProgressThreshold;
+
+        return rollContext.HeadPathProgressNormalized >= TakeAllHeadProgressThreshold;
     }
 }

@@ -133,7 +133,7 @@ public sealed class InputReader : MonoBehaviour
         _touchDeltaXNormalized = 0f;
     }
 
-    private void ResetMovement()
+    public void ResetMovement()
     {
         MoveX = 0f;
         ResetTouchDrag();

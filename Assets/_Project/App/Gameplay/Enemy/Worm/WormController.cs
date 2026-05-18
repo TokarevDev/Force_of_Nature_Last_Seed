@@ -41,6 +41,9 @@ public sealed class WormController : MonoBehaviour
     [SerializeField] private float _segmentSpacing = 0.5f;
     [SerializeField][Min(0.01f)] private float _tailVisualSpacingMultiplier = 1f;
 
+    [Header("Head Tail Bridge")]
+    [SerializeField][Min(0.01f)] private float _headBridgeSpacingMultiplier = 1.25f;
+
     [Header("Optimization")]
     [SerializeField][Min(0f)] private float _activeDistancePadding = 0.5f;
 
@@ -87,6 +90,22 @@ public sealed class WormController : MonoBehaviour
 
     public bool HasWorm => _segments.Count > 0;
     public bool IsCatchingUpToCombatStart { get; private set; }
+
+#if UNITY_EDITOR
+    public RailPath EditorRail => _rail;
+    public float EditorSpeed => _speed;
+    public float EditorSegmentSpacing => _segmentSpacing;
+    public float EditorReviveRollbackProgressNormalized
+    {
+        get
+        {
+            if (_rail == null || _rail.TotalLength <= 0f)
+                return 0f;
+
+            return Mathf.Clamp01(GetReviveRollbackTargetDistance() / _rail.TotalLength);
+        }
+    }
+#endif
 
     public float HeadPathProgressNormalized
     {
@@ -154,6 +173,36 @@ public sealed class WormController : MonoBehaviour
         IsCatchingUpToCombatStart = TryGetCatchUpTargetDistance(out _);
 
         UpdateSegments();
+    }
+
+    public void ClearWorm()
+    {
+        if (_rollbackRoutine != null)
+        {
+            StopCoroutine(_rollbackRoutine);
+            _rollbackRoutine = null;
+        }
+
+        if (_reviveRollbackRoutine != null)
+        {
+            StopCoroutine(_reviveRollbackRoutine);
+            _reviveRollbackRoutine = null;
+        }
+
+        _segments.Clear();
+        _rollbackAnchoredDistances.Clear();
+        _headDistance = 0f;
+        _activeStartIndex = -1;
+        _activeEndIndex = -1;
+        _isSectionRollback = false;
+        _isReviveRollback = false;
+        _sectionRollbackTargetDistance = 0f;
+        _hasReachedCombatStart = false;
+        _hasReachedPathEnd = false;
+        _combatBurstTimer = 0f;
+        _combatBurstRemainingTime = 0f;
+        IsCatchingUpToCombatStart = false;
+        ClearTargetDistanceCaches();
     }
 
     private void Update()
@@ -344,6 +393,7 @@ public sealed class WormController : MonoBehaviour
             Vector3 position = CalculatePositionAtDistance(distance, waveTime);
 
             UpdateSegmentPosition(segment, position);
+            UpdateHeadFollowChain(i, segment, distance, waveTime);
 
             if (i > startIndex && !segment.HasTailVisualChain)
                 UpdateSegmentRotation(i, segment, position);
@@ -378,6 +428,7 @@ public sealed class WormController : MonoBehaviour
 
             Vector3 position = CalculatePositionAtDistance(distance, waveTime);
             UpdateSegmentPosition(segment, position);
+            UpdateHeadFollowChain(i, segment, distance, waveTime);
 
             if (i > 0 && !segment.HasTailVisualChain)
                 UpdateSegmentRotation(i, segment, position);
@@ -471,11 +522,47 @@ public sealed class WormController : MonoBehaviour
         {
             WormSegment previous = _segments[previousIndex];
 
+            if (ShouldAttachTailToHeadFollowChain(index, tail) &&
+                previous != null &&
+                previous.TryGetLastHeadFollowPartPosition(out Vector3 headFollowPosition))
+            {
+                return headFollowPosition;
+            }
+
             if (previous != null)
                 return previous.CachedTransform.position;
         }
 
         return tail.CachedTransform.position;
+    }
+
+    private void UpdateHeadFollowChain(
+        int index,
+        WormSegment segment,
+        float headDistance,
+        float waveTime)
+    {
+        if (segment == null || !segment.HasHeadFollowChain)
+            return;
+
+        bool visible = ShouldShowHeadFollowChain(index, segment);
+        segment.SetHeadFollowChainVisible(visible);
+
+        if (!visible)
+            return;
+
+        float spacing = GetHeadBridgeSpacing();
+        Vector3 previousPosition = segment.CachedTransform.position;
+
+        for (int i = 0; i < segment.HeadFollowPartCount; i++)
+        {
+            float visualDistance = Mathf.Max(0f, headDistance - ((i + 1) * spacing));
+            Vector3 visualPosition = CalculatePositionAtDistance(visualDistance, waveTime);
+            float angle = CalculateLookAngle(visualPosition, previousPosition);
+
+            segment.SetHeadFollowPartPose(i, visualPosition, angle);
+            previousPosition = visualPosition;
+        }
     }
 
     private static float CalculateLookAngle(Vector3 from, Vector3 to)
@@ -540,12 +627,51 @@ public sealed class WormController : MonoBehaviour
     {
         float distance = _headDistance - (index * _segmentSpacing);
 
+        if (ShouldAttachTailToHeadFollowChain(index, segment))
+            distance -= GetHeadFollowChainDistanceOffset();
+
         if (!_isSectionRollback || segment == null)
             return distance;
 
         return _rollbackAnchoredDistances.TryGetValue(segment, out float anchoredDistance)
             ? Mathf.Min(distance, anchoredDistance)
             : distance;
+    }
+
+    private bool ShouldShowHeadFollowChain(int index, WormSegment segment)
+    {
+        return index == 0 &&
+            segment != null &&
+            segment.Type == WormSegmentType.Head &&
+            segment.HasHeadFollowChain &&
+            _segments.Count == 2 &&
+            _segments[1] != null &&
+            _segments[1].Type == WormSegmentType.Tail;
+    }
+
+    private bool ShouldAttachTailToHeadFollowChain(int index, WormSegment segment)
+    {
+        return index == 1 &&
+            segment != null &&
+            segment.Type == WormSegmentType.Tail &&
+            _segments.Count == 2 &&
+            _segments[0] != null &&
+            _segments[0].HasHeadFollowChain;
+    }
+
+    private float GetHeadFollowChainDistanceOffset()
+    {
+        WormSegment head = _segments.Count > 0 ? _segments[0] : null;
+
+        return head != null
+            ? ((head.HeadFollowPartCount + 1) * GetHeadBridgeSpacing()) -
+                Mathf.Max(0.01f, _segmentSpacing)
+            : 0f;
+    }
+
+    private float GetHeadBridgeSpacing()
+    {
+        return Mathf.Max(0.01f, _segmentSpacing * _headBridgeSpacingMultiplier);
     }
 
     /// <summary>

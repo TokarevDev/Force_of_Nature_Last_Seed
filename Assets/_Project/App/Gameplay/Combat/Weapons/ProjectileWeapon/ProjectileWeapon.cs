@@ -46,15 +46,7 @@ public sealed class ProjectileWeapon : MonoBehaviour, IWeapon
         if (_runtimeState == null)
             _runtimeState = new WeaponRuntimeState();
 
-        _runtimeState.SetFireRateBonusLimit(_config.MaxFireRateBonus);
-        _runtimeState.SetProjectileSpeedBonusLimit(_config.MaxProjectileSpeedBonus);
-        _runtimeState.SetProgressionLimits(
-            _config.MaxDamageMultiplier,
-            _config.MaxCriticalChance,
-            _config.MaxCriticalDamageMultiplier,
-            _config.MaxPenetrationBonus,
-            _config.MaxParallelProjectiles,
-            _config.MaxSalvoExtraShots);
+        ApplyRuntimeLimits();
 
         RebuildModifiers(resetFiringCycle: true);
         RuntimeStatsChanged?.Invoke();
@@ -112,6 +104,43 @@ public sealed class ProjectileWeapon : MonoBehaviour, IWeapon
         _isSalvoActive = false;
         _salvoTimer = 0f;
         _salvoShotsRemaining = 0;
+    }
+
+    public void ResetRuntimeState()
+    {
+        if (_runtimeState == null)
+            _runtimeState = new WeaponRuntimeState();
+        else
+            _runtimeState.ResetProgression();
+
+        if (_config != null)
+        {
+            ApplyRuntimeLimits();
+            RebuildModifiers(resetFiringCycle: true);
+        }
+        else
+        {
+            ClearTransientState();
+            _weaponCooldownTimer = 0f;
+        }
+
+        RuntimeStatsChanged?.Invoke();
+    }
+
+    private void ApplyRuntimeLimits()
+    {
+        if (_config == null || _runtimeState == null)
+            return;
+
+        _runtimeState.SetFireRateBonusLimit(_config.MaxFireRateBonus);
+        _runtimeState.SetProjectileSpeedBonusLimit(_config.MaxProjectileSpeedBonus);
+        _runtimeState.SetProgressionLimits(
+            _config.MaxDamageMultiplier,
+            _config.MaxCriticalChance,
+            _config.MaxCriticalDamageMultiplier,
+            _config.MaxPenetrationBonus,
+            _config.MaxParallelProjectiles,
+            _config.MaxSalvoExtraShots);
     }
 
     private void ResetFiringCycle()

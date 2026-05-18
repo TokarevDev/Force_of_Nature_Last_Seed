@@ -224,6 +224,8 @@ MonoBehaviour:
   _doubleRewardButton: {fileID: 2461159143561428596}
   _closeOnAccept: 1
   _closeOnDoubleReward: 1
+  _restartAnimationDuration: 0.55
+  _restartAnimationTargetScale: 0.92
 --- !u!1 &2135025538763698769
 GameObject:
   m_ObjectHideFlags: 0

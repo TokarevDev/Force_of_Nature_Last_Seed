@@ -51,6 +51,11 @@ public sealed class WormEngagementController : MonoBehaviour
 
     private void HandleWormDied()
     {
+        ResetState();
+    }
+
+    public void ResetState()
+    {
         _wormsInside = 0;
         CombatState.SetShootEnabled(false);
     }

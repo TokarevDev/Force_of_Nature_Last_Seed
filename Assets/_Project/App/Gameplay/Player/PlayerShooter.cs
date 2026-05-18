@@ -22,6 +22,10 @@ public sealed class PlayerShooter : MonoBehaviour
     private IWeapon _weapon;
     private bool _initialized;
 
+#if UNITY_EDITOR
+    public WeaponConfig EditorStartConfig => _startConfig;
+#endif
+
     public void Init(IScreenBounds screenBounds)
     {
         if (_initialized)

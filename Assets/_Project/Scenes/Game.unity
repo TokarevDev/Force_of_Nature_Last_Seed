@@ -155,8 +155,8 @@ MonoBehaviour:
   _acaciaThornWeapon: {fileID: 501089296}
   _rewardedAdService: {fileID: 91581460}
   _freeRerollAttemptsPerSession: 2
-  _adRerollAttemptsPerSession: 2
-  _takeAllAttemptsPerSession: 2
+  _adRerollAttemptsPerSession: 1
+  _takeAllAttemptsPerSession: 1
 --- !u!4 &57053536
 Transform:
   m_ObjectHideFlags: 0
@@ -188,6 +188,7 @@ GameObject:
   - component: {fileID: 91581459}
   - component: {fileID: 91581460}
   - component: {fileID: 91581461}
+  - component: {fileID: 91581462}
   m_Layer: 3
   m_Name: WormSpawner
   m_TagString: Untagged
@@ -262,13 +263,14 @@ MonoBehaviour:
   _combatBurstDuration: 2.5
   _segmentSpacing: 0.5
   _tailVisualSpacingMultiplier: 1
+  _headBridgeSpacingMultiplier: 1.25
   _activeDistancePadding: 0.5
   _waveAmplitude: 0.05
   _waveFrequency: 4
   _waveSpeed: 1
   _rollbackSpeed: 9
   _reviveRollbackRailPointIndex: 3
-  _reviveRollbackSpeed: 50
+  _reviveRollbackSpeed: 100
 --- !u!114 &91581457
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -319,9 +321,11 @@ MonoBehaviour:
   _popupRoot: {fileID: 1474514291}
   _revivalPopup: {fileID: 271019425}
   _rewardedAdService: {fileID: 91581460}
-  _maxReviveAttempts: 3
+  _maxReviveAttempts: 1
   _fallbackRemainingLevelNormalized: 0.5
   _reloadCurrentSceneOnGiveUp: 1
+  _giveUpRestartAnimationDuration: 0.55
+  _giveUpRestartTargetScale: 0.92
 --- !u!114 &91581460
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -349,6 +353,30 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WormVictoryPopupController
   _victoryPopupId: WinPopup
+--- !u!114 &91581462
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 91581453}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb622ea918d548c8919d63d4c2936918, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameplayRunRestarter
+  _wormSpawner: {fileID: 91581455}
+  _pressureDirector: {fileID: 91581458}
+  _engagementController: {fileID: 659970389}
+  _reviveFlowController: {fileID: 91581459}
+  _playerMover: {fileID: 501089290}
+  _inputReader: {fileID: 501089293}
+  _projectileWeapon: {fileID: 501089295}
+  _acaciaThornWeapon: {fileID: 501089296}
+  _projectilePoolRegistry: {fileID: 550759621}
+  _rewardInstaller: {fileID: 57053535}
+  _popupRoot: {fileID: 1474514291}
+  _damagePopupPresenter: {fileID: 1484420117}
 --- !u!1 &192453717
 GameObject:
   m_ObjectHideFlags: 0

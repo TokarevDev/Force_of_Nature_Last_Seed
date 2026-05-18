@@ -46,6 +46,7 @@ public sealed class WormSpawner : MonoBehaviour
     private WormFactory _wormFactory;
     private WormSectionHpResolver _hpResolver;
     private readonly List<WormSection> _sections = new();
+    private readonly List<WormSegment> _spawnedSegments = new();
 
     private bool _isSpawned;
     private int _bodyPoolCapacity;
@@ -53,6 +54,12 @@ public sealed class WormSpawner : MonoBehaviour
     private int _pendingAdaptiveUpgradeChanges;
     private float _lastAdaptiveRebalanceTime;
     private bool _hasAppliedAdaptiveUpgradeRebalance;
+
+#if UNITY_EDITOR
+    public WormHpScalingConfig EditorHpScalingConfig => _hpScalingConfig;
+    public int EditorLevelNumber => _levelNumber;
+    public int EditorTotalLength => _totalLength;
+#endif
 
     private void OnEnable()
     {
@@ -120,6 +127,9 @@ public sealed class WormSpawner : MonoBehaviour
             return;
         }
 
+        _spawnedSegments.Clear();
+        _spawnedSegments.AddRange(segments);
+
         List<WormSection> sections =
             WormSectionBuilder.BuildSections(
                 segments,
@@ -140,6 +150,33 @@ public sealed class WormSpawner : MonoBehaviour
         _hpPresenter.BindSections(sections);
 
         _isSpawned = true;
+    }
+
+    public void RestartWorm()
+    {
+        DespawnWorm();
+        SpawnWorm();
+    }
+
+    public void DespawnWorm()
+    {
+        _hpPresenter?.Clear();
+        _wormCombat?.Clear();
+        _wormController?.ClearWorm();
+
+        for (int i = 0; i < _spawnedSegments.Count; i++)
+        {
+            if (_segmentPool != null)
+                _segmentPool.Release(_spawnedSegments[i]);
+        }
+
+        _spawnedSegments.Clear();
+        _sections.Clear();
+        _runtimePressureMultiplier = 1f;
+        _pendingAdaptiveUpgradeChanges = 0;
+        _lastAdaptiveRebalanceTime = Time.time;
+        _hasAppliedAdaptiveUpgradeRebalance = false;
+        _isSpawned = false;
     }
 
     private void AssignSectionsHP(List<WormSection> sections)

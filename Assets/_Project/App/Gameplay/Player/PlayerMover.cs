@@ -8,13 +8,25 @@ public sealed class PlayerMover : MonoBehaviour
     [SerializeField] private float _edgePadding = 0.5f;
 
     private IScreenBounds _screenBounds;
+    private Vector3 _startPosition;
     private float _currentInput;
 
     public float MovementInput => _currentInput;
 
+    private void Awake()
+    {
+        _startPosition = transform.position;
+    }
+
     public void Init(IScreenBounds screenBounds)
     {
         _screenBounds = screenBounds;
+    }
+
+    public void ResetForNewRun()
+    {
+        _currentInput = 0f;
+        transform.position = _startPosition;
     }
 
     public void Move(float inputX)

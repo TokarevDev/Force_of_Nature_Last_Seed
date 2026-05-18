@@ -19,16 +19,23 @@ public sealed class RewardInstaller : MonoBehaviour
     [FormerlySerializedAs("_freeRerollAttemptsPerPopup")]
     [SerializeField][Min(0)] private int _freeRerollAttemptsPerSession = 2;
     [FormerlySerializedAs("_adRerollAttemptsPerPopup")]
-    [SerializeField][Min(0)] private int _adRerollAttemptsPerSession = 2;
+    [SerializeField][Min(0)] private int _adRerollAttemptsPerSession = 1;
     [FormerlySerializedAs("_takeAllAttemptsPerPopup")]
-    [SerializeField][Min(0)] private int _takeAllAttemptsPerSession = 2;
+    [SerializeField][Min(0)] private int _takeAllAttemptsPerSession = 1;
 
     private RewardFlowController _rewardFlow;
+    private bool _hasRevivedThisRun;
 
     public IReadOnlyList<CocoonRewardProfile> CocoonProfiles =>
         _database != null
             ? _database.CocoonProfiles
             : CocoonRewardProfile.Defaults;
+
+#if UNITY_EDITOR
+    public int EditorFreeRerollAttemptsPerSession => _freeRerollAttemptsPerSession;
+    public int EditorAdRerollAttemptsPerSession => _adRerollAttemptsPerSession;
+    public int EditorTakeAllAttemptsPerSession => _takeAllAttemptsPerSession;
+#endif
 
     private void Awake()
     {
@@ -46,6 +53,16 @@ public sealed class RewardInstaller : MonoBehaviour
             _takeAllAttemptsPerSession);
     }
 
+    private void OnEnable()
+    {
+        WormReviveFlowController.ReviveGranted += HandleReviveGranted;
+    }
+
+    private void OnDisable()
+    {
+        WormReviveFlowController.ReviveGranted -= HandleReviveGranted;
+    }
+
     private void OnDestroy()
     {
         _rewardFlow?.Dispose();
@@ -58,6 +75,31 @@ public sealed class RewardInstaller : MonoBehaviour
 
     public bool OpenReward(CocoonRewardProfile cocoonProfile)
     {
-        return _rewardFlow != null && _rewardFlow.Open(cocoonProfile);
+        return OpenReward(cocoonProfile, 0f, 0f);
+    }
+
+    public bool OpenReward(
+        CocoonRewardProfile cocoonProfile,
+        float headPathProgressNormalized,
+        float wormDestructionProgressNormalized)
+    {
+        return _rewardFlow != null &&
+            _rewardFlow.Open(
+                cocoonProfile,
+                new RewardRollContext(
+                    headPathProgressNormalized,
+                    wormDestructionProgressNormalized,
+                    _hasRevivedThisRun));
+    }
+
+    public void ResetSession()
+    {
+        _hasRevivedThisRun = false;
+        _rewardFlow?.ResetSession();
+    }
+
+    private void HandleReviveGranted()
+    {
+        _hasRevivedThisRun = true;
     }
 }

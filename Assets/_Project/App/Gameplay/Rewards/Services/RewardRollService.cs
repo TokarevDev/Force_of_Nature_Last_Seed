@@ -22,7 +22,8 @@ public sealed class RewardRollService
         RewardRuntimeContext context,
         CocoonRewardProfile cocoonProfile = null,
         RewardRarity? guaranteedRarity = null,
-        int guaranteedRaritySlotCount = 1)
+        int guaranteedRaritySlotCount = 1,
+        RewardRollContext rollContext = default)
     {
         var result = new List<RewardChoiceData>(MAX_CHOICES);
 
@@ -60,6 +61,12 @@ public sealed class RewardRollService
                 guaranteedSlotCount,
                 pools)
             : BuildSlotRarities(slots, count);
+        ApplyProgressRarityBias(
+            slotRarities,
+            guaranteedSlotCount,
+            pools,
+            rollContext);
+
         bool useLegendaryProfileRules = cocoonProfile != null
             && cocoonProfile.GuaranteesLegendaryReward;
 
@@ -76,11 +83,12 @@ public sealed class RewardRollService
         var usedCategories = new HashSet<RewardModifierCategory>();
         var usedCategoryRarities = new HashSet<int>();
         var usedWeaponGroups = new HashSet<RewardWeaponGroup>();
-        int weaponUnlockSlotIndex = useLegendaryProfileRules
-            && guaranteedSlotCount < count
-            && HasAvailableWeaponUnlockReward(pools)
-                ? guaranteedSlotCount
-                : -1;
+        int weaponUnlockSlotIndex = GetWeaponUnlockSlotIndex(
+            pools,
+            rollContext,
+            useLegendaryProfileRules,
+            guaranteedSlotCount,
+            count);
 
         for (int i = 0; i < count; i++)
         {
@@ -103,7 +111,8 @@ public sealed class RewardRollService
                     pools,
                     usedCategories,
                     usedCategoryRarities,
-                    out selected);
+                    out selected,
+                    rollContext);
             }
 
             if (!isSelected)
@@ -116,13 +125,15 @@ public sealed class RewardRollService
                         usedCategories,
                         usedCategoryRarities,
                         out selected,
-                        allowLegendaryFallback)
+                        allowLegendaryFallback,
+                        rollContext)
                     : TryRollRewardForRarity(
                         pools,
                         rarity,
                         usedCategories,
                         usedCategoryRarities,
-                        out selected);
+                        out selected,
+                        rollContext);
             }
 
             if (!isSelected && useLegendaryProfileRules)
@@ -132,7 +143,8 @@ public sealed class RewardRollService
                     rarity,
                     usedCategories,
                     usedCategoryRarities,
-                    out selected);
+                    out selected,
+                    rollContext);
             }
 
             if (!isSelected
@@ -141,7 +153,8 @@ public sealed class RewardRollService
                     usedCategories,
                     usedCategoryRarities,
                     out selected,
-                    allowLegendaryFallback))
+                    allowLegendaryFallback,
+                    rollContext))
             {
                 break;
             }
@@ -161,7 +174,8 @@ public sealed class RewardRollService
 
     public RewardRarity RollGuaranteeRarity(
         RewardRuntimeContext context,
-        CocoonRewardProfile cocoonProfile = null)
+        CocoonRewardProfile cocoonProfile = null,
+        RewardRollContext rollContext = default)
     {
         if (_database == null || context == null)
             return RewardRarity.Common;
@@ -208,6 +222,12 @@ public sealed class RewardRollService
                 ref legendaryWeight);
         }
 
+        ApplyProgressGuaranteeRarityBias(
+            rollContext,
+            ref commonWeight,
+            ref rareWeight,
+            ref legendaryWeight);
+
         float premiumWeight = rareWeight + legendaryWeight;
 
         if (premiumWeight > 0f)
@@ -230,7 +250,8 @@ public sealed class RewardRollService
         HashSet<RewardModifierCategory> usedCategories,
         HashSet<int> usedCategoryRarities,
         out RewardModifierEntry selected,
-        bool allowLegendaryFallback)
+        bool allowLegendaryFallback,
+        RewardRollContext rollContext)
     {
         selected = null;
 
@@ -241,7 +262,8 @@ public sealed class RewardRollService
                 usedCategoryRarities,
                 RewardPickMode.UniqueCategory,
                 weaponGroup,
-                out selected))
+                out selected,
+                rollContext))
         {
             return true;
         }
@@ -253,7 +275,8 @@ public sealed class RewardRollService
                 usedCategoryRarities,
                 RewardPickMode.UniqueCategoryRarity,
                 weaponGroup,
-                out selected))
+                out selected,
+                rollContext))
         {
             return true;
         }
@@ -265,7 +288,8 @@ public sealed class RewardRollService
                 usedCategoryRarities,
                 RewardPickMode.Any,
                 weaponGroup,
-                out selected))
+                out selected,
+                rollContext))
         {
             return true;
         }
@@ -276,7 +300,8 @@ public sealed class RewardRollService
             usedCategoryRarities,
             weaponGroup,
             out selected,
-            allowLegendaryFallback);
+            allowLegendaryFallback,
+            rollContext);
     }
 
     private bool TryRollRewardForRarity(
@@ -284,7 +309,8 @@ public sealed class RewardRollService
         RewardRarity rarity,
         HashSet<RewardModifierCategory> usedCategories,
         HashSet<int> usedCategoryRarities,
-        out RewardModifierEntry selected)
+        out RewardModifierEntry selected,
+        RewardRollContext rollContext)
     {
         selected = null;
 
@@ -295,7 +321,8 @@ public sealed class RewardRollService
                 usedCategoryRarities,
                 RewardPickMode.UniqueCategory,
                 RewardWeaponGroup.None,
-                out selected))
+                out selected,
+                rollContext))
         {
             return true;
         }
@@ -307,7 +334,8 @@ public sealed class RewardRollService
                 usedCategoryRarities,
                 RewardPickMode.UniqueCategoryRarity,
                 RewardWeaponGroup.None,
-                out selected))
+                out selected,
+                rollContext))
         {
             return true;
         }
@@ -319,7 +347,8 @@ public sealed class RewardRollService
             usedCategoryRarities,
             RewardPickMode.Any,
             RewardWeaponGroup.None,
-            out selected);
+            out selected,
+            rollContext);
     }
 
     private bool TryRollPremiumReward(
@@ -327,7 +356,8 @@ public sealed class RewardRollService
         RewardRarity preferredRarity,
         HashSet<RewardModifierCategory> usedCategories,
         HashSet<int> usedCategoryRarities,
-        out RewardModifierEntry selected)
+        out RewardModifierEntry selected,
+        RewardRollContext rollContext)
     {
         selected = null;
 
@@ -338,13 +368,15 @@ public sealed class RewardRollService
                     RewardRarity.Legendary,
                     usedCategories,
                     usedCategoryRarities,
-                    out selected)
+                    out selected,
+                    rollContext)
                 || TryRollRewardForRarity(
                     pools,
                     RewardRarity.Rare,
                     usedCategories,
                     usedCategoryRarities,
-                    out selected);
+                    out selected,
+                    rollContext);
         }
 
         return TryRollRewardForRarity(
@@ -352,20 +384,23 @@ public sealed class RewardRollService
                 RewardRarity.Rare,
                 usedCategories,
                 usedCategoryRarities,
-                out selected)
+                out selected,
+                rollContext)
             || TryRollRewardForRarity(
                 pools,
                 RewardRarity.Legendary,
                 usedCategories,
                 usedCategoryRarities,
-                out selected);
+                out selected,
+                rollContext);
     }
 
     private static bool TryRollWeaponUnlockReward(
         Dictionary<RewardRarity, List<RewardModifierEntry>> pools,
         HashSet<RewardModifierCategory> usedCategories,
         HashSet<int> usedCategoryRarities,
-        out RewardModifierEntry selected)
+        out RewardModifierEntry selected,
+        RewardRollContext rollContext)
     {
         selected = null;
 
@@ -374,7 +409,8 @@ public sealed class RewardRollService
                 usedCategories,
                 usedCategoryRarities,
                 RewardPickMode.UniqueCategory,
-                out selected))
+                out selected,
+                rollContext))
         {
             return true;
         }
@@ -384,7 +420,8 @@ public sealed class RewardRollService
                 usedCategories,
                 usedCategoryRarities,
                 RewardPickMode.UniqueCategoryRarity,
-                out selected))
+                out selected,
+                rollContext))
         {
             return true;
         }
@@ -394,7 +431,8 @@ public sealed class RewardRollService
             usedCategories,
             usedCategoryRarities,
             RewardPickMode.Any,
-            out selected);
+            out selected,
+            rollContext);
     }
 
     private static bool TryRollWeaponUnlockReward(
@@ -402,7 +440,8 @@ public sealed class RewardRollService
         HashSet<RewardModifierCategory> usedCategories,
         HashSet<int> usedCategoryRarities,
         RewardPickMode mode,
-        out RewardModifierEntry selected)
+        out RewardModifierEntry selected,
+        RewardRollContext rollContext)
     {
         selected = null;
 
@@ -430,7 +469,7 @@ public sealed class RewardRollService
                         mode,
                         RewardWeaponGroup.None))
                 {
-                    totalWeight += entry.Weight;
+                    totalWeight += GetEffectiveWeight(entry, rollContext);
                 }
             }
         }
@@ -463,7 +502,7 @@ public sealed class RewardRollService
                     continue;
                 }
 
-                currentWeight += entry.Weight;
+                currentWeight += GetEffectiveWeight(entry, rollContext);
 
                 if (roll > currentWeight)
                     continue;
@@ -484,7 +523,8 @@ public sealed class RewardRollService
         HashSet<int> usedCategoryRarities,
         RewardPickMode mode,
         RewardWeaponGroup requiredWeaponGroup,
-        out RewardModifierEntry selected)
+        out RewardModifierEntry selected,
+        RewardRollContext rollContext)
     {
         selected = null;
 
@@ -497,7 +537,8 @@ public sealed class RewardRollService
             usedCategoryRarities,
             mode,
             requiredWeaponGroup,
-            out selected);
+            out selected,
+            rollContext);
     }
 
     private Dictionary<RewardRarity, List<RewardModifierEntry>> BuildPools(
@@ -531,7 +572,8 @@ public sealed class RewardRollService
         HashSet<RewardModifierCategory> usedCategories,
         HashSet<int> usedCategoryRarities,
         out RewardModifierEntry selected,
-        bool allowLegendary = true)
+        bool allowLegendary = true,
+        RewardRollContext rollContext = default)
     {
         selected = null;
 
@@ -542,7 +584,8 @@ public sealed class RewardRollService
                 RewardPickMode.UniqueCategory,
                 RewardWeaponGroup.None,
                 out selected,
-                allowLegendary))
+                allowLegendary,
+                rollContext))
         {
             return true;
         }
@@ -554,7 +597,8 @@ public sealed class RewardRollService
                 RewardPickMode.UniqueCategoryRarity,
                 RewardWeaponGroup.None,
                 out selected,
-                allowLegendary))
+                allowLegendary,
+                rollContext))
         {
             return true;
         }
@@ -566,7 +610,8 @@ public sealed class RewardRollService
             RewardPickMode.Any,
             RewardWeaponGroup.None,
             out selected,
-            allowLegendary);
+            allowLegendary,
+            rollContext);
     }
 
     private static bool TryRollReward(
@@ -575,7 +620,8 @@ public sealed class RewardRollService
         HashSet<int> usedCategoryRarities,
         RewardWeaponGroup requiredWeaponGroup,
         out RewardModifierEntry selected,
-        bool allowLegendary = true)
+        bool allowLegendary = true,
+        RewardRollContext rollContext = default)
     {
         selected = null;
 
@@ -586,7 +632,8 @@ public sealed class RewardRollService
                 RewardPickMode.UniqueCategory,
                 requiredWeaponGroup,
                 out selected,
-                allowLegendary))
+                allowLegendary,
+                rollContext))
         {
             return true;
         }
@@ -598,7 +645,8 @@ public sealed class RewardRollService
                 RewardPickMode.UniqueCategoryRarity,
                 requiredWeaponGroup,
                 out selected,
-                allowLegendary))
+                allowLegendary,
+                rollContext))
         {
             return true;
         }
@@ -610,7 +658,8 @@ public sealed class RewardRollService
             RewardPickMode.Any,
             requiredWeaponGroup,
             out selected,
-            allowLegendary);
+            allowLegendary,
+            rollContext);
     }
 
     private static bool TryRollReward(
@@ -620,7 +669,8 @@ public sealed class RewardRollService
         RewardPickMode mode,
         RewardWeaponGroup requiredWeaponGroup,
         out RewardModifierEntry selected,
-        bool allowLegendary = true)
+        bool allowLegendary = true,
+        RewardRollContext rollContext = default)
     {
         selected = null;
 
@@ -650,7 +700,7 @@ public sealed class RewardRollService
                         mode,
                         requiredWeaponGroup))
                 {
-                    totalWeight += entry.Weight;
+                    totalWeight += GetEffectiveWeight(entry, rollContext);
                 }
             }
         }
@@ -685,7 +735,7 @@ public sealed class RewardRollService
                     continue;
                 }
 
-                currentWeight += entry.Weight;
+                currentWeight += GetEffectiveWeight(entry, rollContext);
 
                 if (roll > currentWeight)
                     continue;
@@ -887,6 +937,215 @@ public sealed class RewardRollService
         return RewardRarity.Legendary;
     }
 
+    private static void ApplyProgressRarityBias(
+        RewardRarity[] slotRarities,
+        int protectedSlotCount,
+        Dictionary<RewardRarity, List<RewardModifierEntry>> pools,
+        RewardRollContext rollContext)
+    {
+        if (slotRarities == null || slotRarities.Length == 0)
+            return;
+
+        bool hasRare = HasRewardsForRarity(pools, RewardRarity.Rare);
+        bool hasLegendary = HasRewardsForRarity(pools, RewardRarity.Legendary);
+
+        if (!hasRare && !hasLegendary)
+            return;
+
+        float pressureProgress = GetRewardPressureProgress(rollContext);
+        float commonToRareChance = 0f;
+        float rareToLegendaryChance = 0f;
+
+        if (pressureProgress >= 0.65f)
+        {
+            commonToRareChance = 0.85f;
+            rareToLegendaryChance = 0.45f;
+        }
+        else if (pressureProgress >= 0.35f)
+        {
+            commonToRareChance = Mathf.Lerp(0.45f, 0.7f, Mathf.InverseLerp(0.35f, 0.65f, pressureProgress));
+            rareToLegendaryChance = Mathf.Lerp(0.15f, 0.32f, Mathf.InverseLerp(0.35f, 0.65f, pressureProgress));
+        }
+        else if (pressureProgress >= 0.18f)
+        {
+            commonToRareChance = 0.3f;
+            rareToLegendaryChance = 0.05f;
+        }
+
+        if (rollContext.HasRevivedThisRun)
+        {
+            commonToRareChance = Mathf.Max(commonToRareChance, 0.65f);
+            rareToLegendaryChance = Mathf.Max(rareToLegendaryChance, 0.28f);
+        }
+
+        protectedSlotCount = Mathf.Clamp(protectedSlotCount, 0, slotRarities.Length);
+
+        for (int i = protectedSlotCount; i < slotRarities.Length; i++)
+        {
+            if (slotRarities[i] == RewardRarity.Common && hasRare && Random.value < commonToRareChance)
+            {
+                slotRarities[i] = RewardRarity.Rare;
+                continue;
+            }
+
+            if (slotRarities[i] == RewardRarity.Rare && hasLegendary && Random.value < rareToLegendaryChance)
+                slotRarities[i] = RewardRarity.Legendary;
+        }
+    }
+
+    private static void ApplyProgressGuaranteeRarityBias(
+        RewardRollContext rollContext,
+        ref float commonWeight,
+        ref float rareWeight,
+        ref float legendaryWeight)
+    {
+        float pressureProgress = GetRewardPressureProgress(rollContext);
+
+        if (pressureProgress >= 0.65f)
+        {
+            commonWeight *= 0.15f;
+            rareWeight *= 3.5f;
+            legendaryWeight *= 5f;
+        }
+        else if (pressureProgress >= 0.35f)
+        {
+            float t = Mathf.InverseLerp(0.35f, 0.65f, pressureProgress);
+            commonWeight *= Mathf.Lerp(0.65f, 0.35f, t);
+            rareWeight *= Mathf.Lerp(1.7f, 2.8f, t);
+            legendaryWeight *= Mathf.Lerp(1.5f, 3.2f, t);
+        }
+        else if (pressureProgress >= 0.18f)
+        {
+            commonWeight *= 0.75f;
+            rareWeight *= 1.55f;
+            legendaryWeight *= 1.35f;
+        }
+
+        if (!rollContext.HasRevivedThisRun)
+            return;
+
+        commonWeight *= 0.35f;
+        rareWeight *= 2.2f;
+        legendaryWeight *= 3.2f;
+    }
+
+    private static float GetEffectiveWeight(
+        RewardModifierEntry entry,
+        RewardRollContext rollContext)
+    {
+        if (entry == null)
+            return 0f;
+
+        float baseWeight = entry.Weight;
+
+        if (baseWeight <= 0f)
+            return 0f;
+
+        float pressureProgress = GetRewardPressureProgress(rollContext);
+        float multiplier = GetCategoryPressureMultiplier(entry.Category, pressureProgress);
+
+        if (rollContext.HasRevivedThisRun)
+            multiplier *= GetReviveMultiplier(entry.Category, pressureProgress);
+
+        return Mathf.Max(0.01f, baseWeight * multiplier);
+    }
+
+    private static float GetCategoryPressureMultiplier(
+        RewardModifierCategory category,
+        float pressureProgress)
+    {
+        if (category == RewardModifierCategory.AcaciaThornUnlock)
+        {
+            if (pressureProgress < 0.22f)
+                return 4f;
+
+            if (pressureProgress < 0.5f)
+                return 1.25f;
+
+            if (pressureProgress < 0.65f)
+                return 0.45f;
+
+            return 0.15f;
+        }
+
+        if (IsDirectDpsCategory(category))
+        {
+            float multiplier = pressureProgress switch
+            {
+                >= 0.65f => 12f,
+                >= 0.35f => Mathf.Lerp(3.5f, 8f, Mathf.InverseLerp(0.35f, 0.65f, pressureProgress)),
+                >= 0.18f => 2.2f,
+                _ => 0.9f
+            };
+
+            if (IsDamageMultiplierCategory(category) && pressureProgress >= 0.35f)
+                multiplier *= pressureProgress >= 0.65f ? 1.5f : 1.2f;
+
+            return multiplier;
+        }
+
+        if (IsUtilityCategory(category))
+        {
+            if (pressureProgress >= 0.65f)
+                return 0.08f;
+
+            if (pressureProgress >= 0.35f)
+                return 0.45f;
+
+            return 0.9f;
+        }
+
+        return 1f;
+    }
+
+    private static float GetReviveMultiplier(
+        RewardModifierCategory category,
+        float pressureProgress)
+    {
+        if (IsDirectDpsCategory(category))
+            return pressureProgress >= 0.8f ? 2.5f : 1.8f;
+
+        if (category == RewardModifierCategory.AcaciaThornUnlock)
+            return 0.7f;
+
+        return 0.35f;
+    }
+
+    private static float GetRewardPressureProgress(RewardRollContext rollContext)
+    {
+        return Mathf.Clamp01(Mathf.Max(
+            rollContext.HeadPathProgressNormalized,
+            rollContext.WormDestructionProgressNormalized));
+    }
+
+    private static bool IsDirectDpsCategory(RewardModifierCategory category)
+    {
+        return category is RewardModifierCategory.Damage
+            or RewardModifierCategory.FireRate
+            or RewardModifierCategory.CriticalChance
+            or RewardModifierCategory.CriticalPower
+            or RewardModifierCategory.Penetration
+            or RewardModifierCategory.ParallelProjectiles
+            or RewardModifierCategory.Salvo
+            or RewardModifierCategory.AcaciaThornDamage
+            or RewardModifierCategory.AcaciaThornFireRate
+            or RewardModifierCategory.AcaciaThornSalvo
+            or RewardModifierCategory.AcaciaThornCriticalChance
+            or RewardModifierCategory.AcaciaThornCriticalPower;
+    }
+
+    private static bool IsDamageMultiplierCategory(RewardModifierCategory category)
+    {
+        return category is RewardModifierCategory.Damage
+            or RewardModifierCategory.AcaciaThornDamage;
+    }
+
+    private static bool IsUtilityCategory(RewardModifierCategory category)
+    {
+        return category is RewardModifierCategory.ProjectileSpeed
+            or RewardModifierCategory.AcaciaThornProjectileSpeed;
+    }
+
     private static bool HasRewardsForRarity(
         Dictionary<RewardRarity, List<RewardModifierEntry>> pools,
         RewardRarity rarity)
@@ -918,6 +1177,43 @@ public sealed class RewardRollService
         return false;
     }
 
+    private static int GetWeaponUnlockSlotIndex(
+        Dictionary<RewardRarity, List<RewardModifierEntry>> pools,
+        RewardRollContext rollContext,
+        bool useLegendaryProfileRules,
+        int guaranteedSlotCount,
+        int choiceCount)
+    {
+        if (choiceCount <= 0)
+            return -1;
+
+        if (!HasAvailableWeaponUnlockReward(pools))
+            return -1;
+
+        if (useLegendaryProfileRules && guaranteedSlotCount < choiceCount)
+            return guaranteedSlotCount;
+
+        float pressureProgress = GetRewardPressureProgress(rollContext);
+        float chance;
+
+        if (pressureProgress < 0.18f)
+            chance = 0.75f;
+        else if (pressureProgress < 0.35f)
+            chance = 0.45f;
+        else if (pressureProgress < 0.55f)
+            chance = 0.2f;
+        else
+            chance = 0.05f;
+
+        if (rollContext.HasRevivedThisRun)
+            chance *= 0.5f;
+
+        if (Random.value >= chance)
+            return -1;
+
+        return Mathf.Clamp(guaranteedSlotCount, 0, choiceCount - 1);
+    }
+
     private static RewardRarity GetHighestAvailableRarity(
         Dictionary<RewardRarity, List<RewardModifierEntry>> pools)
     {
@@ -941,7 +1237,8 @@ public sealed class RewardRollService
         HashSet<int> usedCategoryRarities,
         RewardPickMode mode,
         RewardWeaponGroup requiredWeaponGroup,
-        out RewardModifierEntry selected)
+        out RewardModifierEntry selected,
+        RewardRollContext rollContext)
     {
         selected = null;
 
@@ -961,7 +1258,7 @@ public sealed class RewardRollService
                     mode,
                     requiredWeaponGroup))
             {
-                totalWeight += entry.Weight;
+                totalWeight += GetEffectiveWeight(entry, rollContext);
             }
         }
 
@@ -985,7 +1282,7 @@ public sealed class RewardRollService
                 continue;
             }
 
-            currentWeight += entry.Weight;
+            currentWeight += GetEffectiveWeight(entry, rollContext);
 
             if (roll > currentWeight)
                 continue;

@@ -52,12 +52,16 @@ public static class WeaponPowerEstimator
             runtimeState);
 
         int projectilesPerShot = EstimateProjectilesPerShot(runtimeState);
+        float damageEventsPerProjectile = EstimateDamageEventsPerProjectile(
+            config.Projectile,
+            runtimeState);
         int salvoShots = Mathf.Max(1, 1 + runtimeState.SalvoExtraShots);
         float shotCycleTime = EstimateShotCycleTime(config, runtimeState, salvoShots);
 
         float estimatedDps =
             damagePerProjectile *
             projectilesPerShot *
+            damageEventsPerProjectile *
             salvoShots /
             shotCycleTime;
 
@@ -89,6 +93,18 @@ public static class WeaponPowerEstimator
         return Mathf.Max(
             1,
             runtimeState.ParallelProjectileCount);
+    }
+
+    private static float EstimateDamageEventsPerProjectile(
+        ProjectileConfig projectileConfig,
+        WeaponRuntimeState runtimeState)
+    {
+        if (projectileConfig == null || runtimeState == null)
+            return 1f;
+
+        return Mathf.Max(
+            1,
+            1 + projectileConfig.Penetration + runtimeState.PenetrationBonus);
     }
 
     public static WeaponPowerSnapshot Estimate(

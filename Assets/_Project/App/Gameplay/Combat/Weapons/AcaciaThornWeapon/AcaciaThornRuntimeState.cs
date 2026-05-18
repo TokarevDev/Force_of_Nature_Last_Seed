@@ -33,6 +33,18 @@ public sealed class AcaciaThornRuntimeState
 
     public bool CanUnlock => !IsUnlocked;
 
+    public void ResetProgression(int baseDamage)
+    {
+        IsUnlocked = false;
+        BaseDamage = Mathf.Max(1, baseDamage);
+        DamageMultiplier = 1f;
+        FireRateBonus = 0f;
+        SalvoExtraShots = 0;
+        ProjectileSpeedBonus = 0f;
+        CriticalChance = 0f;
+        CriticalDamageMultiplier = 2f;
+    }
+
     public void SetProgressionLimits(
         float maxDamageMultiplier,
         float maxFireRateBonus,

@@ -1,9 +1,10 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 [DisallowMultipleComponent]
 public sealed class WormReviveFlowController : MonoBehaviour
 {
+    public static event System.Action ReviveGranted;
+
     [SerializeField] private WormController _wormController;
     [SerializeField] private WormCombatController _wormCombat;
     [SerializeField] private PoolRegistry _projectilePoolRegistry;
@@ -13,13 +14,19 @@ public sealed class WormReviveFlowController : MonoBehaviour
     [SerializeField] private PopupRoot _popupRoot;
     [SerializeField] private RevivalPopupView _revivalPopup;
     [SerializeField] private RewardedAdService _rewardedAdService;
-    [SerializeField, Min(0)] private int _maxReviveAttempts = 3;
+    [SerializeField, Min(0)] private int _maxReviveAttempts = 1;
     [SerializeField, Range(0f, 1f)] private float _fallbackRemainingLevelNormalized = 0.5f;
     [SerializeField] private bool _reloadCurrentSceneOnGiveUp = true;
+    [SerializeField, Min(0f)] private float _giveUpRestartAnimationDuration = 0.55f;
+    [SerializeField, Range(0.5f, 1f)] private float _giveUpRestartTargetScale = 0.92f;
 
     private int _remainingRevives;
     private bool _isFailState;
     private bool _isReviving;
+
+#if UNITY_EDITOR
+    public int EditorMaxReviveAttempts => _maxReviveAttempts;
+#endif
 
     private void Awake()
     {
@@ -116,6 +123,7 @@ public sealed class WormReviveFlowController : MonoBehaviour
             return;
         }
 
+        ReviveGranted?.Invoke();
         StartReviveRollback();
     }
 
@@ -145,14 +153,36 @@ public sealed class WormReviveFlowController : MonoBehaviour
 
     private void HandleGiveUpRequested()
     {
-        _popupRoot?.HideActive();
-
         if (!_reloadCurrentSceneOnGiveUp)
+        {
+            _popupRoot?.HideActive();
             return;
+        }
 
-        Time.timeScale = 1f;
-        Scene activeScene = SceneManager.GetActiveScene();
-        SceneManager.LoadScene(activeScene.buildIndex);
+        if (_revivalPopup == null)
+        {
+            RequestRunRestart();
+            return;
+        }
+
+        _revivalPopup.SetWaitingForAd(true);
+        _revivalPopup.PlayCloseAnimation(
+            _giveUpRestartAnimationDuration,
+            _giveUpRestartTargetScale,
+            RequestRunRestart);
+    }
+
+    public void ResetForNewRun()
+    {
+        _remainingRevives = _maxReviveAttempts;
+        _isFailState = false;
+        _isReviving = false;
+    }
+
+    private void RequestRunRestart()
+    {
+        _popupRoot?.HideActive();
+        GameplayRunRestartEvents.RequestRestart();
     }
 
     private float GetCurrentRemainingLevelNormalized()

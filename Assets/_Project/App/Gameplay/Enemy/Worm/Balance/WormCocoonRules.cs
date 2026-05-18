@@ -6,8 +6,8 @@ public static class WormCocoonRules
     public const int SectionSize = 7;
 
     private const int FirstCocoonSectionIndex = 1;
-    private const int EarlyEmptySectionsBetweenCocoons = 2;
-    private const int LateEmptySectionsBetweenCocoons = 3;
+    private const int EarlyEmptySectionsBetweenCocoons = 1;
+    private const int LateEmptySectionsBetweenCocoons = 2;
     private const float LateProgressStart = 0.5f;
     private const float LateWhiteWeightMultiplier = 0.25f;
     private const float LateGreenWeightMultiplier = 1.25f;
