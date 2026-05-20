@@ -2256,7 +2256,7 @@ MonoBehaviour:
   _adRerollGuaranteeText: {fileID: 4313469380194124324}
   _attemptsFormat: 'attempts left: x{0}'
   _guaranteeFormat: 'guarantee: {0}'
-  _adGuaranteeFormat: 'guarantee: {0} x3'
+  _adGuaranteeFormat: 'guarantee: {0}'
   _numberColor:
     serializedVersion: 2
     rgba: 4286119785

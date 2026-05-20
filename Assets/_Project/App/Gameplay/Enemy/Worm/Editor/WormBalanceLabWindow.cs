@@ -13,7 +13,7 @@ public sealed class WormBalanceLabWindow : EditorWindow
     private const float MaxResultViewHeight = 520f;
     private const float EstimatedControlsHeight = 560f;
     private const int DefaultTotalLength = 60;
-    private const float DefaultWormSpeed = 3f;
+    private const float DefaultWormSpeed = 1f;
     private const float DefaultSegmentSpacing = 0.5f;
     private const float DefaultReviveRollbackProgress = 0.12f;
     private const string RewardDatabasePath = "Assets/_Project/App/Gameplay/Rewards/RewardDatabase_Main.asset";
@@ -839,7 +839,9 @@ internal static class WormBalanceSimulator
         RewardRuntimeContext rewardContext = new(
             mainState,
             acaciaState,
-            () => BuildMainWeaponDamage(settings.MainWeaponConfig, mainState));
+            () => BuildMainWeaponDamage(settings.MainWeaponConfig, mainState),
+            settings.MainWeaponConfig,
+            settings.AcaciaThornConfig);
         RewardRollService rewardRollService = new(settings.RewardDatabase);
         WormSectionHpResolver hpResolver = new(settings.HpConfig);
         WormBalanceSectionState[] sections = BuildSections(settings);
@@ -1310,11 +1312,7 @@ internal static class WormBalanceSimulator
                 acaciaState);
         }
 
-        bool canUsePaidReroll = CanUsePaidReroll(rollContext);
-        bool canUseTakeAll = CanUseTakeAll(rollContext);
-
-        while (canUsePaidReroll
-            && adSession != null
+        while (adSession != null
             && ShouldRerollOffer(offer, currentDps, settings.AdRerollMinDpsGainRatio)
             && adSession.TryUseAdReroll())
         {
@@ -1327,11 +1325,10 @@ internal static class WormBalanceSimulator
                 mainState,
                 acaciaState,
                 RewardRarity.Legendary,
-                3);
+                1);
         }
 
-        if (canUseTakeAll
-            && adSession != null
+        if (adSession != null
             && ShouldTakeAll(offer, currentDps, settings.TakeAllMinTotalDpsGainRatio)
             && adSession.TryUseTakeAll())
         {
@@ -1417,16 +1414,6 @@ internal static class WormBalanceSimulator
             && offer.TotalPositiveDpsGain > offer.SelectedDpsGain + 0.0001f;
     }
 
-    private static bool CanUsePaidReroll(RewardRollContext rollContext)
-    {
-        return RewardAdAssistRules.CanUsePaidReroll(rollContext);
-    }
-
-    private static bool CanUseTakeAll(RewardRollContext rollContext)
-    {
-        return RewardAdAssistRules.CanUseTakeAll(rollContext);
-    }
-
     private static float GetCurrentEstimatedDps(
         WormBalanceSimulationSettings settings,
         WeaponRuntimeState mainState,
@@ -1447,17 +1434,6 @@ internal static class WormBalanceSimulator
 
         if (choices == null || choices.Count == 0)
             return null;
-
-        if (TryPickLockedWeaponUnlockReward(
-                choices,
-                settings,
-                mainState,
-                acaciaState,
-                out RewardChoiceData unlockReward,
-                out selectedDpsGain))
-        {
-            return unlockReward;
-        }
 
         if (settings.RewardPickStrategy == WormBalanceRewardPickStrategy.RandomChoice)
             return choices[Random.Range(0, choices.Count)];
@@ -1501,60 +1477,6 @@ internal static class WormBalanceSimulator
         }
 
         return choices[0];
-    }
-
-    private static bool TryPickLockedWeaponUnlockReward(
-        List<RewardChoiceData> choices,
-        WormBalanceSimulationSettings settings,
-        WeaponRuntimeState mainState,
-        AcaciaThornRuntimeState acaciaState,
-        out RewardChoiceData selectedReward,
-        out float selectedDpsGain)
-    {
-        selectedReward = null;
-        selectedDpsGain = float.MinValue;
-
-        RewardRuntimeContext currentContext = new(
-            mainState,
-            acaciaState,
-            () => BuildMainWeaponDamage(settings.MainWeaponConfig, mainState));
-
-        for (int i = 0; i < choices.Count; i++)
-        {
-            RewardChoiceData choice = choices[i];
-
-            if (!IsWeaponUnlockReward(choice))
-                continue;
-
-            if (choice.Effect == null || !choice.Effect.CanApply(currentContext))
-                continue;
-
-            float dpsGain = CalculateEstimatedDpsGain(
-                choice,
-                settings,
-                mainState,
-                acaciaState);
-
-            if (selectedReward != null && dpsGain <= selectedDpsGain + 0.0001f)
-                continue;
-
-            selectedReward = choice;
-            selectedDpsGain = dpsGain;
-        }
-
-        if (selectedReward != null)
-            return true;
-
-        selectedDpsGain = 0f;
-        return false;
-    }
-
-    private static bool IsWeaponUnlockReward(RewardChoiceData choice)
-    {
-        if (choice == null)
-            return false;
-
-        return choice.Category == RewardModifierCategory.AcaciaThornUnlock;
     }
 
     private static RewardChoiceData PickHighestEstimatedDpsGainReward(
@@ -1623,7 +1545,9 @@ internal static class WormBalanceSimulator
         RewardRuntimeContext clonedContext = new(
             mainClone,
             acaciaClone,
-            () => BuildMainWeaponDamage(settings.MainWeaponConfig, mainClone));
+            () => BuildMainWeaponDamage(settings.MainWeaponConfig, mainClone),
+            settings.MainWeaponConfig,
+            settings.AcaciaThornConfig);
 
         WeaponPowerSnapshot before = EstimatePower(settings, mainState, acaciaState);
 
@@ -2269,9 +2193,10 @@ internal sealed class WormBalanceSimulationReport
             $"Worm settings: length={Settings.TotalLength}, sections={WormCocoonRules.CountGameplaySections(Mathf.Max(1, Settings.TotalLength - 2))}, speed={Settings.WormSpeed:0.00}, path={Settings.PathMetrics.PathLength:0.00}u / {Settings.PathTimeLimitSeconds:0.0}s");
         builder.AppendLine(
             $"Damage model: estimated weapon DPS x hit efficiency {Settings.HitEfficiency:0.00}, rollback={(Settings.ApplySectionRollback ? "ON" : "OFF")}, runtime pressure={(Settings.UseRuntimePressure ? "ON" : "OFF")}");
-        builder.AppendLine("Reward pressure: uses max(head path progress, worm destruction progress); revive bias is runtime-only.");
+        builder.AppendLine("Reward randomness: legendary cocoons roll only after 50% worm progress at fixed 3%; new weapon unlocks start after 30% worm destruction; unlocked weapon rewards are weighted toward the lower estimated DPS weapon.");
+        builder.AppendLine("Ad reward power: ad reroll guarantees 1 legendary slot; take all uses its session attempt only.");
         builder.AppendLine($"Ad limits: free reroll={Settings.FreeRerollAttemptsPerSession}, ad reroll={Settings.AdRerollAttemptsPerSession}, take all={Settings.TakeAllAttemptsPerSession}, revive={Settings.ReviveAttemptsPerSession}, revive rollback={Settings.ReviveRollbackProgress * 100f:0.0}% path");
-        builder.AppendLine($"Ad heuristics: paid reroll starts after {RewardAdAssistRules.PaidRerollHeadProgressThreshold * 100f:0}% head path or after revive; take all after {RewardAdAssistRules.TakeAllHeadProgressThreshold * 100f:0}% head path, or {RewardAdAssistRules.PostReviveTakeAllHeadProgressThreshold * 100f:0}% after revive.");
+        builder.AppendLine("Ad buttons: availability follows session attempts only; attempts reset on run restart, not revive.");
         builder.AppendLine("Targets: 30-40% no-ads wins, ~70% ad-assist wins, and no paywall feeling.");
         builder.AppendLine(Settings.SimulatePlayerXFollow
             ? "Player X follow: ON, instant head X match"

@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1862916495990966829}
   - component: {fileID: 1164691023492560560}
+  - component: {fileID: 6742159083021847734}
   m_Layer: 3
   m_Name: Visual
   m_TagString: Untagged
@@ -58,7 +59,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 0d642346639647ae889dc57bd49cadab, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -91,6 +92,36 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &6742159083021847734
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4766994331834915942}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 874e54277aee4420ad6e1661f9794fd3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CocoonVisualController
+  _renderer: {fileID: 1164691023492560560}
+  _legendarySparks: {fileID: 0}
+  _legendaryLightning: {fileID: 0}
+  _baseTint: {r: 0.82, g: 0.96, b: 0.98, a: 1}
+  _wormAccentColor: {r: 0, g: 0.62, b: 0.72, a: 1}
+  _glowColor: {r: 0.58, g: 1, b: 1, a: 1}
+  _glowStrength: 0.08
+  _pulseSpeed: 1.7
+  _pulseAmount: 0.05
+  _pearlStrength: 0.24
+  _accentStrength: 0.58
+  _rimStrength: 0.78
+  _legendaryGlowColor: {r: 1, g: 0.48, b: 0.08, a: 1}
+  _legendarySparkColor: {r: 1, g: 0.58, b: 0.08, a: 1}
+  _legendaryGlowStrength: 0.72
+  _legendaryPulseSpeed: 4
+  _legendaryPulseAmount: 0.24
+  _legendaryAccentStrength: 0.18
 --- !u!1 &5527678761862495135
 GameObject:
   m_ObjectHideFlags: 0

@@ -9,10 +9,6 @@ public static class WormCocoonRules
     private const int EarlyEmptySectionsBetweenCocoons = 1;
     private const int LateEmptySectionsBetweenCocoons = 2;
     private const float LateProgressStart = 0.5f;
-    private const float LateWhiteWeightMultiplier = 0.25f;
-    private const float LateGreenWeightMultiplier = 1.25f;
-    private const float LateBlueWeightMultiplier = 1.6f;
-    private const float LateLegendaryWeightMultiplier = 0.45f;
 
     public static int CountGameplaySections(int gameplaySegmentCount)
     {
@@ -62,7 +58,9 @@ public static class WormCocoonRules
         IReadOnlyList<CocoonRewardProfile> cocoonProfiles,
         float sectionProgress)
     {
-        IReadOnlyList<CocoonRewardProfile> profiles = HasSpawnableProfile(cocoonProfiles)
+        sectionProgress = Mathf.Clamp01(sectionProgress);
+
+        IReadOnlyList<CocoonRewardProfile> profiles = HasSpawnableProfile(cocoonProfiles, sectionProgress)
             ? cocoonProfiles
             : CocoonRewardProfile.Defaults;
 
@@ -86,7 +84,7 @@ public static class WormCocoonRules
             if (profile.UseFixedSpawnChance)
                 continue;
 
-            totalWeight += GetEffectiveSpawnWeight(profile, sectionProgress);
+            totalWeight += profile.SpawnWeight;
         }
 
         if (totalWeight <= 0f)
@@ -105,7 +103,7 @@ public static class WormCocoonRules
             if (profile.UseFixedSpawnChance)
                 continue;
 
-            current += GetEffectiveSpawnWeight(profile, sectionProgress);
+            current += profile.SpawnWeight;
 
             if (roll <= current)
                 return profile;
@@ -145,94 +143,28 @@ public static class WormCocoonRules
     }
 
     private static bool HasSpawnableProfile(
-        IReadOnlyList<CocoonRewardProfile> profiles)
+        IReadOnlyList<CocoonRewardProfile> profiles,
+        float sectionProgress)
     {
         if (profiles == null)
             return false;
 
         for (int i = 0; i < profiles.Count; i++)
         {
-            if (IsSpawnableProfile(profiles[i]))
+            if (IsSpawnableProfile(profiles[i], sectionProgress))
                 return true;
         }
 
         return false;
     }
 
-    private static bool IsSpawnableProfile(CocoonRewardProfile profile)
-    {
-        return profile != null && profile.SpawnWeight > 0f;
-    }
-
     private static bool IsSpawnableProfile(
         CocoonRewardProfile profile,
         float sectionProgress)
     {
-        return IsSpawnableProfile(profile)
+        return profile != null
+            && profile.SpawnWeight > 0f
             && sectionProgress + Mathf.Epsilon >= profile.MinDestroyedProgressToSpawn;
     }
 
-    private static float GetEffectiveSpawnWeight(
-        CocoonRewardProfile profile,
-        float sectionProgress)
-    {
-        float baseWeight = profile.SpawnWeight;
-
-        if (sectionProgress < LateProgressStart)
-            return baseWeight;
-
-        float t = Mathf.InverseLerp(
-            LateProgressStart,
-            1f,
-            sectionProgress);
-        float quality = GetRewardQuality(profile);
-        float lateMultiplier;
-
-        if (quality < 0.25f)
-            lateMultiplier = Mathf.Lerp(1f, LateWhiteWeightMultiplier, t);
-        else if (quality < 0.75f)
-            lateMultiplier = Mathf.Lerp(1f, LateGreenWeightMultiplier, t);
-        else if (quality < 1.5f)
-            lateMultiplier = Mathf.Lerp(1f, LateBlueWeightMultiplier, t);
-        else
-            lateMultiplier = Mathf.Lerp(1f, LateLegendaryWeightMultiplier, t);
-
-        return baseWeight * lateMultiplier;
-    }
-
-    private static float GetRewardQuality(CocoonRewardProfile profile)
-    {
-        IReadOnlyList<RewardRaritySlot> slots = profile.RaritySlots;
-
-        if (slots == null || slots.Count == 0)
-            return 0f;
-
-        float total = 0f;
-        int slotCount = 0;
-
-        for (int i = 0; i < slots.Count; i++)
-        {
-            RewardRaritySlot slot = slots[i];
-
-            if (slot == null)
-                continue;
-
-            float alternateChance = slot.AlternateChance;
-            total += GetRarityScore(slot.Rarity) * (1f - alternateChance);
-            total += GetRarityScore(slot.AlternateRarity) * alternateChance;
-            slotCount++;
-        }
-
-        return slotCount > 0 ? total / slotCount : 0f;
-    }
-
-    private static float GetRarityScore(RewardRarity rarity)
-    {
-        return rarity switch
-        {
-            RewardRarity.Rare => 1f,
-            RewardRarity.Legendary => 2f,
-            _ => 0f
-        };
-    }
 }

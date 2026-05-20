@@ -22,7 +22,7 @@ public sealed class WormController : MonoBehaviour
     [SerializeField] private RailPath _rail;
 
     [Header("Movement")]
-    [SerializeField] private float _speed = 3f;
+    [SerializeField] private float _speed = 1f;
 
     [Header("Catch Up")]
     [Tooltip("RailPath control point index. Use RailPath Scene View point labels.")]
@@ -59,14 +59,24 @@ public sealed class WormController : MonoBehaviour
     [Header("Revive")]
     [Tooltip("RailPath control point index. Set -1 to use Catch Up Rail Point Index.")]
     [SerializeField][Min(-1)] private int _reviveRollbackRailPointIndex = -1;
-    [SerializeField][Min(0f)] private float _reviveRollbackSpeed = 35f;
+    [SerializeField][Min(0.01f)] private float _reviveSquashDuration = 0.14f;
+    [SerializeField][Min(0.01f)] private float _reviveThrowDuration = 0.75f;
+    [SerializeField][Min(0.01f)] private float _reviveLandingDuration = 0.16f;
+    [Tooltip("Last part of the rollback distance where revive throw slows down to regular gameplay speed.")]
+    [SerializeField][Range(0f, 0.8f)] private float _reviveDecelerationPathFraction = 0.2f;
+    [SerializeField][Min(0f)] private float _reviveArcHeight = 0.85f;
+    [SerializeField][Range(1f, 1.8f)] private float _reviveSquashXScale = 1.22f;
+    [SerializeField][Range(0.2f, 1f)] private float _reviveSquashYScale = 0.72f;
+    [SerializeField][Range(0.6f, 1.2f)] private float _reviveLandingXScale = 1.1f;
+    [SerializeField][Range(0.6f, 1.2f)] private float _reviveLandingYScale = 0.86f;
 
     private readonly List<WormSegment> _segments = new();
     private readonly Dictionary<WormSegment, float> _rollbackAnchoredDistances = new();
+    private readonly List<Vector3> _reviveVisualBaseScales = new();
 
     private float _headDistance;
     private Coroutine _rollbackRoutine;
-    private Coroutine _reviveRollbackRoutine;
+    private Coroutine _reviveThrowbackRoutine;
     private int _activeStartIndex = -1;
     private int _activeEndIndex = -1;
 
@@ -77,6 +87,7 @@ public sealed class WormController : MonoBehaviour
     private bool _hasReachedPathEnd;
     private float _combatBurstTimer;
     private float _combatBurstRemainingTime;
+    private float _reviveVisualYOffset;
 
     private Vector3 _tmpEuler;
     private RailPath _cachedCatchUpRail;
@@ -148,12 +159,24 @@ public sealed class WormController : MonoBehaviour
         ClearTargetDistanceCaches();
     }
 
+    private void OnDestroy()
+    {
+        CleanupReviveThrowbackVisuals();
+    }
+
     /// <summary>
     /// Initializes worm movement with the generated segment list.
     /// Called by WormSpawner after all segments are created.
     /// </summary>
     public void Init(List<WormSegment> segments)
     {
+        if (_reviveThrowbackRoutine != null)
+        {
+            StopCoroutine(_reviveThrowbackRoutine);
+            _reviveThrowbackRoutine = null;
+        }
+
+        CleanupReviveThrowbackVisuals();
         _segments.Clear();
         _segments.AddRange(segments);
 
@@ -163,7 +186,9 @@ public sealed class WormController : MonoBehaviour
 
         _isSectionRollback = false;
         _isReviveRollback = false;
+        _reviveVisualYOffset = 0f;
         _rollbackAnchoredDistances.Clear();
+        _reviveVisualBaseScales.Clear();
         _sectionRollbackTargetDistance = 0f;
         _hasReachedCombatStart = false;
         _hasReachedPathEnd = false;
@@ -183,12 +208,13 @@ public sealed class WormController : MonoBehaviour
             _rollbackRoutine = null;
         }
 
-        if (_reviveRollbackRoutine != null)
+        if (_reviveThrowbackRoutine != null)
         {
-            StopCoroutine(_reviveRollbackRoutine);
-            _reviveRollbackRoutine = null;
+            StopCoroutine(_reviveThrowbackRoutine);
+            _reviveThrowbackRoutine = null;
         }
 
+        CleanupReviveThrowbackVisuals();
         _segments.Clear();
         _rollbackAnchoredDistances.Clear();
         _headDistance = 0f;
@@ -196,6 +222,7 @@ public sealed class WormController : MonoBehaviour
         _activeEndIndex = -1;
         _isSectionRollback = false;
         _isReviveRollback = false;
+        _reviveVisualYOffset = 0f;
         _sectionRollbackTargetDistance = 0f;
         _hasReachedCombatStart = false;
         _hasReachedPathEnd = false;
@@ -367,7 +394,7 @@ public sealed class WormController : MonoBehaviour
     /// </summary>
     private void UpdateSegments()
     {
-        if (_isSectionRollback)
+        if (_isSectionRollback || _isReviveRollback)
         {
             UpdateSegmentsDuringRollback();
             return;
@@ -381,7 +408,7 @@ public sealed class WormController : MonoBehaviour
 
         HidePreviousActiveRange(startIndex, endIndex);
 
-        float waveTime = Time.time * _waveSpeed;
+        float waveTime = GetWaveTime();
 
         for (int i = startIndex; i <= endIndex; i++)
         {
@@ -408,7 +435,7 @@ public sealed class WormController : MonoBehaviour
 
     private void UpdateSegmentsDuringRollback()
     {
-        float waveTime = Time.time * _waveSpeed;
+        float waveTime = GetWaveTime();
         float maxDistance = _rail.TotalLength + _activeDistancePadding;
 
         for (int i = 0; i < _segments.Count; i++)
@@ -483,9 +510,16 @@ public sealed class WormController : MonoBehaviour
         Vector3 pos = _rail.GetPoint(distance);
 
         float wave = Mathf.Sin(distance * _waveFrequency + waveTime);
-        pos.y += wave * _waveAmplitude;
+        pos.y += (wave * _waveAmplitude) + _reviveVisualYOffset;
 
         return pos;
+    }
+
+    private float GetWaveTime()
+    {
+        return (_isSectionRollback || _isReviveRollback
+            ? Time.unscaledTime
+            : Time.time) * _waveSpeed;
     }
 
     private void UpdateTailVisualChain(
@@ -748,8 +782,12 @@ public sealed class WormController : MonoBehaviour
 
         float target = GetReviveRollbackTargetDistance();
 
-        if (_reviveRollbackRoutine != null)
-            StopCoroutine(_reviveRollbackRoutine);
+        if (_reviveThrowbackRoutine != null)
+        {
+            StopCoroutine(_reviveThrowbackRoutine);
+            _reviveThrowbackRoutine = null;
+            CleanupReviveThrowbackVisuals();
+        }
 
         if (_rollbackRoutine != null)
         {
@@ -759,6 +797,7 @@ public sealed class WormController : MonoBehaviour
 
         ClearSectionRollbackState();
         _isReviveRollback = false;
+        _reviveVisualYOffset = 0f;
         _hasReachedPathEnd = false;
 
         if (_headDistance <= target)
@@ -769,7 +808,7 @@ public sealed class WormController : MonoBehaviour
             return true;
         }
 
-        _reviveRollbackRoutine = StartCoroutine(ReviveRollbackRoutine(target, onComplete));
+        _reviveThrowbackRoutine = StartCoroutine(ReviveThrowbackRoutine(target, onComplete));
         return true;
     }
 
@@ -808,29 +847,247 @@ public sealed class WormController : MonoBehaviour
         _rollbackRoutine = null;
     }
 
-    private IEnumerator ReviveRollbackRoutine(float target, Action onComplete)
+    private IEnumerator ReviveThrowbackRoutine(float target, Action onComplete)
     {
         _isReviveRollback = true;
         _activeStartIndex = -1;
         _activeEndIndex = -1;
+        _reviveVisualYOffset = 0f;
 
-        while (_headDistance > target)
+        float start = _headDistance;
+
+        CacheReviveVisualBaseScales();
+
+        yield return PlayReviveSquashPhase();
+        yield return PlayReviveThrowPhase(start, target);
+        yield return PlayReviveLandingPhase(target);
+
+        _headDistance = target;
+        _reviveVisualYOffset = 0f;
+        UpdateSegments();
+
+        CleanupReviveThrowbackVisuals();
+        _isReviveRollback = false;
+        _reviveThrowbackRoutine = null;
+        onComplete?.Invoke();
+    }
+
+    private IEnumerator PlayReviveSquashPhase()
+    {
+        float duration = Mathf.Max(0.01f, _reviveSquashDuration);
+        float elapsed = 0f;
+
+        while (elapsed < duration)
         {
-            _headDistance = Mathf.MoveTowards(
-                _headDistance,
-                target,
-                _reviveRollbackSpeed * Time.unscaledDeltaTime);
+            elapsed += Time.unscaledDeltaTime;
+            float t = Mathf.Clamp01(elapsed / duration);
+            float eased = EaseOutCubic(t);
+
+            ApplyReviveVisualScale(
+                Mathf.LerpUnclamped(1f, _reviveSquashXScale, eased),
+                Mathf.LerpUnclamped(1f, _reviveSquashYScale, eased));
 
             UpdateSegments();
             yield return null;
         }
 
-        _headDistance = target;
-        UpdateSegments();
+        ApplyReviveVisualScale(_reviveSquashXScale, _reviveSquashYScale);
+    }
 
-        _isReviveRollback = false;
-        _reviveRollbackRoutine = null;
-        onComplete?.Invoke();
+    private IEnumerator PlayReviveThrowPhase(float start, float target)
+    {
+        float rollbackDistance = Mathf.Max(0f, start - target);
+        float cruiseSpeed = CalculateReviveThrowCruiseSpeed(rollbackDistance);
+
+        if (rollbackDistance <= 0.001f)
+        {
+            _headDistance = target;
+            _reviveVisualYOffset = 0f;
+            UpdateSegments();
+            yield break;
+        }
+
+        while (_headDistance > target)
+        {
+            float remainingDistance = Mathf.Max(0f, _headDistance - target);
+            float speed = CalculateReviveThrowSpeed(
+                remainingDistance,
+                rollbackDistance,
+                cruiseSpeed);
+
+            _headDistance = Mathf.Max(
+                target,
+                _headDistance - (speed * Time.unscaledDeltaTime));
+
+            remainingDistance = Mathf.Max(0f, _headDistance - target);
+            float distanceProgress = 1f - Mathf.Clamp01(remainingDistance / rollbackDistance);
+
+            _reviveVisualYOffset = Mathf.Sin(distanceProgress * Mathf.PI) * _reviveArcHeight;
+
+            ApplyReviveTravelScale(distanceProgress);
+            UpdateSegments();
+
+            yield return null;
+        }
+
+        _headDistance = target;
+        _reviveVisualYOffset = 0f;
+        ApplyReviveVisualScale(1f, 1f);
+        UpdateSegments();
+    }
+
+    private IEnumerator PlayReviveLandingPhase(float target)
+    {
+        float duration = Mathf.Max(0.01f, _reviveLandingDuration);
+        float elapsed = 0f;
+
+        _headDistance = target;
+        _reviveVisualYOffset = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float t = Mathf.Clamp01(elapsed / duration);
+            float eased = EaseOutBack(t);
+
+            _reviveVisualYOffset = Mathf.Sin(t * Mathf.PI) * (_reviveArcHeight * 0.12f);
+
+            ApplyReviveVisualScale(
+                Mathf.LerpUnclamped(_reviveLandingXScale, 1f, eased),
+                Mathf.LerpUnclamped(_reviveLandingYScale, 1f, eased));
+
+            UpdateSegments();
+
+            yield return null;
+        }
+
+        ApplyReviveVisualScale(1f, 1f);
+    }
+
+    private float CalculateReviveThrowCruiseSpeed(float rollbackDistance)
+    {
+        float distance = Mathf.Max(0.01f, rollbackDistance);
+        float duration = Mathf.Max(0.01f, _reviveThrowDuration);
+        float decelerationFraction = Mathf.Clamp01(_reviveDecelerationPathFraction);
+        float gameplaySpeed = Mathf.Max(0.01f, _speed);
+
+        if (decelerationFraction <= 0f)
+            return Mathf.Max(gameplaySpeed, distance / duration);
+
+        float fastDistance = distance * (1f - decelerationFraction);
+        float weightedDistance = distance * (1f + decelerationFraction);
+        float durationSpeed = duration * gameplaySpeed;
+        float root = Mathf.Sqrt(
+            ((durationSpeed - weightedDistance) * (durationSpeed - weightedDistance)) +
+            (4f * duration * fastDistance * gameplaySpeed));
+
+        float cruiseSpeed = (weightedDistance - durationSpeed + root) / (2f * duration);
+        return Mathf.Max(gameplaySpeed, cruiseSpeed);
+    }
+
+    private float CalculateReviveThrowSpeed(
+        float remainingDistance,
+        float rollbackDistance,
+        float cruiseSpeed)
+    {
+        float decelerationDistance =
+            rollbackDistance * Mathf.Clamp01(_reviveDecelerationPathFraction);
+
+        if (decelerationDistance <= 0.001f || remainingDistance > decelerationDistance)
+            return cruiseSpeed;
+
+        float slowdownProgress = 1f - Mathf.Clamp01(remainingDistance / decelerationDistance);
+        float eased = SmootherStep(slowdownProgress);
+        float gameplaySpeed = Mathf.Max(0.01f, _speed);
+
+        return Mathf.Lerp(cruiseSpeed, gameplaySpeed, eased);
+    }
+
+    private void ApplyReviveTravelScale(float normalizedTime)
+    {
+        float settle = EaseOutCubic(normalizedTime);
+        float stretch = Mathf.Sin(normalizedTime * Mathf.PI);
+
+        float xScale = Mathf.LerpUnclamped(_reviveSquashXScale, 1f, settle) + (stretch * 0.06f);
+        float yScale = Mathf.LerpUnclamped(_reviveSquashYScale, 1f, settle) - (stretch * 0.04f);
+
+        ApplyReviveVisualScale(xScale, yScale);
+    }
+
+    private void CacheReviveVisualBaseScales()
+    {
+        _reviveVisualBaseScales.Clear();
+
+        if (_reviveVisualBaseScales.Capacity < _segments.Count)
+            _reviveVisualBaseScales.Capacity = _segments.Count;
+
+        for (int i = 0; i < _segments.Count; i++)
+        {
+            WormSegment segment = _segments[i];
+            Transform visual = segment != null ? segment.VisualRoot : null;
+
+            _reviveVisualBaseScales.Add(visual != null ? visual.localScale : Vector3.one);
+        }
+    }
+
+    private void ApplyReviveVisualScale(float xMultiplier, float yMultiplier)
+    {
+        int count = Mathf.Min(_segments.Count, _reviveVisualBaseScales.Count);
+
+        for (int i = 0; i < count; i++)
+        {
+            WormSegment segment = _segments[i];
+            Transform visual = segment != null ? segment.VisualRoot : null;
+
+            if (visual == null)
+                continue;
+
+            Vector3 baseScale = _reviveVisualBaseScales[i];
+            visual.localScale = new Vector3(
+                baseScale.x * xMultiplier,
+                baseScale.y * yMultiplier,
+                baseScale.z);
+        }
+    }
+
+    private void RestoreReviveVisualScales()
+    {
+        int count = Mathf.Min(_segments.Count, _reviveVisualBaseScales.Count);
+
+        for (int i = 0; i < count; i++)
+        {
+            WormSegment segment = _segments[i];
+            Transform visual = segment != null ? segment.VisualRoot : null;
+
+            if (visual != null)
+                visual.localScale = _reviveVisualBaseScales[i];
+        }
+    }
+
+    private void CleanupReviveThrowbackVisuals()
+    {
+        _reviveVisualYOffset = 0f;
+        RestoreReviveVisualScales();
+        _reviveVisualBaseScales.Clear();
+    }
+
+    private static float EaseOutCubic(float value)
+    {
+        float inverse = 1f - Mathf.Clamp01(value);
+        return 1f - (inverse * inverse * inverse);
+    }
+
+    private static float SmootherStep(float value)
+    {
+        float t = Mathf.Clamp01(value);
+        return t * t * t * ((t * ((t * 6f) - 15f)) + 10f);
+    }
+
+    private static float EaseOutBack(float value)
+    {
+        float t = Mathf.Clamp01(value) - 1f;
+        const float overshoot = 1.70158f;
+        return 1f + ((overshoot + 1f) * t * t * t) + (overshoot * t * t);
     }
 
     private float GetReviveRollbackTargetDistance()

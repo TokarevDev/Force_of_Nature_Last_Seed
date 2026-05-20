@@ -30,20 +30,28 @@ public sealed class RewardRuntimeContext
     {
         MainWeapon = mainWeapon;
         AcaciaThornWeapon = acaciaThornWeapon;
+        MainWeaponConfig = mainWeapon != null ? mainWeapon.Config : null;
+        AcaciaThornConfig = acaciaThornWeapon != null ? acaciaThornWeapon.Config : null;
     }
 
     public RewardRuntimeContext(
         WeaponRuntimeState mainWeaponState,
         AcaciaThornRuntimeState acaciaThornState,
-        Func<int> mainWeaponDamageProvider = null)
+        Func<int> mainWeaponDamageProvider = null,
+        WeaponConfig mainWeaponConfig = null,
+        AcaciaThornWeaponConfig acaciaThornConfig = null)
     {
         _mainWeaponState = mainWeaponState;
         _acaciaThornState = acaciaThornState;
         _mainWeaponDamageProvider = mainWeaponDamageProvider;
+        MainWeaponConfig = mainWeaponConfig;
+        AcaciaThornConfig = acaciaThornConfig;
     }
 
     public ProjectileWeapon MainWeapon { get; }
     public AcaciaThornWeapon AcaciaThornWeapon { get; }
+    public WeaponConfig MainWeaponConfig { get; }
+    public AcaciaThornWeaponConfig AcaciaThornConfig { get; }
     public WeaponRuntimeState MainWeaponState =>
         _mainWeaponState ?? (MainWeapon != null ? MainWeapon.RuntimeState : null);
 
@@ -59,26 +67,5 @@ public sealed class RewardRuntimeContext
 
             return MainWeapon != null ? MainWeapon.CurrentProjectileDamage : 0;
         }
-    }
-}
-
-public static class RewardAdAssistRules
-{
-    public const float PaidRerollHeadProgressThreshold = 0.8f;
-    public const float TakeAllHeadProgressThreshold = 0.95f;
-    public const float PostReviveTakeAllHeadProgressThreshold = 0.8f;
-
-    public static bool CanUsePaidReroll(RewardRollContext rollContext)
-    {
-        return rollContext.HasRevivedThisRun ||
-            rollContext.HeadPathProgressNormalized >= PaidRerollHeadProgressThreshold;
-    }
-
-    public static bool CanUseTakeAll(RewardRollContext rollContext)
-    {
-        if (rollContext.HasRevivedThisRun)
-            return rollContext.HeadPathProgressNormalized >= PostReviveTakeAllHeadProgressThreshold;
-
-        return rollContext.HeadPathProgressNormalized >= TakeAllHeadProgressThreshold;
     }
 }

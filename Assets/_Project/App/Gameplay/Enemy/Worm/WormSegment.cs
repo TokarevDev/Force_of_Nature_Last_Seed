@@ -39,6 +39,7 @@ public sealed class WormSegment : MonoBehaviour
     private Collider2D _cachedCollider;
     private SpriteRenderer _renderer;
     private SpriteRenderer _cocoonRenderer;
+    private CocoonVisualController _cocoonVisualController;
     private SpriteRenderer[] _visualRenderers = Array.Empty<SpriteRenderer>();
     private int[] _visualSortingOrderOffsets = Array.Empty<int>();
     private SpriteRenderer[] _tailRenderers = Array.Empty<SpriteRenderer>();
@@ -80,6 +81,7 @@ public sealed class WormSegment : MonoBehaviour
         if (_cocoonVisual != null)
         {
             _cocoonRenderer = _cocoonVisual.GetComponentInChildren<SpriteRenderer>(true);
+            _cocoonVisualController = _cocoonVisual.GetComponentInChildren<CocoonVisualController>(true);
             _cocoonTransform = _cocoonVisual.transform;
         }
 
@@ -151,7 +153,12 @@ public sealed class WormSegment : MonoBehaviour
         }
 
         if (_cocoonRenderer != null)
+        {
             _cocoonRenderer.sortingOrder = order + 100;
+            _cocoonVisualController?.SetEffectSorting(
+                _cocoonRenderer.sortingLayerID,
+                _cocoonRenderer.sortingOrder + 1);
+        }
     }
 
     public void ResetTailVisualRootRotation()
@@ -231,21 +238,23 @@ public sealed class WormSegment : MonoBehaviour
 
     public void EnableCocoon()
     {
-        EnableCocoon(Color.white);
+        EnableCocoon(null);
     }
 
-    public void EnableCocoon(Color visualColor)
+    public void EnableCocoon(CocoonRewardProfile rewardProfile)
     {
         if (Type != WormSegmentType.Body)
             return;
 
         HasCocoon = true;
 
-        if (_cocoonRenderer != null)
-            _cocoonRenderer.color = visualColor;
-
         if (_cocoonVisual != null)
             _cocoonVisual.SetActive(true);
+
+        if (_cocoonVisualController != null)
+            _cocoonVisualController.Apply(rewardProfile);
+        else if (_cocoonRenderer != null)
+            _cocoonRenderer.color = Color.white;
 
         if (isActiveAndEnabled)
             RegisterSyncedCocoonShake();
@@ -258,6 +267,9 @@ public sealed class WormSegment : MonoBehaviour
 
         if (_cocoonRenderer != null)
             _cocoonRenderer.color = Color.white;
+
+        if (_cocoonVisualController != null)
+            _cocoonVisualController.ResetVisual();
 
         if (_cocoonVisual != null)
             _cocoonVisual.SetActive(false);

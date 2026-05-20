@@ -236,7 +236,7 @@ MonoBehaviour:
   _adaptiveRebalanceUpgradeInterval: 1
   _adaptiveRebalanceMinInterval: 2
   _levelNumber: 1
-  _totalLength: 500
+  _totalLength: 400
   _poolPadding: 32
   _prewarmBatchSize: 64
 --- !u!114 &91581456
@@ -252,13 +252,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WormController
   _rail: {fileID: 192453719}
-  _speed: 0.8
+  _speed: 1.5
   _catchUpRailPointIndex: 3
   _catchUpSpeed: 3
   _catchUpStopOffset: 0
   _catchUpExtraDistance: 1.5
   _enableCombatSpeedBursts: 1
-  _combatBurstSpeed: 2
+  _combatBurstSpeed: 3
   _combatBurstInterval: 10
   _combatBurstDuration: 2.5
   _segmentSpacing: 0.5
@@ -269,8 +269,16 @@ MonoBehaviour:
   _waveFrequency: 4
   _waveSpeed: 1
   _rollbackSpeed: 9
-  _reviveRollbackRailPointIndex: 3
-  _reviveRollbackSpeed: 100
+  _reviveRollbackRailPointIndex: 8
+  _reviveSquashDuration: 0.08
+  _reviveThrowDuration: 0.38
+  _reviveLandingDuration: 0.09
+  _reviveDecelerationPathFraction: 0.2
+  _reviveArcHeight: 1.1
+  _reviveSquashXScale: 1.22
+  _reviveSquashYScale: 0.72
+  _reviveLandingXScale: 1.1
+  _reviveLandingYScale: 0.86
 --- !u!114 &91581457
 MonoBehaviour:
   m_ObjectHideFlags: 0

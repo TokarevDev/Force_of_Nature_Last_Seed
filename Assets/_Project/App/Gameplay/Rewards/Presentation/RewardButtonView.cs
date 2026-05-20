@@ -95,6 +95,11 @@ public sealed class RewardButtonView : MonoBehaviour
             _button.interactable = interactable;
     }
 
+    public bool IsBoundTo(RewardChoiceData data)
+    {
+        return data != null && ReferenceEquals(_data, data);
+    }
+
     public void KillAnimations()
     {
         if (RectTransform != null)
@@ -226,6 +231,92 @@ public sealed class RewardButtonView : MonoBehaviour
 
         if (_iconRectTransform != null)
             sequence.Join(_iconRectTransform.DOScale(_baseIconScale, inDuration).SetEase(Ease.OutBack));
+
+        return sequence;
+    }
+
+    public Tween CreateSelectedDismissTween(
+        float focusDuration,
+        float growDuration,
+        float exitDuration,
+        float exitYOffset,
+        float focusScaleMultiplier,
+        float exitScaleMultiplier,
+        Ease focusEase,
+        Ease exitEase)
+    {
+        CacheTransformState();
+        KillAnimations();
+        SetInteractable(false);
+
+        Sequence sequence = DOTween.Sequence();
+
+        float clampedGrowDuration = Mathf.Max(0f, growDuration);
+        float clampedFocusDuration = Mathf.Max(0f, focusDuration);
+
+        if (RectTransform != null && clampedGrowDuration > 0f)
+        {
+            sequence.Append(RectTransform.DOScale(_baseScale * focusScaleMultiplier, clampedGrowDuration).SetEase(focusEase));
+
+            if (_iconRectTransform != null)
+                sequence.Join(_iconRectTransform.DOScale(_baseIconScale * focusScaleMultiplier, clampedGrowDuration).SetEase(focusEase));
+        }
+        else
+        {
+            sequence.AppendInterval(clampedGrowDuration);
+        }
+
+        float holdDuration = Mathf.Max(0f, clampedFocusDuration - clampedGrowDuration);
+
+        if (holdDuration > 0f)
+            sequence.AppendInterval(holdDuration);
+
+        if (RectTransform != null)
+        {
+            sequence.Append(RectTransform.DOAnchorPos(_baseAnchoredPosition + new Vector2(0f, exitYOffset), exitDuration).SetEase(exitEase));
+            sequence.Join(RectTransform.DOScale(_baseScale * exitScaleMultiplier, exitDuration).SetEase(exitEase));
+        }
+        else
+        {
+            sequence.AppendInterval(exitDuration);
+        }
+
+        if (_canvasGroup != null)
+            sequence.Join(_canvasGroup.DOFade(0f, exitDuration).SetEase(Ease.InSine));
+
+        if (_iconRectTransform != null)
+            sequence.Join(_iconRectTransform.DOScale(_baseIconScale * exitScaleMultiplier, exitDuration).SetEase(exitEase));
+
+        return sequence;
+    }
+
+    public Tween CreateUnselectedDismissTween(
+        float duration,
+        float exitYOffset,
+        float exitScaleMultiplier,
+        Ease exitEase)
+    {
+        CacheTransformState();
+        KillAnimations();
+        SetInteractable(false);
+
+        Sequence sequence = DOTween.Sequence();
+
+        if (RectTransform != null)
+        {
+            sequence.Join(RectTransform.DOAnchorPos(_baseAnchoredPosition + new Vector2(0f, exitYOffset), duration).SetEase(exitEase));
+            sequence.Join(RectTransform.DOScale(_baseScale * exitScaleMultiplier, duration).SetEase(exitEase));
+        }
+        else
+        {
+            sequence.AppendInterval(duration);
+        }
+
+        if (_canvasGroup != null)
+            sequence.Join(_canvasGroup.DOFade(0f, duration).SetEase(Ease.InSine));
+
+        if (_iconRectTransform != null)
+            sequence.Join(_iconRectTransform.DOScale(_baseIconScale * exitScaleMultiplier, duration).SetEase(exitEase));
 
         return sequence;
     }

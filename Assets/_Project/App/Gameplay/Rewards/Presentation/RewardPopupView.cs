@@ -43,6 +43,23 @@ public sealed class RewardPopupView : PopupView
     [SerializeField] private Ease _refreshOutEase = Ease.InCubic;
     [SerializeField] private Ease _refreshInEase = Ease.OutBack;
 
+    [Header("Selection Dismiss Animation")]
+    [SerializeField] private float _selectionFocusDuration = 0.22f;
+    [SerializeField] private float _selectionGrowDuration = 0.16f;
+    [SerializeField] private float _selectionExitDuration = 0.22f;
+    [SerializeField] private float _selectionScaleMultiplier = 1.05f;
+    [SerializeField] private float _selectionExitScaleMultiplier = 0.96f;
+    [SerializeField] private float _selectionExitOffset = -230f;
+    [SerializeField] private float _unselectedExitDuration = 0.22f;
+    [SerializeField] private float _unselectedExitStagger = 0.045f;
+    [SerializeField] private float _unselectedExitScaleMultiplier = 0.96f;
+    [SerializeField] private float _unselectedExitOffset = -230f;
+    [SerializeField] private float _topExitOffset = 160f;
+    [SerializeField] private float _actionExitOffset = -90f;
+    [SerializeField] private Ease _selectionFocusEase = Ease.OutBack;
+    [SerializeField] private Ease _selectionExitEase = Ease.InCubic;
+    [SerializeField] private Ease _unselectedExitEase = Ease.InCubic;
+
     [Header("Animation Audio")]
     [SerializeField] private AudioSource _animationAudioSource;
     [SerializeField] private AudioClip _showWhooshClip;
@@ -59,7 +76,7 @@ public sealed class RewardPopupView : PopupView
     [SerializeField] private TMP_Text _adRerollGuaranteeText;
     [SerializeField] private string _attemptsFormat = "attempts left: x{0}";
     [SerializeField] private string _guaranteeFormat = "guarantee: {0}";
-    [SerializeField] private string _adGuaranteeFormat = "guarantee: {0} x3";
+    [SerializeField] private string _adGuaranteeFormat = "guarantee: {0}";
 
     [Header("Text Colors")]
     [SerializeField] private Color32 _numberColor = new(105, 255, 120, 255);
@@ -76,6 +93,7 @@ public sealed class RewardPopupView : PopupView
     private RectTransformState[] _actionButtonStates;
     private Sequence _showSequence;
     private Sequence _refreshSequence;
+    private Sequence _dismissSequence;
     private Coroutine _interactionGateCoroutine;
     private RewardPopupState _currentState;
     private bool _hasCurrentState;
@@ -169,7 +187,7 @@ public sealed class RewardPopupView : PopupView
 
         CloseInteractionGate();
         Selected?.Invoke(data);
-        RequestClose();
+        PlaySelectionDismiss(data);
     }
 
     private void OnRerollClicked()
@@ -280,6 +298,60 @@ public sealed class RewardPopupView : PopupView
             _hasBoundChoices = true;
         });
         _refreshSequence.OnComplete(CompleteTransitionAndStartGate);
+    }
+
+    private void PlaySelectionDismiss(RewardChoiceData selectedChoice)
+    {
+        EnsureAnimationStateCached();
+        BeginTransition();
+
+        _showSequence?.Kill(false);
+        _showSequence = null;
+
+        _refreshSequence?.Kill(false);
+        _refreshSequence = null;
+
+        _dismissSequence?.Kill(false);
+        _dismissSequence = null;
+
+        if (_canvasGroup != null)
+            _canvasGroup.DOKill();
+
+        RewardButtonView selectedButton = FindBoundButton(selectedChoice);
+
+        if (selectedButton == null)
+        {
+            RequestClose();
+            return;
+        }
+
+        _dismissSequence = DOTween.Sequence().SetUpdate(true);
+
+        float actionExitStart = 0f;
+        float rewardExitStart = Mathf.Max(0f, _actionEnterDuration * 0.5f);
+        float selectedExitStart = InsertRewardDismissTweens(
+            _dismissSequence,
+            selectedButton,
+            rewardExitStart);
+        float topExitStart = selectedExitStart;
+
+        InsertActionExitTweens(_dismissSequence, actionExitStart);
+        InsertTopExitTweens(_dismissSequence, topExitStart);
+
+        if (_canvasGroup != null)
+        {
+            float lastMotionEnd = Mathf.Max(
+                selectedExitStart + _selectionExitDuration,
+                topExitStart + _topEnterDuration);
+            float rootFadeStart = Mathf.Max(0f, lastMotionEnd - _rootFadeDuration);
+            _dismissSequence.Insert(rootFadeStart, _canvasGroup.DOFade(0f, _rootFadeDuration).SetEase(Ease.InSine));
+        }
+
+        _dismissSequence.OnComplete(() =>
+        {
+            _dismissSequence = null;
+            RequestClose();
+        });
     }
 
     private void BeginTransition()
@@ -648,6 +720,110 @@ public sealed class RewardPopupView : PopupView
         }
     }
 
+    private float InsertRewardDismissTweens(
+        Sequence sequence,
+        RewardButtonView selectedButton,
+        float startTime)
+    {
+        if (_buttons == null)
+            return _selectionFocusDuration;
+
+        int unselectedIndex = 0;
+        float lastUnselectedExitEnd = startTime;
+
+        for (int i = _buttons.Count - 1; i >= 0; i--)
+        {
+            RewardButtonView button = _buttons[i];
+
+            if (button == null || !button.gameObject.activeSelf)
+                continue;
+
+            if (button == selectedButton)
+                continue;
+
+            float delay = startTime + unselectedIndex * _unselectedExitStagger;
+            sequence.Insert(
+                delay,
+                button.CreateUnselectedDismissTween(
+                    _unselectedExitDuration,
+                    _unselectedExitOffset,
+                    _unselectedExitScaleMultiplier,
+                    _unselectedExitEase));
+            lastUnselectedExitEnd = Mathf.Max(lastUnselectedExitEnd, delay + _unselectedExitDuration);
+            unselectedIndex++;
+        }
+
+        float selectedExitStart = Mathf.Max(
+            _selectionFocusDuration,
+            lastUnselectedExitEnd + _unselectedExitStagger);
+
+        sequence.Insert(
+            0f,
+            selectedButton.CreateSelectedDismissTween(
+                selectedExitStart,
+                _selectionGrowDuration,
+                _selectionExitDuration,
+                _selectionExitOffset,
+                _selectionScaleMultiplier,
+                _selectionExitScaleMultiplier,
+                _selectionFocusEase,
+                _selectionExitEase));
+
+        return selectedExitStart;
+    }
+
+    private void InsertTopExitTweens(Sequence sequence, float startTime)
+    {
+        for (int i = 0; i < _topGroupStates.Length; i++)
+        {
+            sequence.Insert(
+                startTime,
+                _topGroupStates[i].CreateExitTween(
+                    _topExitOffset,
+                    0.98f,
+                    _topEnterDuration,
+                    _unselectedExitEase,
+                    _unselectedExitEase));
+        }
+    }
+
+    private void InsertActionExitTweens(Sequence sequence, float startTime)
+    {
+        int activeIndex = 0;
+
+        for (int i = _actionButtonStates.Length - 1; i >= 0; i--)
+        {
+            if (!_actionButtonStates[i].IsActive)
+                continue;
+
+            sequence.Insert(
+                startTime + activeIndex * 0.035f,
+                _actionButtonStates[i].CreateExitTween(
+                    _actionExitOffset,
+                    0.98f,
+                    _actionEnterDuration,
+                    _unselectedExitEase,
+                    _unselectedExitEase));
+            activeIndex++;
+        }
+    }
+
+    private RewardButtonView FindBoundButton(RewardChoiceData choice)
+    {
+        if (_buttons == null)
+            return null;
+
+        for (int i = 0; i < _buttons.Count; i++)
+        {
+            RewardButtonView button = _buttons[i];
+
+            if (button != null && button.IsBoundTo(choice))
+                return button;
+        }
+
+        return null;
+    }
+
     private void ResetAnimatedLayout()
     {
         EnsureAnimationStateCached();
@@ -692,6 +868,9 @@ public sealed class RewardPopupView : PopupView
 
         _refreshSequence?.Kill(false);
         _refreshSequence = null;
+
+        _dismissSequence?.Kill(false);
+        _dismissSequence = null;
 
         if (_topGroupStates != null)
         {
@@ -795,6 +974,23 @@ public sealed class RewardPopupView : PopupView
 
             sequence.Join(_rectTransform.DOAnchorPos(_anchoredPosition, duration).SetEase(moveEase));
             sequence.Join(_rectTransform.DOScale(_localScale, duration).SetEase(scaleEase));
+            return sequence;
+        }
+
+        public Tween CreateExitTween(
+            float yOffset,
+            float scaleMultiplier,
+            float duration,
+            Ease moveEase,
+            Ease scaleEase)
+        {
+            Sequence sequence = DOTween.Sequence();
+
+            if (_rectTransform == null)
+                return sequence;
+
+            sequence.Join(_rectTransform.DOAnchorPos(_anchoredPosition + new Vector2(0f, yOffset), duration).SetEase(moveEase));
+            sequence.Join(_rectTransform.DOScale(_localScale * scaleMultiplier, duration).SetEase(scaleEase));
             return sequence;
         }
 

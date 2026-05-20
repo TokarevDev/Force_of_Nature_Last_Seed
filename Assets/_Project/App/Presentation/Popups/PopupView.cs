@@ -11,6 +11,7 @@ public class PopupView : MonoBehaviour
     public bool IsVisible => ResolveRoot().activeSelf;
 
     public event Action<PopupView> CloseRequested;
+    public event Action<PopupView> Hidden;
 
     public void Show()
     {
@@ -51,9 +52,14 @@ public class PopupView : MonoBehaviour
         root.SetActive(visible);
 
         if (visible)
+        {
             OnShown();
+        }
         else
+        {
             OnHidden();
+            Hidden?.Invoke(this);
+        }
     }
 
     private GameObject ResolveRoot()

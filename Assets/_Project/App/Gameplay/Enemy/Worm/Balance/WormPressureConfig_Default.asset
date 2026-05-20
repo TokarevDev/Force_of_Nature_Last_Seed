@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: WormPressureConfig_Default
   m_EditorClassIdentifier: Assembly-CSharp::WormPressureConfig
   _enabled: 1
-  _targetHeadProgress: 0.72
-  _targetReachTime: 90
+  _targetHeadProgress: 0.62
+  _targetReachTime: 130
   _startDelay: 2
   _progressDeadZone: 0.03
   _sampleInterval: 1
-  _increasePerSample: 0.08
-  _recoveryPerSample: 0.06
-  _maxMultiplier: 4
+  _increasePerSample: 0.035
+  _recoveryPerSample: 0.1
+  _maxMultiplier: 2

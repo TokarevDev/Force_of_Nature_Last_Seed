@@ -71,6 +71,7 @@ public sealed class CocoonRewardProfile
             0f,
             false,
             0f,
+            false,
             new RewardRaritySlot(RewardRarity.Common),
             new RewardRaritySlot(RewardRarity.Common),
             new RewardRaritySlot(RewardRarity.Common)),
@@ -84,6 +85,7 @@ public sealed class CocoonRewardProfile
             0f,
             false,
             0f,
+            false,
             new RewardRaritySlot(RewardRarity.Common),
             new RewardRaritySlot(RewardRarity.Common),
             new RewardRaritySlot(RewardRarity.Rare)),
@@ -97,6 +99,7 @@ public sealed class CocoonRewardProfile
             0f,
             false,
             0f,
+            false,
             new RewardRaritySlot(RewardRarity.Rare),
             new RewardRaritySlot(RewardRarity.Rare),
             new RewardRaritySlot(RewardRarity.Common)),
@@ -110,19 +113,21 @@ public sealed class CocoonRewardProfile
             0.03f,
             true,
             0.05f,
+            true,
             new RewardRaritySlot(RewardRarity.Legendary),
             new RewardRaritySlot(RewardRarity.Rare),
             new RewardRaritySlot(RewardRarity.Rare))
     };
 
     [SerializeField] private string _displayName = "White";
-    [SerializeField] private Color _visualColor = Color.white;
+    [SerializeField, HideInInspector] private Color _visualColor = Color.white;
     [SerializeField][Min(0f)] private float _spawnWeight = 1f;
     [SerializeField][Range(0f, 1f)] private float _minDestroyedProgressToSpawn;
     [SerializeField] private bool _useFixedSpawnChance;
     [SerializeField][Range(0f, 1f)] private float _fixedSpawnChance;
     [SerializeField] private bool _guaranteesLegendaryReward;
     [SerializeField][Range(0f, 1f)] private float _secondaryLegendaryChance;
+    [SerializeField] private bool _usesLegendaryCocoonVisual;
     [SerializeField] private List<RewardRaritySlot> _raritySlots = new();
 
     public static IReadOnlyList<CocoonRewardProfile> Defaults => DefaultProfileSet;
@@ -134,8 +139,9 @@ public sealed class CocoonRewardProfile
     public float MinDestroyedProgressToSpawn => Mathf.Clamp01(_minDestroyedProgressToSpawn);
     public bool UseFixedSpawnChance => _useFixedSpawnChance;
     public float FixedSpawnChance => Mathf.Clamp01(_fixedSpawnChance);
-    public bool GuaranteesLegendaryReward => _guaranteesLegendaryReward;
+    public bool GuaranteesLegendaryReward => _guaranteesLegendaryReward || _usesLegendaryCocoonVisual;
     public float SecondaryLegendaryChance => Mathf.Clamp01(_secondaryLegendaryChance);
+    public bool UsesLegendaryCocoonVisual => _usesLegendaryCocoonVisual;
     public IReadOnlyList<RewardRaritySlot> RaritySlots => _raritySlots;
 
     public CocoonRewardProfile()
@@ -151,6 +157,7 @@ public sealed class CocoonRewardProfile
         float fixedSpawnChance,
         bool guaranteesLegendaryReward,
         float secondaryLegendaryChance,
+        bool usesLegendaryCocoonVisual,
         params RewardRaritySlot[] raritySlots)
     {
         _displayName = displayName;
@@ -161,6 +168,7 @@ public sealed class CocoonRewardProfile
         _fixedSpawnChance = Mathf.Clamp01(fixedSpawnChance);
         _guaranteesLegendaryReward = guaranteesLegendaryReward;
         _secondaryLegendaryChance = Mathf.Clamp01(secondaryLegendaryChance);
+        _usesLegendaryCocoonVisual = usesLegendaryCocoonVisual;
         _raritySlots = new List<RewardRaritySlot>();
 
         if (raritySlots == null)
@@ -210,6 +218,7 @@ public sealed class CocoonRewardProfile
             _fixedSpawnChance,
             _guaranteesLegendaryReward,
             _secondaryLegendaryChance,
+            _usesLegendaryCocoonVisual,
             slots);
     }
 }

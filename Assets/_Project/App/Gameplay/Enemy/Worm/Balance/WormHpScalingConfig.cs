@@ -178,10 +178,10 @@ public sealed class WormHpScalingConfig : ScriptableObject
             new Keyframe(0f, 0.9f),
             new Keyframe(0.08f, 1.1f),
             new Keyframe(0.18f, 2.1f),
-            new Keyframe(0.32f, 4.5f),
-            new Keyframe(0.55f, 10f),
-            new Keyframe(0.78f, 18f),
-            new Keyframe(1f, 32f));
+            new Keyframe(0.32f, 2.9f),
+            new Keyframe(0.55f, 3.8f),
+            new Keyframe(0.78f, 8f),
+            new Keyframe(1f, 30f));
     }
 
     private static AnimationCurve CreateDefaultPressureCurve()
@@ -190,9 +190,9 @@ public sealed class WormHpScalingConfig : ScriptableObject
             new Keyframe(0f, 0.35f),
             new Keyframe(0.12f, 0.5f),
             new Keyframe(0.25f, 1f),
-            new Keyframe(0.45f, 2.4f),
-            new Keyframe(0.72f, 5f),
-            new Keyframe(1f, 8f));
+            new Keyframe(0.45f, 1.05f),
+            new Keyframe(0.72f, 1.6f),
+            new Keyframe(1f, 7f));
     }
 
     private static float GetSectionProgress(int sectionIndex, int totalSections)

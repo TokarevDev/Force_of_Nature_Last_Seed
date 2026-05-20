@@ -117,7 +117,7 @@ public static class WormSectionBuilder
         CocoonRewardProfile profile = RollCocoonProfile(
             cocoonProfiles,
             sectionProgress);
-        centerSegment.EnableCocoon(profile.VisualColor);
+        centerSegment.EnableCocoon(profile);
 
         section.SetCocoon(profile);
     }
@@ -139,9 +139,7 @@ public static class WormSectionBuilder
         IReadOnlyList<CocoonRewardProfile> cocoonProfiles,
         float sectionProgress)
     {
-        return WormCocoonRules.RollCocoonProfile(
-            cocoonProfiles,
-            sectionProgress);
+        return WormCocoonRules.RollCocoonProfile(cocoonProfiles, sectionProgress);
     }
 
     private static int CountGameplaySections(List<WormSegment> segments)

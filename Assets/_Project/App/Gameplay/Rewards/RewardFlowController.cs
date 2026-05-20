@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 public sealed class RewardFlowController : IDisposable
 {
-    private const int AdRerollGuaranteedLegendarySlots = 3;
+    private const int AdRerollGuaranteedLegendarySlots = 1;
 
     private readonly RewardRollService _rollService;
     private readonly RewardApplyService _applyService;
@@ -13,6 +13,7 @@ public sealed class RewardFlowController : IDisposable
     private readonly int _maxFreeRerollAttempts;
     private readonly int _maxAdRerollAttempts;
     private readonly int _maxTakeAllAttempts;
+    private readonly Queue<RewardOpenRequest> _pendingOpenRequests = new();
 
     private List<RewardChoiceData> _currentChoices;
     private CocoonRewardProfile _currentCocoonProfile;
@@ -24,6 +25,8 @@ public sealed class RewardFlowController : IDisposable
 
     private bool _isDisposed;
     private bool _isRewardedAdPending;
+    private bool _isPopupRequestActive;
+    private bool _shouldOpenNextPendingRequest;
 
     public RewardFlowController(
         RewardRollService rollService,
@@ -57,6 +60,7 @@ public sealed class RewardFlowController : IDisposable
         _popup.RerollRequested += HandleRerollRequested;
         _popup.AdRerollRequested += HandleAdRerollRequested;
         _popup.TakeAllRequested += HandleTakeAllRequested;
+        _popup.Hidden += HandlePopupHidden;
     }
 
     public void Dispose()
@@ -70,8 +74,10 @@ public sealed class RewardFlowController : IDisposable
             _popup.RerollRequested -= HandleRerollRequested;
             _popup.AdRerollRequested -= HandleAdRerollRequested;
             _popup.TakeAllRequested -= HandleTakeAllRequested;
+            _popup.Hidden -= HandlePopupHidden;
         }
 
+        _pendingOpenRequests.Clear();
         _isDisposed = true;
     }
 
@@ -79,18 +85,46 @@ public sealed class RewardFlowController : IDisposable
         CocoonRewardProfile cocoonProfile = null,
         RewardRollContext rollContext = default)
     {
-        _currentCocoonProfile = cocoonProfile;
-        _currentRollContext = rollContext;
+        if (_isDisposed)
+            return false;
+
+        RewardOpenRequest request = new(cocoonProfile, rollContext);
+
+        if (_isPopupRequestActive)
+        {
+            _pendingOpenRequests.Enqueue(request);
+            return true;
+        }
+
+        return StartOpenRequest(request);
+    }
+
+    private bool StartOpenRequest(RewardOpenRequest request)
+    {
+        _isPopupRequestActive = true;
+        _currentCocoonProfile = request.CocoonProfile;
+        _currentRollContext = request.RollContext;
         _isRewardedAdPending = false;
 
         if (!RollCurrentChoices())
+        {
+            CompleteCurrentPopupRequest();
             return false;
+        }
 
-        return ShowCurrentChoices(false);
+        if (ShowCurrentChoices(false))
+        {
+            _shouldOpenNextPendingRequest = false;
+            return true;
+        }
+
+        CompleteCurrentPopupRequest();
+        return false;
     }
 
     public void ResetSession()
     {
+        _pendingOpenRequests.Clear();
         _currentChoices = null;
         _currentCocoonProfile = null;
         _currentRollContext = default;
@@ -99,6 +133,8 @@ public sealed class RewardFlowController : IDisposable
         _adRerollAttemptsLeft = _maxAdRerollAttempts;
         _takeAllAttemptsLeft = _maxTakeAllAttempts;
         _isRewardedAdPending = false;
+        _isPopupRequestActive = false;
+        _shouldOpenNextPendingRequest = false;
     }
 
     private void HandleSelected(RewardChoiceData choice)
@@ -106,6 +142,7 @@ public sealed class RewardFlowController : IDisposable
         if (_isRewardedAdPending)
             return;
 
+        _shouldOpenNextPendingRequest = true;
         _applyService.Apply(choice);
     }
 
@@ -129,9 +166,6 @@ public sealed class RewardFlowController : IDisposable
         if (_freeRerollAttemptsLeft > 0 || _adRerollAttemptsLeft <= 0)
             return;
 
-        if (!RewardAdAssistRules.CanUsePaidReroll(_currentRollContext))
-            return;
-
         if (_isRewardedAdPending)
             return;
 
@@ -153,9 +187,6 @@ public sealed class RewardFlowController : IDisposable
             return;
 
         if (_takeAllAttemptsLeft <= 0 || _isRewardedAdPending)
-            return;
-
-        if (!RewardAdAssistRules.CanUseTakeAll(_currentRollContext))
             return;
 
         _isRewardedAdPending = true;
@@ -210,6 +241,7 @@ public sealed class RewardFlowController : IDisposable
         }
 
         _takeAllAttemptsLeft--;
+        _shouldOpenNextPendingRequest = true;
 
         for (int i = 0; i < _currentChoices.Count; i++)
         {
@@ -217,6 +249,46 @@ public sealed class RewardFlowController : IDisposable
         }
 
         _popup?.Close();
+    }
+
+    private void HandlePopupHidden(PopupView popup)
+    {
+        if (popup != _popup || _isDisposed)
+            return;
+
+        bool shouldOpenNext = _shouldOpenNextPendingRequest;
+
+        CompleteCurrentPopupRequest();
+
+        if (shouldOpenNext)
+        {
+            TryOpenNextPendingRequest();
+            return;
+        }
+
+        _pendingOpenRequests.Clear();
+    }
+
+    private void CompleteCurrentPopupRequest()
+    {
+        _currentChoices = null;
+        _currentCocoonProfile = null;
+        _currentRollContext = default;
+        _currentGuaranteeRarity = default;
+        _isRewardedAdPending = false;
+        _isPopupRequestActive = false;
+        _shouldOpenNextPendingRequest = false;
+    }
+
+    private void TryOpenNextPendingRequest()
+    {
+        while (!_isDisposed && !_isPopupRequestActive && _pendingOpenRequests.Count > 0)
+        {
+            RewardOpenRequest request = _pendingOpenRequests.Dequeue();
+
+            if (StartOpenRequest(request))
+                return;
+        }
     }
 
     private bool RollCurrentChoices(
@@ -257,10 +329,8 @@ public sealed class RewardFlowController : IDisposable
                 _freeRerollAttemptsLeft > 0 && !_isRewardedAdPending,
                 _freeRerollAttemptsLeft <= 0
                     && _adRerollAttemptsLeft > 0
-                    && RewardAdAssistRules.CanUsePaidReroll(_currentRollContext)
                     && !_isRewardedAdPending,
                 _takeAllAttemptsLeft > 0
-                    && RewardAdAssistRules.CanUseTakeAll(_currentRollContext)
                     && !_isRewardedAdPending),
             animateChoiceChanges);
 
@@ -269,5 +339,19 @@ public sealed class RewardFlowController : IDisposable
 
         _popupRoot.Show(_popup);
         return true;
+    }
+
+    private readonly struct RewardOpenRequest
+    {
+        public RewardOpenRequest(
+            CocoonRewardProfile cocoonProfile,
+            RewardRollContext rollContext)
+        {
+            CocoonProfile = cocoonProfile;
+            RollContext = rollContext;
+        }
+
+        public readonly CocoonRewardProfile CocoonProfile;
+        public readonly RewardRollContext RollContext;
     }
 }

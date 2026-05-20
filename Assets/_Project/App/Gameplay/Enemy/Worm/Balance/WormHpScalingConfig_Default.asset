@@ -23,11 +23,11 @@ MonoBehaviour:
   _levelMultiplier: 1.12
   _hpMultiplier: 1.2
   _startPressureMultiplier: 1
-  _endPressureMultiplier: 7
+  _endPressureMultiplier: 5.5
   _useHeadPathPressure: 1
   _strongHeadPressureUntilProgress: 0.18
   _minimumHeadPressureFromProgress: 0.7
   _earlyHeadPressureMultiplier: 1
-  _lateHeadPressureMultiplier: 1.4
+  _lateHeadPressureMultiplier: 1.25
   _minHp: 4
   _maxHp: 9999999
