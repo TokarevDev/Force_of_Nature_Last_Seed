@@ -252,13 +252,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WormController
   _rail: {fileID: 192453719}
-  _speed: 1.5
+  _speed: 1.2
   _catchUpRailPointIndex: 3
   _catchUpSpeed: 3
   _catchUpStopOffset: 0
   _catchUpExtraDistance: 1.5
   _enableCombatSpeedBursts: 1
-  _combatBurstSpeed: 3
+  _combatBurstSpeed: 2.5
   _combatBurstInterval: 10
   _combatBurstDuration: 2.5
   _segmentSpacing: 0.5
@@ -332,8 +332,8 @@ MonoBehaviour:
   _maxReviveAttempts: 1
   _fallbackRemainingLevelNormalized: 0.5
   _reloadCurrentSceneOnGiveUp: 1
-  _giveUpRestartAnimationDuration: 0.55
-  _giveUpRestartTargetScale: 0.92
+  _popupCloseAnimationDuration: 0.55
+  _popupCloseAnimationTargetScale: 0.92
 --- !u!114 &91581460
 MonoBehaviour:
   m_ObjectHideFlags: 0

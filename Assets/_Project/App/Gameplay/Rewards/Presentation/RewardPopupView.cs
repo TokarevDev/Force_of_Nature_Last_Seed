@@ -435,7 +435,7 @@ public sealed class RewardPopupView : PopupView
         ApplyAttemptsText(_takeAllAttemptsText, state.TakeAllAttemptsLeft);
 
         ApplyGuaranteeText(_guaranteeText, state.GuaranteeRarity);
-        ApplyAdGuaranteeText(_adRerollGuaranteeText, RewardRarity.Legendary);
+        ApplyAdGuaranteeText(_adRerollGuaranteeText, state.AdRerollGuaranteeRarity);
 
         SetInteractionEnabled(interactable);
 

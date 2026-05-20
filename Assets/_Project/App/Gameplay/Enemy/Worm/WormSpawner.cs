@@ -260,12 +260,13 @@ public sealed class WormSpawner : MonoBehaviour
 
             if (CanRebalanceSection(section))
             {
+                hp = Mathf.Max(hp, GetCurrentSectionMaxHp(section));
                 section.SetHp(hp);
                 previousHp = hp;
                 continue;
             }
 
-            previousHp = Mathf.Max(previousHp, hp);
+            previousHp = Mathf.Max(previousHp, hp, GetCurrentSectionMaxHp(section));
         }
     }
 
@@ -335,6 +336,13 @@ public sealed class WormSpawner : MonoBehaviour
             && !section.IsDestroyed
             && !section.HasTakenDamage
             && !section.HasVisibleAliveSegment();
+    }
+
+    private static int GetCurrentSectionMaxHp(WormSection section)
+    {
+        return section != null
+            ? Mathf.Max(0, section.MaxHP)
+            : 0;
     }
 
     private static int EnsureHpAbovePrevious(int hp, int previousHp)

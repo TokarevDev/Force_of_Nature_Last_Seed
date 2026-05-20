@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 public sealed class RewardFlowController : IDisposable
 {
-    private const int AdRerollGuaranteedLegendarySlots = 1;
+    private const int AdRerollGuaranteedSlots = 1;
 
     private readonly RewardRollService _rollService;
     private readonly RewardApplyService _applyService;
@@ -216,9 +216,14 @@ public sealed class RewardFlowController : IDisposable
 
         _adRerollAttemptsLeft--;
 
+        RewardRarity adGuaranteeRarity = RewardAdRerollPolicy.RollGuaranteedRarity(
+            _applyService?.RuntimeContext,
+            _currentCocoonProfile,
+            _currentRollContext);
+
         if (!RollCurrentChoices(
-                RewardRarity.Legendary,
-                AdRerollGuaranteedLegendarySlots))
+                adGuaranteeRarity,
+                AdRerollGuaranteedSlots))
         {
             _popup?.SetAllButtonsInteractable(true);
             return;
@@ -326,6 +331,7 @@ public sealed class RewardFlowController : IDisposable
                 _adRerollAttemptsLeft,
                 _takeAllAttemptsLeft,
                 _currentGuaranteeRarity,
+                RewardAdRerollPolicy.GetDisplayedGuaranteeRarity(_currentCocoonProfile),
                 _freeRerollAttemptsLeft > 0 && !_isRewardedAdPending,
                 _freeRerollAttemptsLeft <= 0
                     && _adRerollAttemptsLeft > 0

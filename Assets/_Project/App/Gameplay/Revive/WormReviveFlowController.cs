@@ -1,9 +1,11 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [DisallowMultipleComponent]
 public sealed class WormReviveFlowController : MonoBehaviour
 {
     public static event System.Action ReviveGranted;
+    public static event System.Action ReviveRollbackCompleted;
 
     [SerializeField] private WormController _wormController;
     [SerializeField] private WormCombatController _wormCombat;
@@ -17,12 +19,16 @@ public sealed class WormReviveFlowController : MonoBehaviour
     [SerializeField, Min(0)] private int _maxReviveAttempts = 1;
     [SerializeField, Range(0f, 1f)] private float _fallbackRemainingLevelNormalized = 0.5f;
     [SerializeField] private bool _reloadCurrentSceneOnGiveUp = true;
-    [SerializeField, Min(0f)] private float _giveUpRestartAnimationDuration = 0.55f;
-    [SerializeField, Range(0.5f, 1f)] private float _giveUpRestartTargetScale = 0.92f;
+    [FormerlySerializedAs("_giveUpRestartAnimationDuration")]
+    [SerializeField, Min(0f)] private float _popupCloseAnimationDuration = 0.55f;
+    [FormerlySerializedAs("_giveUpRestartTargetScale")]
+    [SerializeField, Range(0.5f, 1f)] private float _popupCloseAnimationTargetScale = 0.92f;
 
     private int _remainingRevives;
     private bool _isFailState;
     private bool _isReviving;
+    private bool _isRevivePopupClosePending;
+    private bool _isReviveRollbackPending;
 
 #if UNITY_EDITOR
     public int EditorMaxReviveAttempts => _maxReviveAttempts;
@@ -57,6 +63,8 @@ public sealed class WormReviveFlowController : MonoBehaviour
         }
 
         _popupRoot?.ReleaseGameplayLock();
+        _isRevivePopupClosePending = false;
+        _isReviveRollbackPending = false;
     }
 
     private void HandlePathCompleted()
@@ -124,7 +132,16 @@ public sealed class WormReviveFlowController : MonoBehaviour
         }
 
         ReviveGranted?.Invoke();
+        StartReviveRollbackWithPopupClose();
+    }
+
+    private void StartReviveRollbackWithPopupClose()
+    {
+        _isRevivePopupClosePending = true;
+        _isReviveRollbackPending = true;
+
         StartReviveRollback();
+        PlayPopupCloseAnimation(CompleteRevivePopupClose);
     }
 
     private void StartReviveRollback()
@@ -132,13 +149,12 @@ public sealed class WormReviveFlowController : MonoBehaviour
         if (_wormController == null)
         {
             Debug.LogError("WormReviveFlowController: worm controller is missing.", this);
-            _popupRoot?.ReleaseGameplayLock();
+            CompleteReviveRollback();
             return;
         }
 
         _remainingRevives = Mathf.Max(0, _remainingRevives - 1);
         _isReviving = true;
-        _popupRoot?.HideActive(releaseGameplayLock: false);
 
         if (!_wormController.RollbackToReviveStart(CompleteReviveRollback))
             CompleteReviveRollback();
@@ -148,7 +164,18 @@ public sealed class WormReviveFlowController : MonoBehaviour
     {
         _isFailState = false;
         _isReviving = false;
-        _popupRoot?.ReleaseGameplayLock();
+        _isReviveRollbackPending = false;
+
+        ReviveRollbackCompleted?.Invoke();
+        ReleaseGameplayLockWhenReviveVisualsComplete();
+    }
+
+    private void CompleteRevivePopupClose()
+    {
+        _popupRoot?.HideActive(releaseGameplayLock: false);
+        _isRevivePopupClosePending = false;
+
+        ReleaseGameplayLockWhenReviveVisualsComplete();
     }
 
     private void HandleGiveUpRequested()
@@ -159,17 +186,7 @@ public sealed class WormReviveFlowController : MonoBehaviour
             return;
         }
 
-        if (_revivalPopup == null)
-        {
-            RequestRunRestart();
-            return;
-        }
-
-        _revivalPopup.SetWaitingForAd(true);
-        _revivalPopup.PlayCloseAnimation(
-            _giveUpRestartAnimationDuration,
-            _giveUpRestartTargetScale,
-            RequestRunRestart);
+        PlayPopupCloseAnimation(RequestRunRestart);
     }
 
     public void ResetForNewRun()
@@ -177,12 +194,37 @@ public sealed class WormReviveFlowController : MonoBehaviour
         _remainingRevives = _maxReviveAttempts;
         _isFailState = false;
         _isReviving = false;
+        _isRevivePopupClosePending = false;
+        _isReviveRollbackPending = false;
     }
 
     private void RequestRunRestart()
     {
         _popupRoot?.HideActive();
         GameplayRunRestartEvents.RequestRestart();
+    }
+
+    private void PlayPopupCloseAnimation(System.Action onComplete)
+    {
+        if (_revivalPopup == null)
+        {
+            onComplete?.Invoke();
+            return;
+        }
+
+        _revivalPopup.SetWaitingForAd(true);
+        _revivalPopup.PlayCloseAnimation(
+            _popupCloseAnimationDuration,
+            _popupCloseAnimationTargetScale,
+            onComplete);
+    }
+
+    private void ReleaseGameplayLockWhenReviveVisualsComplete()
+    {
+        if (_isRevivePopupClosePending || _isReviveRollbackPending)
+            return;
+
+        _popupRoot?.ReleaseGameplayLock();
     }
 
     private float GetCurrentRemainingLevelNormalized()

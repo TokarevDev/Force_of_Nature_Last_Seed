@@ -851,6 +851,7 @@ internal static class WormBalanceSimulator
         float headProgress = 0f;
         float playerX = settings.PathMetrics.GetHeadX(headProgress);
         float maxPlayerXError = 0f;
+        float pressureElapsedTime = 0f;
         float pressureSampleTimer = 0f;
         float runtimePressureMultiplier = 1f;
         bool pressureChanged = false;
@@ -908,6 +909,7 @@ internal static class WormBalanceSimulator
                     settings,
                     killTime,
                     ref time,
+                    ref pressureElapsedTime,
                     ref headProgress,
                     ref pressureSampleTimer,
                     ref runtimePressureMultiplier,
@@ -925,6 +927,7 @@ internal static class WormBalanceSimulator
                         adSession,
                         ref hasRevivedThisRun,
                         ref headProgress,
+                        ref pressureElapsedTime,
                         ref pressureSampleTimer,
                         ref runtimePressureMultiplier,
                         ref pressureChanged,
@@ -1146,7 +1149,10 @@ internal static class WormBalanceSimulator
             int hp = EnsureHpAbovePrevious(resolvedHp, previousHp);
 
             if (i >= startIndex)
+            {
+                hp = Mathf.Max(hp, sections[i].Hp);
                 sections[i].Hp = hp;
+            }
 
             previousHp = i >= startIndex
                 ? hp
@@ -1158,6 +1164,7 @@ internal static class WormBalanceSimulator
         WormBalanceSimulationSettings settings,
         float duration,
         ref float time,
+        ref float pressureElapsedTime,
         ref float headProgress,
         ref float pressureSampleTimer,
         ref float runtimePressureMultiplier,
@@ -1193,6 +1200,7 @@ internal static class WormBalanceSimulator
             }
 
             time += step;
+            pressureElapsedTime += step;
             headProgress = Mathf.Clamp01(headProgress + step / settings.PathTimeLimitSeconds);
             AlignPlayerXWithHead(settings, ref playerX, headProgress, ref maxPlayerXError);
             remaining -= step;
@@ -1208,7 +1216,7 @@ internal static class WormBalanceSimulator
             pressureSampleTimer = 0f;
             float nextPressure = CalculateRuntimePressure(
                 settings.PressureConfig,
-                time,
+                pressureElapsedTime,
                 headProgress,
                 runtimePressureMultiplier);
 
@@ -1259,6 +1267,7 @@ internal static class WormBalanceSimulator
         WormBalanceAdSessionState adSession,
         ref bool hasRevivedThisRun,
         ref float headProgress,
+        ref float pressureElapsedTime,
         ref float pressureSampleTimer,
         ref float runtimePressureMultiplier,
         ref bool pressureChanged,
@@ -1270,6 +1279,9 @@ internal static class WormBalanceSimulator
 
         hasRevivedThisRun = true;
         headProgress = settings.ReviveRollbackProgress;
+        pressureElapsedTime = settings.PressureConfig != null
+            ? settings.PressureConfig.GetElapsedTimeForExpectedProgress(headProgress)
+            : 0f;
         pressureSampleTimer = 0f;
         runtimePressureMultiplier = 1f;
         pressureChanged = true;
@@ -1324,7 +1336,10 @@ internal static class WormBalanceSimulator
                 settings,
                 mainState,
                 acaciaState,
-                RewardRarity.Legendary,
+                RewardAdRerollPolicy.RollGuaranteedRarity(
+                    rewardContext,
+                    cocoonProfile,
+                    rollContext),
                 1);
         }
 
@@ -2194,20 +2209,20 @@ internal sealed class WormBalanceSimulationReport
         builder.AppendLine(
             $"Damage model: estimated weapon DPS x hit efficiency {Settings.HitEfficiency:0.00}, rollback={(Settings.ApplySectionRollback ? "ON" : "OFF")}, runtime pressure={(Settings.UseRuntimePressure ? "ON" : "OFF")}");
         builder.AppendLine("Reward randomness: legendary cocoons roll only after 50% worm progress at fixed 3%; new weapon unlocks start after 30% worm destruction; unlocked weapon rewards are weighted toward the lower estimated DPS weapon.");
-        builder.AppendLine("Ad reward power: ad reroll guarantees 1 legendary slot; take all uses its session attempt only.");
+        builder.AppendLine("Ad reward power: ad reroll guarantees a rare-or-better slot; after 50% worm destruction this slot can upgrade to legendary. Take all uses its session attempt only.");
         builder.AppendLine($"Ad limits: free reroll={Settings.FreeRerollAttemptsPerSession}, ad reroll={Settings.AdRerollAttemptsPerSession}, take all={Settings.TakeAllAttemptsPerSession}, revive={Settings.ReviveAttemptsPerSession}, revive rollback={Settings.ReviveRollbackProgress * 100f:0.0}% path");
         builder.AppendLine("Ad buttons: availability follows session attempts only; attempts reset on run restart, not revive.");
-        builder.AppendLine("Targets: 30-40% no-ads wins, ~70% ad-assist wins, and no paywall feeling.");
+        builder.AppendLine("Targets: 45-55% no-ads wins, 70-80% ad-assist wins, and no paywall feeling.");
         builder.AppendLine(Settings.SimulatePlayerXFollow
             ? "Player X follow: ON, instant head X match"
             : "Player X follow: OFF");
         builder.AppendLine();
 
         if (Settings.IncludesScenario(WormBalanceScenario.NoAds))
-            AppendScenarioSummary(builder, WormBalanceScenario.NoAds, "No Ads baseline", 0.3f, 0.4f);
+            AppendScenarioSummary(builder, WormBalanceScenario.NoAds, "No Ads baseline", 0.45f, 0.55f);
 
         if (Settings.IncludesScenario(WormBalanceScenario.AdsAssist))
-            AppendScenarioSummary(builder, WormBalanceScenario.AdsAssist, "Ad Assist", 0.63f, 0.77f);
+            AppendScenarioSummary(builder, WormBalanceScenario.AdsAssist, "Ad Assist", 0.7f, 0.8f);
 
         return builder.ToString();
     }

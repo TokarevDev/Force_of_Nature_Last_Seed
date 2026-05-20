@@ -7,15 +7,15 @@ public sealed class WormPressureConfig : ScriptableObject
 
     [Header("Progress Target")]
     [SerializeField][Range(0f, 1f)] private float _targetHeadProgress = 0.55f;
-    [SerializeField][Min(1f)] private float _targetReachTime = 75f;
+    [SerializeField][Min(1f)] private float _targetReachTime = 145f;
     [SerializeField][Min(0f)] private float _startDelay = 1.5f;
     [SerializeField][Range(0f, 0.25f)] private float _progressDeadZone = 0.04f;
 
     [Header("Runtime Pressure")]
     [SerializeField][Min(0.1f)] private float _sampleInterval = 1f;
-    [SerializeField][Min(0f)] private float _increasePerSample = 0.04f;
+    [SerializeField][Min(0f)] private float _increasePerSample = 0.025f;
     [SerializeField][Min(0f)] private float _recoveryPerSample = 0.12f;
-    [SerializeField][Min(1f)] private float _maxMultiplier = 1.8f;
+    [SerializeField][Min(1f)] private float _maxMultiplier = 1.55f;
 
     public bool Enabled => _enabled;
     public float StartDelay => _startDelay;
@@ -31,6 +31,19 @@ public sealed class WormPressureConfig : ScriptableObject
         float normalizedTime = Mathf.Clamp01(activeTime / _targetReachTime);
 
         return _targetHeadProgress * normalizedTime;
+    }
+
+    public float GetElapsedTimeForExpectedProgress(float expectedProgress)
+    {
+        if (_targetHeadProgress <= 0f)
+            return _startDelay;
+
+        float clampedProgress = Mathf.Clamp(
+            expectedProgress,
+            0f,
+            _targetHeadProgress);
+
+        return _startDelay + clampedProgress / _targetHeadProgress * _targetReachTime;
     }
 
     private void OnValidate()

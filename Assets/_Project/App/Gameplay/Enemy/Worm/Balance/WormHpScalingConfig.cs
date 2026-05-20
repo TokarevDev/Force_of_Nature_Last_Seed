@@ -8,13 +8,13 @@ public sealed class WormHpScalingConfig : ScriptableObject
     [Header("Independent HP")]
     [SerializeField][Min(1)] private int _baseSectionHp = 8;
     [SerializeField][Min(0.1f)] private float _baseHpStartMultiplier = 1f;
-    [SerializeField][Min(0.1f)] private float _baseHpEndMultiplier = 1.6f;
+    [SerializeField][Min(0.1f)] private float _baseHpEndMultiplier = 2.1f;
 
     [Header("Adaptive HP")]
-    [SerializeField][Min(0.1f)] private float _targetSectionLifetime = 5.5f;
+    [SerializeField][Min(0.1f)] private float _targetSectionLifetime = 8f;
     [SerializeField] private bool _useTargetLifetimeCurve = true;
     [SerializeField] private AnimationCurve _targetSectionLifetimeByProgress = CreateDefaultTargetLifetimeCurve();
-    [SerializeField][Range(0f, 1f)] private float _dynamicHpWeight = 0.55f;
+    [SerializeField][Range(0f, 1f)] private float _dynamicHpWeight = 0.85f;
     [SerializeField][Min(1f)] private float _maxDynamicHpMultiplier = 900f;
     [SerializeField] private bool _useBaseHpAsFloor = true;
 
@@ -22,20 +22,20 @@ public sealed class WormHpScalingConfig : ScriptableObject
     [SerializeField][Min(1f)] private float _levelMultiplier = 1.12f;
 
     [Header("Global")]
-    [SerializeField][Min(0.1f)] private float _hpMultiplier = 2f;
+    [SerializeField][Min(0.1f)] private float _hpMultiplier = 1.43f;
 
     [Header("Pressure")]
     [SerializeField][Min(0.1f)] private float _startPressureMultiplier = 1f;
-    [SerializeField][Min(0.1f)] private float _endPressureMultiplier = 2.6f;
+    [SerializeField][Min(0.1f)] private float _endPressureMultiplier = 1.2f;
     [SerializeField] private bool _usePressureCurve = true;
     [SerializeField] private AnimationCurve _pressureByProgress = CreateDefaultPressureCurve();
 
     [Header("Head Path Pressure")]
     [SerializeField] private bool _useHeadPathPressure = true;
-    [SerializeField][Range(0f, 1f)] private float _strongHeadPressureUntilProgress = 0.3f;
-    [SerializeField][Range(0f, 1f)] private float _minimumHeadPressureFromProgress = 0.85f;
+    [SerializeField][Range(0f, 1f)] private float _strongHeadPressureUntilProgress = 0.5f;
+    [SerializeField][Range(0f, 1f)] private float _minimumHeadPressureFromProgress = 0.75f;
     [SerializeField][Min(0.1f)] private float _earlyHeadPressureMultiplier = 1f;
-    [SerializeField][Min(0.1f)] private float _lateHeadPressureMultiplier = 1.15f;
+    [SerializeField][Min(0.1f)] private float _lateHeadPressureMultiplier = 1.1f;
 
     [Header("Limits")]
     [SerializeField][Min(1)] private int _minHp = 3;
@@ -176,12 +176,12 @@ public sealed class WormHpScalingConfig : ScriptableObject
     {
         return new AnimationCurve(
             new Keyframe(0f, 0.9f),
-            new Keyframe(0.08f, 1.1f),
-            new Keyframe(0.18f, 2.1f),
-            new Keyframe(0.32f, 2.9f),
-            new Keyframe(0.55f, 3.8f),
-            new Keyframe(0.78f, 8f),
-            new Keyframe(1f, 30f));
+            new Keyframe(0.08f, 1.05f),
+            new Keyframe(0.18f, 1.8f),
+            new Keyframe(0.32f, 2.6f),
+            new Keyframe(0.5f, 3.2f),
+            new Keyframe(0.72f, 3.6f),
+            new Keyframe(1f, 4.2f));
     }
 
     private static AnimationCurve CreateDefaultPressureCurve()
@@ -189,10 +189,11 @@ public sealed class WormHpScalingConfig : ScriptableObject
         return new AnimationCurve(
             new Keyframe(0f, 0.35f),
             new Keyframe(0.12f, 0.5f),
-            new Keyframe(0.25f, 1f),
+            new Keyframe(0.25f, 0.9f),
             new Keyframe(0.45f, 1.05f),
-            new Keyframe(0.72f, 1.6f),
-            new Keyframe(1f, 7f));
+            new Keyframe(0.58f, 1.12f),
+            new Keyframe(0.78f, 1.16f),
+            new Keyframe(1f, 1.2f));
     }
 
     private static float GetSectionProgress(int sectionIndex, int totalSections)

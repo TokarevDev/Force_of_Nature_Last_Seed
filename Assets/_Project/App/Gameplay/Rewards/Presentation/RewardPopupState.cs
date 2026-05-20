@@ -5,6 +5,7 @@ public readonly struct RewardPopupState
         int adRerollAttemptsLeft,
         int takeAllAttemptsLeft,
         RewardRarity guaranteeRarity,
+        RewardRarity adRerollGuaranteeRarity,
         bool canFreeReroll,
         bool canAdReroll,
         bool canTakeAll)
@@ -13,6 +14,7 @@ public readonly struct RewardPopupState
         AdRerollAttemptsLeft = adRerollAttemptsLeft;
         TakeAllAttemptsLeft = takeAllAttemptsLeft;
         GuaranteeRarity = guaranteeRarity;
+        AdRerollGuaranteeRarity = adRerollGuaranteeRarity;
         CanFreeReroll = canFreeReroll;
         CanAdReroll = canAdReroll;
         CanTakeAll = canTakeAll;
@@ -22,6 +24,7 @@ public readonly struct RewardPopupState
     public int AdRerollAttemptsLeft { get; }
     public int TakeAllAttemptsLeft { get; }
     public RewardRarity GuaranteeRarity { get; }
+    public RewardRarity AdRerollGuaranteeRarity { get; }
     public bool CanFreeReroll { get; }
     public bool CanAdReroll { get; }
     public bool CanTakeAll { get; }

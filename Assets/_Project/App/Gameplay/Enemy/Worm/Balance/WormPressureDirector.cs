@@ -21,12 +21,14 @@ public sealed class WormPressureDirector : MonoBehaviour
     {
         CombatState.OnShootStateChanged += HandleShootStateChanged;
         WormCombatController.OnWormDied += HandleWormDied;
+        WormReviveFlowController.ReviveRollbackCompleted += HandleReviveRollbackCompleted;
     }
 
     private void OnDisable()
     {
         CombatState.OnShootStateChanged -= HandleShootStateChanged;
         WormCombatController.OnWormDied -= HandleWormDied;
+        WormReviveFlowController.ReviveRollbackCompleted -= HandleReviveRollbackCompleted;
     }
 
     private void Update()
@@ -66,6 +68,18 @@ public sealed class WormPressureDirector : MonoBehaviour
     private void HandleWormDied()
     {
         StopTracking(resetPressure: true);
+    }
+
+    private void HandleReviveRollbackCompleted()
+    {
+        if (_config == null || !_config.Enabled)
+            return;
+
+        _sampleTimer = 0f;
+        _elapsedTime = _wormController != null && _wormController.HasWorm
+            ? _config.GetElapsedTimeForExpectedProgress(_wormController.HeadPathProgressNormalized)
+            : 0f;
+        SetPressureMultiplier(1f);
     }
 
     public void ResetForNewRun()
