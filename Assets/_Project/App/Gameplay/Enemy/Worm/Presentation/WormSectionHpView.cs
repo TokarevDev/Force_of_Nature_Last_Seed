@@ -14,9 +14,13 @@ public sealed class WormSectionHpView : MonoBehaviour
 
     private void Awake()
     {
-        var meshRenderer = _text.GetComponent<MeshRenderer>();
+        if (_text == null)
+        {
+            Debug.LogError("WormSectionHpView: TMP_Text is not assigned.", this);
+            return;
+        }
 
-        if (meshRenderer == null)
+        if (!_text.TryGetComponent(out MeshRenderer meshRenderer))
         {
             Debug.LogError("MeshRenderer not found on TMP_Text", this);
             return;
